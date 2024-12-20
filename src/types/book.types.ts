@@ -13,7 +13,7 @@ export interface Book {
   courseName: string,
   trainingProvider: string;
   utils: {
-    [key: string]: any;
+    [key: string]: string;
   }
   pointsConfig: {
     [key: string]: number;

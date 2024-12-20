@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@src/components/DashboardLayout";
-import { Book, Chapter, SubChapter, SubSubChapter, Page, ContentItem, Text, Heading, Space, Quiz, horizontalLine, BookImage } from "@src/types/book.types";
+import { Book, SubChapter, SubSubChapter, Page, ContentItem, Text, Heading, Space, Quiz, horizontalLine, BookImage } from "@src/types/book.types";
 
 const Editor = () => {
   const [book, setBook] = useState<Book | null>(null);
@@ -32,6 +32,7 @@ const Editor = () => {
         const json = JSON.parse(e.target?.result as string);
         setBook(json);
       } catch (error) {
+        console.log(JSON.stringify(error))
         alert("Invalid JSON file. Please upload a valid book JSON.");
       }
     };
