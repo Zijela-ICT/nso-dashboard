@@ -65,7 +65,7 @@ export type ContentItem =
   | WithBase<Space>
   | WithBase<Heading>
   | WithBase<Text>
-  | WithBase<Image>
+  | WithBase<BookImage>
   | WithBase<UnorderedList>
   | WithBase<OrderedList>
   | WithBase<Video>
@@ -122,7 +122,7 @@ export interface Text {
   style?: object;
 }
 
-export interface Image {
+export interface BookImage {
   type: 'image';
   src: string;
   alt: string;

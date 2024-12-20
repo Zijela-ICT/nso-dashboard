@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@src/components/DashboardLayout";
-import { Book, Chapter, SubChapter, SubSubChapter, Page, ContentItem, Text, Heading, Space } from "@src/types/book.types";
+import { Book, Chapter, SubChapter, SubSubChapter, Page, ContentItem, Text, Heading, Space, Quiz, horizontalLine, BookImage } from "@src/types/book.types";
 
 const Editor = () => {
   const [book, setBook] = useState<Book | null>(null);
@@ -96,8 +96,9 @@ const Editor = () => {
     setBook({ ...book, content: updatedChapters } as Book);
   };
 
-  const addContentItem = (target: Page, type: string) => {
+  const addContentItem = (target: Page, type: ContentItem["type"]) => {
     let newItem: ContentItem;
+  
     switch (type) {
       case "text":
         newItem = { type: "text", content: "New Text Content" } as Text;
@@ -110,15 +111,30 @@ const Editor = () => {
       case "space":
         newItem = { type: "space" } as Space;
         break;
+      case "image":
+        newItem = { type: "image", src: "placeholder.png", alt: "Placeholder Image" } as BookImage;
+        break;
+      case "horizontalLine":
+        newItem = { type: "horizontalLine", style: {} } as horizontalLine;
+        break;
+      case "quiz":
+        newItem = {
+          type: "quiz",
+          title: "New Quiz",
+          sectionId: "section-1",
+          duration: 5,
+          retries: 3,
+          questions: [{ question: "Sample Question?", options: ["A", "B", "C"], correctAnswer: "A" }],
+        } as Quiz;
+        break;
       default:
-        throw new Error("Unsupported content type.");
+        throw new Error(`Unsupported content type: ${type}`);
     }
-
+  
     target.items = [...(target.items || []), newItem];
-    setBook({
-      ...book,
-    } as Book);
+    setBook({ ...book } as Book);
   };
+  
 
   const removeContentItem = (page: Page, itemIndex: number) => {
     page.items.splice(itemIndex, 1);
@@ -159,7 +175,7 @@ const Editor = () => {
               Text Content:
               <input
                 type="text"
-                value={item.content}
+                value={(item as Text).content}
                 onChange={(e) => onUpdate({ content: e.target.value })}
               />
             </label>
@@ -175,17 +191,41 @@ const Editor = () => {
               Heading Content:
               <input
                 type="text"
-                value={item.content}
+                value={(item as Heading).content}
                 onChange={(e) => onUpdate({ content: e.target.value })}
               />
             </label>
             <button onClick={onRemove}>Remove</button>
           </div>
         );
+      case "space":
+        return <div style={{ height: "20px", backgroundColor: "#f0f0f0", margin: "5px 0" }}>Space</div>;
+      case "image":
+        return (
+          <div>
+            <label>
+              Image Source:
+              <input
+                type="text"
+                value={(item as BookImage).src}
+                onChange={(e) => onUpdate({ src: e.target.value })}
+              />
+            </label>
+            <button onClick={onRemove}>Remove</button>
+          </div>
+        );
+      case "quiz":
+        return (
+          <div>
+            <p>Quiz: {(item as Quiz).title}</p>
+            <button onClick={onRemove}>Remove</button>
+          </div>
+        );
       default:
-        return null;
+        return <p>Unsupported Content Item</p>;
     }
   };
+  
 
   const renderPreview = () => {
     if (!book) return <p>No book data to preview.</p>;
@@ -271,9 +311,14 @@ const Editor = () => {
                 <option value="heading2">Heading 2</option>
                 <option value="heading3">Heading 3</option>
                 <option value="space">Space</option>
+                <option value="image">Image</option>
+                <option value="horizontalLine">Horizontal Line</option>
+                <option value="quiz">Quiz</option>
               </select>
             </label>
-            <button onClick={() => addContentItem(page, selectedType)}>Add Content Item</button>
+            <button onClick={() => addContentItem(page, selectedType as ContentItem["type"])}>
+              Add Content Item
+            </button>
             <button onClick={() => removePage(pages, pageIndex)}>Remove Page</button>
             <div style={{ marginLeft: "20px" }}>
               {page.items.map((item, itemIndex) => (
@@ -295,6 +340,7 @@ const Editor = () => {
       </div>
     );
   };
+  
 
   return (
     <DashboardLayout>
