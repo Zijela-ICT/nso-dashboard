@@ -189,60 +189,33 @@ const Editor = () => {
 
   const renderPreview = () => {
     if (!book) return <p>No book data to preview.</p>;
-  
-    const renderContentItems = (items: ContentItem[]) => {
-      return items.map((item, itemIndex) => (
-        <div key={itemIndex}>
-          {item.type === "text" && <p>{(item as Text).content}</p>}
-          {item.type.startsWith("heading") && <h6>{(item as Heading).content}</h6>}
-          {item.type === "space" && <div style={{ height: "20px" }} />}
-        </div>
-      ));
-    };
-  
-    const renderPages = (pages: Page[]) => {
-      return pages.map((page, pageIndex) => (
-        <div key={pageIndex} style={{ marginLeft: "20px", marginTop: "10px" }}>
-          <h5>{page.pageTitle || `Page ${pageIndex + 1}`}</h5>
-          {renderContentItems(page.items)}
-        </div>
-      ));
-    };
-  
-    const renderSubSubChapters = (subSubChapters: SubSubChapter[]) => {
-      return subSubChapters.map((subSubChapter, subSubChapterIndex) => (
-        <div key={subSubChapterIndex} style={{ marginLeft: "40px", marginTop: "10px" }}>
-          <h4>{subSubChapter.subSubChapterTitle || `SubSubChapter ${subSubChapterIndex + 1}`}</h4>
-          {renderPages(subSubChapter.pages || [])}
-        </div>
-      ));
-    };
-  
-    const renderSubChapters = (subChapters: SubChapter[]) => {
-      return subChapters.map((subChapter, subChapterIndex) => (
-        <div key={subChapterIndex} style={{ marginLeft: "30px", marginTop: "10px" }}>
-          <h3>{subChapter.subChapterTitle || `SubChapter ${subChapterIndex + 1}`}</h3>
-          {renderSubSubChapters(subChapter.subSubChapters || [])}
-          {renderPages(subChapter.pages || [])}
-        </div>
-      ));
-    };
-  
+
     return (
       <div style={{ border: "1px solid #ccc", padding: "10px", marginTop: "20px" }}>
         <h2>Preview</h2>
         <h3>{book.bookTitle || "Untitled Book"}</h3>
         {book.content.map((chapter, chapterIndex) => (
-          <div key={chapterIndex} style={{ marginBottom: "20px" }}>
-            <h2>{chapter.chapter || `Chapter ${chapterIndex + 1}`}</h2>
-            {renderSubChapters(chapter.subChapters || [])}
-            {renderPages(chapter.pages || [])}
+          <div key={chapterIndex}>
+            <h4>{chapter.chapter || `Chapter ${chapterIndex + 1}`}</h4>
+            {chapter.pages?.map((page, pageIndex) => (
+              <div key={pageIndex} style={{ marginLeft: "20px" }}>
+                <h5>{page.pageTitle || `Page ${pageIndex + 1}`}</h5>
+                {page.items.map((item, itemIndex) => (
+                  <div key={itemIndex}>
+                    {item.type === "text" && <p>{(item as Text).content}</p>}
+                    {item.type.startsWith("heading") && (
+                      <h6>{(item as Heading).content}</h6>
+                    )}
+                    {item.type === "space" && <div style={{ height: "20px" }} />}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         ))}
       </div>
     );
   };
-  
 
   const renderPages = (pages: Page[], onAddPage: () => void) => {
     return (
