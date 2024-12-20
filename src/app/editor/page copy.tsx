@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@src/components/DashboardLayout";
-import { Book, Chapter, Page, ContentItem, Text, Heading, WithBase, Space } from "@src/types/book.types";
+import { Book, Chapter, SubChapter, SubSubChapter, Page, ContentItem, Text, Heading, Space } from "@src/types/book.types";
 
 const Editor = () => {
   const [book, setBook] = useState<Book | null>(null);
@@ -55,110 +55,101 @@ const Editor = () => {
   const addChapter = () => {
     setBook({
       ...book,
-      content: [...(book?.content || []), { chapter: "New Chapter", pages: [] }],
+      content: [...(book?.content || []), { chapter: "New Chapter", pages: [], subChapters: [] }],
     } as Book);
   };
 
-  const addPage = (chapterIndex: number) => {
+  const addSubChapter = (chapterIndex: number) => {
     const updatedChapters = [...(book?.content || [])];
-    updatedChapters[chapterIndex].pages = [
-      ...(updatedChapters[chapterIndex].pages || []),
-      { pageTitle: "New Page", items: [] },
+    updatedChapters[chapterIndex].subChapters = [
+      ...(updatedChapters[chapterIndex].subChapters || []),
+      { subChapterTitle: "New SubChapter", pages: [], subSubChapters: [] },
     ];
     setBook({ ...book, content: updatedChapters } as Book);
   };
 
-  const addContentItem = (chapterIndex: number, pageIndex: number) => {
+  const addSubSubChapter = (chapterIndex: number, subChapterIndex: number) => {
     const updatedChapters = [...(book?.content || [])];
-    const pages = updatedChapters[chapterIndex].pages || [];
+    const subChapters = updatedChapters[chapterIndex].subChapters || [];
+    subChapters[subChapterIndex].subSubChapters = [
+      ...(subChapters[subChapterIndex].subSubChapters || []),
+      { subSubChapterTitle: "New SubSubChapter", pages: [] },
+    ];
+    updatedChapters[chapterIndex].subChapters = subChapters;
+    setBook({ ...book, content: updatedChapters } as Book);
+  };
 
+  const addPageToSubSubChapter = (
+    chapterIndex: number,
+    subChapterIndex: number,
+    subSubChapterIndex: number
+  ) => {
+    const updatedChapters = [...(book?.content || [])];
+    const subChapters = updatedChapters[chapterIndex].subChapters || [];
+    const subSubChapters = subChapters[subChapterIndex].subSubChapters || [];
+    subSubChapters[subSubChapterIndex].pages = [
+      ...(subSubChapters[subSubChapterIndex].pages || []),
+      { pageTitle: "New Page", items: [] },
+    ];
+    subChapters[subChapterIndex].subSubChapters = subSubChapters;
+    updatedChapters[chapterIndex].subChapters = subChapters;
+    setBook({ ...book, content: updatedChapters } as Book);
+  };
+
+  const addContentItem = (target: Page, type: string) => {
     let newItem: ContentItem;
-    switch (selectedType) {
+    switch (type) {
       case "text":
-        newItem = { type: "text", content: "New Text Content" } as WithBase<Text>;
+        newItem = { type: "text", content: "New Text Content" } as Text;
         break;
       case "heading1":
       case "heading2":
       case "heading3":
-        newItem = { type: selectedType, content: "New Heading" } as WithBase<Heading>;
+        newItem = { type, content: "New Heading" } as Heading;
         break;
       case "space":
-        newItem = { type: "space" } as WithBase<Space>;
+        newItem = { type: "space" } as Space;
         break;
-      // Add other cases for additional types (unorderedList, orderedList, etc.)
       default:
         throw new Error("Unsupported content type.");
     }
 
-    pages[pageIndex].items = [...(pages[pageIndex].items || []), newItem];
-    updatedChapters[chapterIndex].pages = pages;
-    setBook({ ...book, content: updatedChapters } as Book);
+    target.items = [...(target.items || []), newItem];
+    setBook({
+      ...book,
+    } as Book);
   };
 
-  const renderPreview = () => {
-    if (!book) return null;
-  
-    return (
-      <div style={{ marginTop: "20px", padding: "10px", border: "1px solid #ccc" }}>
-        <h2>Preview</h2>
-        <h3>{book.bookTitle}</h3>
-        {book.content.map((chapter, chapterIndex) => (
-          <div key={chapterIndex} style={{ marginTop: "10px" }}>
-            <h4>{chapter.chapter}</h4>
-            {chapter.pages?.map((page, pageIndex) => (
-              <div key={pageIndex}>
-                <h5>{page.pageTitle}</h5>
-                {page.items.map((item, itemIndex) => (
-                  <div key={itemIndex} style={{ marginBottom: "10px" }}>
-                    {renderEditableContentItem(item, chapterIndex, pageIndex, itemIndex)}
-                    <button
-                      onClick={() =>
-                        updateContentItem(chapterIndex, pageIndex, itemIndex, {
-                          onlyBook: !item.onlyBook,
-                        })
-                      }
-                    >
-                      Toggle OnlyBook
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    );
+  const removeContentItem = (page: Page, itemIndex: number) => {
+    page.items.splice(itemIndex, 1);
+    setBook({ ...book } as Book);
   };
-  
 
-  const updateContentItem = (
-    chapterIndex: number,
-    pageIndex: number,
-    itemIndex: number,
-    newValue: Partial<ContentItem>
-  ) => {
+  const removePage = (pages: Page[], pageIndex: number) => {
+    pages.splice(pageIndex, 1);
+    setBook({ ...book } as Book);
+  };
+
+  const removeSubSubChapter = (subSubChapters: SubSubChapter[], index: number) => {
+    subSubChapters.splice(index, 1);
+    setBook({ ...book } as Book);
+  };
+
+  const removeSubChapter = (subChapters: SubChapter[], index: number) => {
+    subChapters.splice(index, 1);
+    setBook({ ...book } as Book);
+  };
+
+  const removeChapter = (index: number) => {
     const updatedChapters = [...(book?.content || [])];
-    const pages = updatedChapters[chapterIndex].pages || [];
-    const currentItem = pages[pageIndex].items[itemIndex];
-  
-    // Ensure type consistency
-    if (newValue.type && newValue.type !== currentItem.type) {
-      throw new Error("Type mismatch: Cannot change the type of a ContentItem.");
-    }
-  
-    pages[pageIndex].items[itemIndex] = {
-      ...currentItem,
-      ...newValue,
-    };
-    updatedChapters[chapterIndex].pages = pages;
+    updatedChapters.splice(index, 1);
     setBook({ ...book, content: updatedChapters } as Book);
   };
-  
+
   const renderEditableContentItem = (
     item: ContentItem,
-    chapterIndex: number,
-    pageIndex: number,
-    itemIndex: number
+    onUpdate: (newValue: Partial<ContentItem>) => void,
+    onRemove: () => void
   ) => {
     switch (item.type) {
       case "text":
@@ -168,14 +159,11 @@ const Editor = () => {
               Text Content:
               <input
                 type="text"
-                value={(item as WithBase<Text>).content}
-                onChange={(e) =>
-                  updateContentItem(chapterIndex, pageIndex, itemIndex, {
-                    content: e.target.value,
-                  })
-                }
+                value={item.content}
+                onChange={(e) => onUpdate({ content: e.target.value })}
               />
             </label>
+            <button onClick={onRemove}>Remove</button>
           </div>
         );
       case "heading1":
@@ -187,31 +175,132 @@ const Editor = () => {
               Heading Content:
               <input
                 type="text"
-                value={(item as WithBase<Heading>).content}
-                onChange={(e) =>
-                  updateContentItem(chapterIndex, pageIndex, itemIndex, {
-                    content: e.target.value,
-                  })
-                }
+                value={item.content}
+                onChange={(e) => onUpdate({ content: e.target.value })}
               />
             </label>
+            <button onClick={onRemove}>Remove</button>
           </div>
         );
-      case "space":
-        return <p>Space (Cannot edit)</p>;
-      // Add cases for other content types as needed
       default:
-        return <p>Unsupported Content Type</p>;
+        return null;
     }
   };
-  
+
+  const renderPreview = () => {
+    if (!book) return <p>No book data to preview.</p>;
+
+    const renderContentItems = (items: ContentItem[]) => {
+      return items.map((item, itemIndex) => (
+        <div key={itemIndex}>
+          {item.type === "text" && <p>{(item as Text).content}</p>}
+          {item.type.startsWith("heading") && <h6>{(item as Heading).content}</h6>}
+          {item.type === "space" && <div style={{ height: "20px" }} />}
+        </div>
+      ));
+    };
+
+    const renderPages = (pages: Page[]) => {
+      return pages.map((page, pageIndex) => (
+        <div key={pageIndex} style={{ marginLeft: "20px", marginTop: "10px" }}>
+          <h5>{page.pageTitle || `Page ${pageIndex + 1}`}</h5>
+          {renderContentItems(page.items)}
+        </div>
+      ));
+    };
+
+    const renderSubSubChapters = (subSubChapters: SubSubChapter[]) => {
+      return subSubChapters.map((subSubChapter, subSubChapterIndex) => (
+        <div key={subSubChapterIndex} style={{ marginLeft: "40px", marginTop: "10px" }}>
+          <h4>{subSubChapter.subSubChapterTitle || `SubSubChapter ${subSubChapterIndex + 1}`}</h4>
+          {renderPages(subSubChapter.pages || [])}
+        </div>
+      ));
+    };
+
+    const renderSubChapters = (subChapters: SubChapter[]) => {
+      return subChapters.map((subChapter, subChapterIndex) => (
+        <div key={subChapterIndex} style={{ marginLeft: "30px", marginTop: "10px" }}>
+          <h3>{subChapter.subChapterTitle || `SubChapter ${subChapterIndex + 1}`}</h3>
+          {renderSubSubChapters(subChapter.subSubChapters || [])}
+          {renderPages(subChapter.pages || [])}
+        </div>
+      ));
+    };
+
+    return (
+      <div style={{ border: "1px solid #ccc", padding: "10px", marginTop: "20px" }}>
+        <h2>Preview</h2>
+        <h3>{book.bookTitle || "Untitled Book"}</h3>
+        {book.content.map((chapter, chapterIndex) => (
+          <div key={chapterIndex} style={{ marginBottom: "20px" }}>
+            <h2>{chapter.chapter || `Chapter ${chapterIndex + 1}`}</h2>
+            {renderSubChapters(chapter.subChapters || [])}
+            {renderPages(chapter.pages || [])}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+
+  const renderPages = (pages: Page[], onAddPage: () => void) => {
+    return (
+      <div>
+        {pages.map((page, pageIndex) => (
+          <div key={pageIndex} style={{ marginLeft: "40px", marginTop: "10px" }}>
+            <label>
+              Page Title:
+              <input
+                type="text"
+                value={page.pageTitle}
+                onChange={(e) => {
+                  page.pageTitle = e.target.value;
+                  setBook({ ...book } as Book);
+                }}
+              />
+            </label>
+            <label>
+              Content Type:
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+              >
+                <option value="text">Text</option>
+                <option value="heading1">Heading 1</option>
+                <option value="heading2">Heading 2</option>
+                <option value="heading3">Heading 3</option>
+                <option value="space">Space</option>
+              </select>
+            </label>
+            <button onClick={() => addContentItem(page, selectedType)}>Add Content Item</button>
+            <button onClick={() => removePage(pages, pageIndex)}>Remove Page</button>
+            <div style={{ marginLeft: "20px" }}>
+              {page.items.map((item, itemIndex) => (
+                <div key={itemIndex}>
+                  {renderEditableContentItem(
+                    item,
+                    (newValue) => {
+                      page.items[itemIndex] = { ...item, ...newValue };
+                      setBook({ ...book } as Book);
+                    },
+                    () => removeContentItem(page, itemIndex)
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        <button onClick={onAddPage}>Add Page</button>
+      </div>
+    );
+  };
 
   return (
     <DashboardLayout>
-      <h1>eBook Editor</h1>
+      <h1>Book Editor</h1>
       {!book ? (
         <div>
-          <h2>Create or Upload a Book</h2>
           <input type="file" accept="application/json" onChange={handleFileUpload} />
           <button
             onClick={() =>
@@ -246,53 +335,137 @@ const Editor = () => {
           >
             Start from Scratch
           </button>
-
         </div>
       ) : (
         <div>
           <div>
-            <label>
-              Book Title:
-              <input
-                type="text"
-                value={book.bookTitle}
-                onChange={(e) => setBook({ ...book, bookTitle: e.target.value })}
-              />
-            </label>
+            <input type="file" accept="application/json" onChange={handleFileUpload} />
+            <p>Upload Json file</p>
           </div>
+          <label>
+            Book Title:
+            <input
+              type="text"
+              value={book.bookTitle}
+              onChange={(e) => setBook({ ...book, bookTitle: e.target.value })}
+            />
+          </label>
           <button onClick={addChapter}>Add Chapter</button>
+          <button onClick={handleDownload}>Download JSON</button>
+
           {book.content.map((chapter, chapterIndex) => (
-            <div key={chapterIndex} style={{ marginTop: "20px" }}>
-              <h3>{chapter.chapter}</h3>
-              <button onClick={() => addPage(chapterIndex)}>Add Page</button>
-              {chapter.pages?.map((page, pageIndex) => (
-                <div key={pageIndex} style={{ marginTop: "10px" }}>
-                  <h4>{page.pageTitle}</h4>
+            <div key={chapterIndex}>
+              <label>
+                Chapter Title:
+                <input
+                  type="text"
+                  value={chapter.chapter}
+                  onChange={(e) => {
+                    const updatedChapters = [...book.content];
+                    updatedChapters[chapterIndex].chapter = e.target.value;
+                    setBook({ ...book, content: updatedChapters } as Book);
+                  }}
+                />
+              </label>
+              <button onClick={() => addSubChapter(chapterIndex)}>Add SubChapter</button>
+              <button onClick={() => removeChapter(chapterIndex)}>Remove Chapter</button>
+
+              {chapter.subChapters?.map((subChapter, subChapterIndex) => (
+                <div key={subChapterIndex} style={{ marginLeft: "20px" }}>
                   <label>
-                    Content Type:
-                    <select
-                      value={selectedType}
-                      onChange={(e) => setSelectedType(e.target.value)}
-                    >
-                      <option value="text">Text</option>
-                      <option value="heading1">Heading 1</option>
-                      <option value="heading2">Heading 2</option>
-                      <option value="heading3">Heading 3</option>
-                      <option value="space">Space</option>
-                      {/* Add options for other content types */}
-                    </select>
+                    SubChapter Title:
+                    <input
+                      type="text"
+                      value={subChapter.subChapterTitle}
+                      onChange={(e) => {
+                        const updatedChapters = [...book.content];
+                        updatedChapters[chapterIndex].subChapters![
+                          subChapterIndex
+                        ].subChapterTitle = e.target.value;
+                        setBook({ ...book, content: updatedChapters } as Book);
+                      }}
+                    />
                   </label>
-                  <button onClick={() => addContentItem(chapterIndex, pageIndex)}>
-                    Add Content Item
+                  <button onClick={() => addSubSubChapter(chapterIndex, subChapterIndex)}>
+                    Add SubSubChapter
                   </button>
+                  <button
+                    onClick={() => removeSubChapter(chapter.subChapters!, subChapterIndex)}
+                  >
+                    Remove SubChapter
+                  </button>
+
+                  {subChapter.subSubChapters?.map((subSubChapter, subSubChapterIndex) => (
+                    <div key={subSubChapterIndex} style={{ marginLeft: "40px" }}>
+                      <label>
+                        SubSubChapter Title:
+                        <input
+                          type="text"
+                          value={subSubChapter.subSubChapterTitle}
+                          onChange={(e) => {
+                            const updatedChapters = [...book.content];
+                            updatedChapters[chapterIndex].subChapters![
+                              subChapterIndex
+                            ].subSubChapters![subSubChapterIndex].subSubChapterTitle =
+                              e.target.value;
+                            setBook({ ...book, content: updatedChapters } as Book);
+                          }}
+                        />
+                      </label>
+                      <button
+                        onClick={() =>
+                          addPageToSubSubChapter(
+                            chapterIndex,
+                            subChapterIndex,
+                            subSubChapterIndex
+                          )
+                        }
+                      >
+                        Add Page
+                      </button>
+                      <button
+                        onClick={() =>
+                          removeSubSubChapter(
+                            subChapter.subSubChapters!,
+                            subSubChapterIndex
+                          )
+                        }
+                      >
+                        Remove SubSubChapter
+                      </button>
+
+                      {renderPages(
+                        subSubChapter.pages || [],
+                        () =>
+                          addPageToSubSubChapter(
+                            chapterIndex,
+                            subChapterIndex,
+                            subSubChapterIndex
+                          )
+                      )}
+                    </div>
+                  ))}
                 </div>
               ))}
+
+              {renderPages(
+                chapter.pages || [],
+                () => {
+                  const updatedChapters = [...book.content];
+                  updatedChapters[chapterIndex].pages = [
+                    ...(updatedChapters[chapterIndex].pages || []),
+                    { pageTitle: "New Page", items: [] },
+                  ];
+                  setBook({ ...book, content: updatedChapters } as Book);
+                }
+              )}
             </div>
           ))}
-          {renderPreview()}
-          <button onClick={handleDownload}>Download Book</button>
         </div>
       )}
+      <div style={{ flex: "1", backgroundColor: "#f9f9f9", padding: "10px" }}>
+        {renderPreview()}
+      </div>
     </DashboardLayout>
   );
 };

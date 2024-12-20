@@ -189,7 +189,7 @@ const Editor = () => {
 
   const renderPreview = () => {
     if (!book) return <p>No book data to preview.</p>;
-  
+
     const renderContentItems = (items: ContentItem[]) => {
       return items.map((item, itemIndex) => (
         <div key={itemIndex}>
@@ -199,7 +199,7 @@ const Editor = () => {
         </div>
       ));
     };
-  
+
     const renderPages = (pages: Page[]) => {
       return pages.map((page, pageIndex) => (
         <div key={pageIndex} style={{ marginLeft: "20px", marginTop: "10px" }}>
@@ -208,7 +208,7 @@ const Editor = () => {
         </div>
       ));
     };
-  
+
     const renderSubSubChapters = (subSubChapters: SubSubChapter[]) => {
       return subSubChapters.map((subSubChapter, subSubChapterIndex) => (
         <div key={subSubChapterIndex} style={{ marginLeft: "40px", marginTop: "10px" }}>
@@ -217,7 +217,7 @@ const Editor = () => {
         </div>
       ));
     };
-  
+
     const renderSubChapters = (subChapters: SubChapter[]) => {
       return subChapters.map((subChapter, subChapterIndex) => (
         <div key={subChapterIndex} style={{ marginLeft: "30px", marginTop: "10px" }}>
@@ -227,7 +227,7 @@ const Editor = () => {
         </div>
       ));
     };
-  
+
     return (
       <div style={{ border: "1px solid #ccc", padding: "10px", marginTop: "20px" }}>
         <h2>Preview</h2>
@@ -242,7 +242,7 @@ const Editor = () => {
       </div>
     );
   };
-  
+
 
   const renderPages = (pages: Page[], onAddPage: () => void) => {
     return (
@@ -338,6 +338,10 @@ const Editor = () => {
         </div>
       ) : (
         <div>
+          <div>
+            <input type="file" accept="application/json" onChange={handleFileUpload} />
+            <p>Upload Json file</p>
+          </div>
           <label>
             Book Title:
             <input
