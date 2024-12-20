@@ -199,7 +199,7 @@ const Editor = () => {
           </div>
         );
       case "space":
-        return <div style={{ height: "20px", backgroundColor: "#f0f0f0", margin: "5px 0" }}>Space</div>;
+        return <div style={{ height: "20px", backgroundColor: "#f0f0f0", margin: "5px 0" }}> </div>;
       case "image":
         return (
           <div>
