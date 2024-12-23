@@ -95,7 +95,6 @@ export type ContentItem =
     findingsOnExamination: string[]; // Related findings on examination
     clinicalJudgement: string[]; // Clinical judgement for the case
     actions: string[]; // Steps or actions to take
-    healthEducation: string[];
     decisionScore: number;
     decisionDependencies: string[];
   }
