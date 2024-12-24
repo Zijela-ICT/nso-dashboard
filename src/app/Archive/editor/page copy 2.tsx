@@ -2,11 +2,21 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@src/components/DashboardLayout";
-import { Book, SubChapter, SubSubChapter, Page, ContentItem, Text, Heading, Space, Quiz, horizontalLine, BookImage, OrderedList, Decision, DecisionCase } from "@src/types/book.types";
+import { Book, SubChapter, SubSubChapter, Page, ContentItem, Text, Heading, Space, Quiz, horizontalLine, BookImage, OrderedList, Decision, DecisionCase, Table } from "@src/types/book.types";
+import InsertItemModal from "@src/app/components/InsertItemModal";
+
+const ensureDefaults = (table: Table): Table => ({
+  ...table,
+  itemsPerPage: table.itemsPerPage || 5,
+  columnCount: table.columnCount || 3,
+});
+
 
 const Editor = () => {
   const [book, setBook] = useState<Book | null>(null);
   const [selectedType, setSelectedType] = useState<string>("text");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPage, setSelectedPage] = useState<Page | null>(null);
 
   // Load and auto-save to local storage
   useEffect(() => {
@@ -108,7 +118,7 @@ const Editor = () => {
     setBook({ ...book, content: updatedChapters } as Book);
   };
 
-  const addContentItem = (target: Page, type: ContentItem["type"]) => {
+  const addContentItem = (target: Page, type: ContentItem["type"], position?: number) => {
     let newItem: ContentItem;
 
     switch (type) {
@@ -142,6 +152,17 @@ const Editor = () => {
           questions: [{ question: "Sample Question?", options: ["A", "B", "C"], correctAnswer: "A" }],
         } as Quiz;
         break;
+      case "table":
+        newItem = ensureDefaults({
+          type: "table",
+          title: "New Table",
+          headers: [[]],
+          rows: [[]],
+          showCellBorders: true,
+          tableStyle: {},
+          headless: false,
+        } as Table);
+        break;
       case "decision":
         newItem = {
           type: "decision",
@@ -166,7 +187,13 @@ const Editor = () => {
         throw new Error(`Unsupported content type: ${type}`);
     }
 
-    target.items = [...(target.items || []), newItem];
+    if (typeof position === 'number') {
+      const items = [...(target.items || [])];
+      items.splice(position, 0, newItem);
+      target.items = items;
+    } else {
+      target.items = [...(target.items || []), newItem];
+    }
     setBook({ ...book } as Book);
   };
 
@@ -659,6 +686,184 @@ const Editor = () => {
             >
               Add Case
             </button>
+            <button onClick={onRemove}>Remove Decision</button>
+          </div>
+        );
+      case "table":
+        return (
+          <div style={{ border: "1px solid #ccc", padding: "10px", borderRadius: "5px", marginBottom: "10px" }}>
+            <h4>Table: {(item as Table).title}</h4>
+            <label>
+              Title:
+              <input
+                type="text"
+                value={(item as Table).title || ""}
+                onChange={(e) => onUpdate({ title: e.target.value })}
+              />
+            </label>
+            <label>
+              Items per Page:
+              <input
+                type="number"
+                value={(item as Table).itemsPerPage || 5}
+                onChange={(e) => onUpdate({ itemsPerPage: parseInt(e.target.value, 10) || 5 })}
+                min={1}
+              />
+            </label>
+            <label>
+              Column Count:
+              <input
+                type="number"
+                value={(item as Table).columnCount || 3}
+                onChange={(e) => {
+                  const newColumnCount = Math.max(1, parseInt(e.target.value, 10) || 3);
+                  const tableItem = item as Table;
+
+                  // Resize headers to match the new column count without adding new rows
+                  const updatedHeaders = (tableItem.headers || []).map((row) =>
+                    row.length < newColumnCount
+                      ? [
+                          ...row,
+                          ...Array(newColumnCount - row.length).fill({ type: "text", content: "" }),
+                        ]
+                      : row.slice(0, newColumnCount)
+                  );
+                  
+                  const updatedRows = (tableItem.rows || []).map((row) =>
+                    row.length < newColumnCount
+                      ? [
+                          ...row,
+                          ...Array(newColumnCount - row.length).fill({ type: "text", content: "" }),
+                        ]
+                      : row.slice(0, newColumnCount)
+                  );
+                  
+                  console.log({ updatedHeaders, updatedRows });
+
+                  // Update column count, headers, and rows without adding extra rows
+                  onUpdate({
+                    columnCount: newColumnCount,
+                    headers: updatedHeaders,
+                    rows: updatedRows,
+                  });
+                }}
+                min={1}
+              />
+            </label>
+            <h5>Headers</h5>
+            <div>
+              {(item as Table).headers?.map((headerRow, rowIndex) => (
+                <div key={rowIndex} style={{ display: "flex", marginBottom: "5px" }}>
+                  {headerRow.map((cell, colIndex) => (
+                    <div key={colIndex} style={{ marginRight: "5px" }}>
+                      <input
+                        type="text"
+                        value={(cell as Text)?.content || ""}
+                        onChange={(e) => {
+                          const updatedHeaders = [...((item as Table).headers || [[]])];
+                          updatedHeaders[rowIndex][colIndex] = {
+                            ...cell,
+                            content: e.target.value,
+                          };
+                          onUpdate({ headers: updatedHeaders });
+                        }}
+                      />
+                    </div>
+                  ))}
+                  {/* <button
+                    onClick={() => {
+                      const tableItem = item as Table;
+                      const updatedRows = tableItem.rows.map(row => row.slice(0, -1));
+                      const updatedColumnCount = Math.max((tableItem.columnCount || 3) - 1, 1);
+                      onUpdate({ rows: updatedRows, columnCount: updatedColumnCount });
+                    }}
+                  >
+                    Remove Column
+                  </button> */}
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  const columnCount = (item as Table).columnCount || 3;
+                  const updatedHeaders = [...((item as Table).headers || [])];
+                  const newHeaderRow = Array.from({ length: columnCount }, () => ({
+                    type: "text",
+                    content: "",
+                  } as Text));
+                  updatedHeaders.push(newHeaderRow);
+                  onUpdate({ headers: updatedHeaders });
+                }}
+              >
+                Add Header Row
+              </button>
+
+              <button
+                onClick={() => {
+                  const updatedHeaders = [...((item as Table).headers || [])];
+                  updatedHeaders.pop(); // Remove the last header row
+                  onUpdate({ headers: updatedHeaders });
+                }}
+              >
+                Remove Header Row
+              </button>
+            </div>
+            <h5>Rows</h5>
+            <div>
+              {((item as Table).rows || []).map((row, rowIndex) => (
+                <div key={rowIndex} style={{ display: "flex", marginBottom: "5px" }}>
+                  {(row || []).map((cell, colIndex) => (
+                    <div key={colIndex} style={{ marginRight: "5px" }}>
+                      <input
+                        type="text"
+                        value={(cell as Text)?.content || ""}
+                        onChange={(e) => {
+                          const updatedRows = [...((item as Table).rows || [])];
+                          updatedRows[rowIndex][colIndex] = {
+                            ...cell,
+                            content: e.target.value,
+                          };
+                          onUpdate({ rows: updatedRows });
+                        }}
+                      />
+                    </div>
+                  ))}
+                  {/* <button
+                    onClick={() => {
+                      const updatedRows = [...((item as Table).rows || [])];
+                      updatedRows[rowIndex] = updatedRows[rowIndex].slice(0, -1);
+                      onUpdate({ rows: updatedRows });
+                    }}
+                  >
+                    Remove Column
+                  </button> */}
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  const columnCount = (item as Table).columnCount || 3;
+                  const updatedRows = [...((item as Table).rows || [])];
+                  const newRow = Array.from({ length: columnCount }, () => ({
+                    type: "text",
+                    content: "",
+                  } as Text));
+                  updatedRows.push(newRow);
+                  onUpdate({ rows: updatedRows });
+                }}
+              >
+                Add Row
+              </button>
+
+              <button
+                onClick={() => {
+                  const updatedRows = [...((item as Table).rows || [])];
+                  updatedRows.pop(); // Remove the last row
+                  onUpdate({ rows: updatedRows });
+                }}
+              >
+                Remove Row
+              </button>
+            </div>
+            <button onClick={onRemove}>Remove Table</button>
           </div>
         );
 
@@ -756,6 +961,35 @@ const Editor = () => {
               ))}
             </div>
           )}
+          {item.type === "table" && (
+            <div style={{ border: "1px solid #ccc", padding: "10px", borderRadius: "5px" }}>
+              <h4>Table: {(item as Table).title || "Untitled Table"}</h4>
+              <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "10px" }}>
+                <thead>
+                  {((item as Table).headers || []).map((headerRow, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {headerRow.map((header, colIndex) => (
+                        <th key={colIndex} style={{ border: "1px solid #ccc", padding: "5px" }}>
+                          {(header as Text)?.content || ""}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {(item as Table).rows.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {row.map((cell, colIndex) => (
+                        <td key={colIndex} style={{ border: "1px solid #ccc", padding: "5px" }}>
+                          {(cell as Text)?.content || ""}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       ));
     };
@@ -778,7 +1012,7 @@ const Editor = () => {
       ));
     };
 
-    const renderSubChapters = (subChapters: SubChapter[], chapterIndex: number) => {
+    const renderSubChapters = (subChapters: SubChapter[]) => {
       return subChapters.map((subChapter, subChapterIndex) => (
         <div key={subChapterIndex} style={{ marginLeft: "30px", marginTop: "10px" }}>
           <h3>{subChapter.subChapterTitle || `SubChapter ${subChapterIndex + 1}`}</h3>
@@ -795,7 +1029,7 @@ const Editor = () => {
         {book.content.map((chapter, chapterIndex) => (
           <div key={chapterIndex} style={{ marginBottom: "20px" }}>
             <h2>{chapter.chapter || `Chapter ${chapterIndex + 1}`}</h2>
-            {renderSubChapters(chapter.subChapters || [], chapterIndex)}
+            {renderSubChapters(chapter.subChapters || [])}
             {renderPages(chapter.pages || [])}
           </div>
         ))}
@@ -846,10 +1080,14 @@ const Editor = () => {
                 <option value="quiz">Quiz</option>
                 <option value="orderedList">Ordered List</option>
                 <option value="decision">Decision</option>
+                <option value="table">Table</option>
               </select>
             </label>
             <button onClick={() => addContentItem(page, selectedType as ContentItem["type"])}>
-              Add Content Item
+              Add at End
+            </button>
+            <button onClick={() => openModal(page)}>
+              Insert at Position
             </button>
             <button onClick={() => removePage(pages, pageIndex)}>Remove Page</button>
             <div style={{ marginLeft: "20px" }}>
@@ -873,7 +1111,15 @@ const Editor = () => {
     );
   };
 
+  const openModal = (page: Page) => {
+    setSelectedPage(page);
+    setIsModalOpen(true);
+  };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedPage(null);
+  };
 
   return (
     <DashboardLayout>
@@ -948,7 +1194,18 @@ const Editor = () => {
               </label>
               <button onClick={() => addSubChapter(chapterIndex)}>Add SubChapter</button>
               <button onClick={() => removeChapter(chapterIndex)}>Remove Chapter</button>
-
+              {renderPages(
+                chapter.pages || [],
+                () => {
+                  const updatedChapters = [...book.content];
+                  updatedChapters[chapterIndex].pages = [
+                    ...(updatedChapters[chapterIndex].pages || []),
+                    { pageTitle: "New Page", items: [] },
+                  ];
+                  setBook({ ...book, content: updatedChapters } as Book);
+                },
+                20 // Chapter-level indentation
+              )}
               {chapter.subChapters?.map((subChapter, subChapterIndex) => (
                 <div key={subChapterIndex} style={{ marginLeft: "20px" }}>
                   <label>
@@ -973,7 +1230,11 @@ const Editor = () => {
                   >
                     Remove SubChapter
                   </button>
-
+                  {renderPages(
+                    subChapter.pages || [],
+                    () => addPageToSubChapter(chapterIndex, subChapterIndex),
+                    40
+                  )}
                   {subChapter.subSubChapters?.map((subSubChapter, subSubChapterIndex) => (
                     <div key={subSubChapterIndex} style={{ marginLeft: "40px" }}>
                       <label>
@@ -991,17 +1252,6 @@ const Editor = () => {
                           }}
                         />
                       </label>
-                      <button
-                        onClick={() =>
-                          addPageToSubSubChapter(
-                            chapterIndex,
-                            subChapterIndex,
-                            subSubChapterIndex
-                          )
-                        }
-                      >
-                        Add Page
-                      </button>
                       <button
                         onClick={() =>
                           removeSubSubChapter(
@@ -1022,19 +1272,6 @@ const Editor = () => {
                   ))}
                 </div>
               ))}
-
-              {renderPages(
-                chapter.pages || [],
-                () => {
-                  const updatedChapters = [...book.content];
-                  updatedChapters[chapterIndex].pages = [
-                    ...(updatedChapters[chapterIndex].pages || []),
-                    { pageTitle: "New Page", items: [] },
-                  ];
-                  setBook({ ...book, content: updatedChapters } as Book);
-                },
-                20 // Chapter-level indentation
-              )}
             </div>
           ))}
         </div>
@@ -1042,6 +1279,22 @@ const Editor = () => {
       <div style={{ flex: "1", backgroundColor: "#f9f9f9", padding: "10px" }}>
         {renderPreview()}
       </div>
+      <InsertItemModal
+        isOpen={isModalOpen}
+        items={selectedPage?.items || []}
+        onClose={closeModal}
+        onInsert={(position, type, insertAfter) => {
+          if (selectedPage) {
+            addContentItem(
+              selectedPage,
+              type as ContentItem["type"],
+              insertAfter ? position + 1 : position
+            );
+          }
+          closeModal();
+        }}
+        selectedType={selectedType}
+      />
     </DashboardLayout>
   );
 };

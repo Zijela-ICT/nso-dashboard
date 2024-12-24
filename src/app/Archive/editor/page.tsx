@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@src/components/DashboardLayout";
-import { Book, ContentItem, Page, Text, Space, BookImage, horizontalLine, OrderedList, Quiz, Table, Decision } from "@src/types/book.types";
+import { Book, ContentItem, Page } from "@src/types/book.types";
+import InsertItemModal from "@src/app/components/InsertItemModal";
 import EditorPanel from "./components/EditorPanel";
 import PreviewPanel from "./components/PreviewPanel";
 import HeaderControls from "./components/HeaderControls";
-import InsertItemModal from "./components/InsertItemModal";
-import { ensureDefaults } from "./utils/tableUtils";
 
 const Editor = () => {
   const [book, setBook] = useState<Book | null>(null);
@@ -72,76 +71,15 @@ const Editor = () => {
 
     switch (type) {
       case "text":
-        newItem = { type: "text", content: "New Text Content" };
+        newItem = { type: "text", content: "New Text Content" } as Text;
         break;
-      case "heading1":
-        newItem = { type: "heading1", content: "New Heading 1" };
-        break;
-      case "heading2":
-        newItem = { type: "heading2", content: "New Heading 2" };
-        break;
-      case "heading3":
-        newItem = { type: "heading3", content: "New Heading 3" };
-        break;
-      case "space":
-        newItem = { type: "space" } as Space;
-        break;
-      case "image":
-        newItem = { type: "image", src: "placeholder.png", alt: "Placeholder Image" } as BookImage;
-        break;
-      case "horizontalLine":
-        newItem = { type: "horizontalLine", style: {} } as horizontalLine;
-        break;
-      case "orderedList":
-        newItem = { type: "orderedList", items: ["List Item 1"] } as OrderedList;
-        break;
-      case "quiz":
-        newItem = {
-          type: "quiz",
-          title: "New Quiz",
-          sectionId: "section-1",
-          duration: 5,
-          retries: 3,
-          questions: [{ question: "Sample Question?", options: ["A", "B", "C"], correctAnswer: "A" }],
-        } as Quiz;
-        break;
-      case "table":
-        newItem = ensureDefaults({
-          type: "table",
-          title: "New Table",
-          headers: [[]],
-          rows: [[]],
-          showCellBorders: true,
-          tableStyle: {},
-          headless: false,
-        } as Table);
-        break;
-      case "decision":
-        newItem = {
-          type: "decision",
-          name: "New Decision",
-          history: ["History Item 1"],
-          examinationsActions: ["Examination Action 1"],
-          findingsOnExamination: ["Finding 1"],
-          cases: [
-            {
-              findingsOnHistory: "Initial Finding",
-              findingsOnExamination: ["Finding A", "Finding B"],
-              clinicalJudgement: ["Judgement 1"],
-              actions: ["Action 1"],
-              decisionScore: 0,
-              decisionDependencies: [],
-            },
-          ],
-          healthEducation: ["Education Item 1"],
-        } as Decision;
-        break;
-      default:
-        throw new Error(`Unsupported content type: ${type}`);
+      // ... rest of your switch cases ...
     }
 
     if (typeof position === 'number') {
-      target.items.splice(position, 0, newItem);
+      const items = [...(target.items || [])];
+      items.splice(position, 0, newItem);
+      target.items = items;
     } else {
       target.items = [...(target.items || []), newItem];
     }
@@ -197,9 +135,9 @@ const Editor = () => {
             handleDownload={handleDownload}
           />
 
-          <div style={{
-            display: "flex",
-            gap: "20px",
+          <div style={{ 
+            display: "flex", 
+            gap: "20px", 
             height: "calc(100vh - 200px)",
           }}>
             <EditorPanel
