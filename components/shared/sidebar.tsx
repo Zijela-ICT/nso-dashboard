@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import React from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
