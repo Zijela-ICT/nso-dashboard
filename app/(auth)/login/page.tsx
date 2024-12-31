@@ -26,8 +26,8 @@ const Login = () => {
           password: values.password
         },
         {
-          onSuccess: () => {
-            // storageUtil.store('@chprbn', data.access_token);
+          onSuccess: (data:any) => {
+            storageUtil.store('@chprbn', data.data.token);
         navigation.push("/dashboard/home");
           }
         }

@@ -12,7 +12,11 @@ const api = axios.create({
 api.interceptors.request.use(async (config) => {
   const headers = config.headers;
   const accessToken = storageUtil.get("@chprbn");
-  headers.authorization = `Bearer ${accessToken}`;
+  if (accessToken) {
+    headers.authorization = `Bearer ${accessToken}`;
+  } else {
+    delete headers.authorization;
+  }
   return config;
 });
 
