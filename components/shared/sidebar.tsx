@@ -114,7 +114,7 @@ const AppSidebar = () => {
       className="bg-white border-none"
       side={isMobile ? "right" : "left"}>
       <SidebarContent className="flex flex-col h-full bg-white max-w-[300px] border-r border-r-[#EAEDFF]">
-        <SidebarGroup className="p-0">
+        <SidebarGroup className="px-3">
           <SidebarGroupLabel className="mt-4 ml-7 pr-0">
             <Image
               src="/svgs/logo.svg"
@@ -126,27 +126,22 @@ const AppSidebar = () => {
             />
           </SidebarGroupLabel>
 
-          <SidebarGroupContent className="flex-1 overflow-y-auto mt-9">
+          <SidebarGroupContent className="flex-1 overflow-y-auto mt-9 ">
             <SidebarMenu className="gap-2">
               {routes.map((route) =>
                 route.subItems ? (
                   <Collapsible
                     key={route.id}
                     defaultOpen={isParentActive(route)}
-                    // className="group/collapsible w-full"
+                    className="group/collapsible w-full"
                   >
-                    <SidebarMenuItem>
-                      <CollapsibleTrigger
-                        className={cn(
-                          "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]"
-                        )}
-                        asChild>
-                        <SidebarMenuButton
-                          className={cn(
-                            "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
-                            isParentActive(route) &&
-                              "bg-[#F6FEF9] rounded-[4px]"
-                          )}>
+                    <SidebarMenuItem
+                      className={cn(
+                        "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
+                        isParentActive(route) && "bg-[#F6FEF9] rounded-[4px]"
+                      )}>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton>
                           <div className="flex items-center gap-3">
                             <div className="w-6 h-6">
                               <Icon
