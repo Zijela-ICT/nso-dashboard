@@ -13,12 +13,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar
+  useSidebar,
 } from "../ui";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,50 +40,50 @@ const routes: RouteItem[] = [
     id: 1,
     icon: "dashboard",
     label: "Dashboard",
-    href: "/home"
+    href: "/home",
   },
   {
     id: 3,
     icon: "book",
     label: "E-book",
-    href: "/e-book",
+    href: "/e-book/JCHEW",
     subItems: [
       {
         label: "JCEW",
-        href: "/jcew"
+        href: "/dashboard/e-book/JCHEW",
       },
       {
         label: "CHEW",
-        href: "/chew"
+        href: "/dashboard/e-book/CHEW",
       },
       {
         label: "CHO",
-        href: "/cho"
+        href: "/dashboard/e-book/CHO",
       },
       {
         label: "E-book Approval",
-        href: "/e-book-approval"
-      }
-    ]
+        href: "/e-book/approval",
+      },
+    ],
   },
   {
     id: 4,
     icon: "hospital",
     label: "Nearby Facilities",
-    href: "/nearby-facilities"
+    href: "/nearby-facilities",
   },
   {
     id: 5,
     icon: "users",
     label: "Users",
-    href: "/users"
+    href: "/users",
   },
   {
     id: 6,
     icon: "setting",
     label: "Settings",
-    href: "/settings"
-  }
+    href: "/settings",
+  },
 ];
 
 const AppSidebar = () => {
@@ -106,13 +106,14 @@ const AppSidebar = () => {
   };
 
   const handleNavigation = (href: string) => {
-    router.push(`/dashboard${href}`);
+    router.push(`${href}`);
   };
 
   return (
     <Sidebar
       className="bg-white border-none"
-      side={isMobile ? "right" : "left"}>
+      side={isMobile ? "right" : "left"}
+    >
       <SidebarContent className="flex flex-col h-full bg-white max-w-[300px] border-r border-r-[#EAEDFF]">
         <SidebarGroup className="p-0">
           <SidebarGroupLabel className="mt-4 ml-7 pr-0">
@@ -140,13 +141,15 @@ const AppSidebar = () => {
                         className={cn(
                           "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]"
                         )}
-                        asChild>
+                        asChild
+                      >
                         <SidebarMenuButton
                           className={cn(
                             "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
                             isParentActive(route) &&
                               "bg-[#F6FEF9] rounded-[4px]"
-                          )}>
+                          )}
+                        >
                           <div className="flex items-center gap-3">
                             <div className="w-6 h-6">
                               <Icon
@@ -159,7 +162,8 @@ const AppSidebar = () => {
                               className={cn(
                                 "text-[#101828] text-base font-medium",
                                 isParentActive(route) && "font-semibold"
-                              )}>
+                              )}
+                            >
                               {" "}
                               {route.label}
                             </span>
@@ -180,7 +184,8 @@ const AppSidebar = () => {
                               onClick={() => {
                                 handleNavigation(subItem.href);
                                 isMobile && toggleSidebar();
-                              }}>
+                              }}
+                            >
                               {isActive(subItem.href) && (
                                 <div className="absolute bg-[#2C6000] w-[2px] h-2 rounded-full top-1/2 -translate-y-1/2 left-0" />
                               )}
@@ -199,13 +204,15 @@ const AppSidebar = () => {
                     className={cn(
                       "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
                       isActive(route.href) && "bg-[#F6FEF9] rounded-[4px]"
-                    )}>
+                    )}
+                  >
                     <SidebarMenuButton
                       asChild
                       className="hover:!bg-transparent hover:text-title"
                       onClick={() => {
                         isMobile && toggleSidebar();
-                      }}>
+                      }}
+                    >
                       <Link href={`/dashboard${route.href}`}>
                         <div className="w-6 h-6">
                           <Icon
@@ -218,7 +225,8 @@ const AppSidebar = () => {
                           className={cn(
                             "text-[#101828] text-base font-medium",
                             isActive(route.href) && "font-semibold"
-                          )}>
+                          )}
+                        >
                           {route.label}
                         </span>
                       </Link>
