@@ -2,8 +2,8 @@
 
 import Navbar from "@/components/shared/navbar";
 import Sidebar from "@/components/shared/sidebar";
-import {SidebarProvider} from "@/components/ui";
-import {PropsWithChildren} from "react";
+import { SidebarProvider } from "@/components/ui";
+import { PropsWithChildren } from "react";
 
 const DashboardLayout: React.FC = (props: PropsWithChildren) => {
   return (
@@ -12,7 +12,7 @@ const DashboardLayout: React.FC = (props: PropsWithChildren) => {
       <main className="w-full">
         <Navbar />
         <div className="px-4 w-full md:max-w-[80%] mx-auto">
-        {props.children}
+          {props.children}
         </div>
       </main>
     </SidebarProvider>
