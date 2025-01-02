@@ -7,6 +7,7 @@ import { LoginSchema } from "@/validation-schema/auth";
 import { useFormik } from "formik";
 import { useLogin } from "@/hooks/api/mutations/auth";
 import storageUtil from "@/utils/browser-storage";
+import { CHPBRN_TOKEN } from "@/constants";
 
 const Login = () => {
   const navigation = useRouter();
@@ -16,23 +17,23 @@ const Login = () => {
   const formik = useFormik({
     initialValues: {
       email: "",
-      password: ""
+      password: "",
     },
     validationSchema: LoginSchema,
     onSubmit: (values) => {
       login.mutate(
         {
           email: values.email,
-          password: values.password
+          password: values.password,
         },
         {
-          onSuccess: (data:any) => {
-            storageUtil.store('@chprbn', data.data.token);
-        navigation.push("/dashboard/home");
-          }
+          onSuccess: (data: any) => {
+            storageUtil.store("@chprbn", data.data.token);
+            navigation.push("/dashboard/home");
+          },
         }
       );
-    }
+    },
   });
 
   return (
@@ -71,14 +72,15 @@ const Login = () => {
               <span
                 className="text-[#F97066] font-normal text-xs cursor-pointer"
                 // onClick={() => navigation.push("/reset-password")}
-                >
+              >
                 Forgot Password?
               </span>
             </div>
             <Button
               type="submit"
               disabled={!formik.isValid || !formik.dirty}
-              isLoading={login.isLoading}>
+              isLoading={login.isLoading}
+            >
               Sign in
             </Button>
           </div>

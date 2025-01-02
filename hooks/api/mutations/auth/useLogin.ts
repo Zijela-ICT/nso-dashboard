@@ -6,6 +6,7 @@ import request from "@/utils/api";
 type ResponseType = {
   success: boolean;
   data: string;
+  token: string;
 };
 
 type InputType = {
@@ -21,7 +22,7 @@ const Login = (input: InputType): Promise<AxiosResponse<ResponseType>> => {
     `/auth/login`,
     {
       email: input.email,
-      password: input.password
+      password: input.password,
     },
     false
   );
