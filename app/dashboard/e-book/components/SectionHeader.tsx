@@ -59,7 +59,7 @@ function SectionHeader({
       onBlur={(e) => handleInput(e, index)}
       contentEditable={isEditting}
       suppressContentEditableWarning={true}
-      className={`group  text-[16px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`}
+      className={`group  text-[18px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`}
     >
       <p>{chapter.data as string}</p>
 
@@ -75,12 +75,9 @@ function SectionHeader({
 
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Button
-                variant="outline"
-                className="mx-2 w-6 h-6 p-0 bg-[#0CA554] text-white"
-              >
+              <div className="mx-2 w-6 h-6 p-0 bg-[#0CA554] text-white">
                 <Plus />
-              </Button>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {pageItems.map((item, i) => (

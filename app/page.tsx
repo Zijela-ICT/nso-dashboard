@@ -1,20 +1,13 @@
 "use client";
-import { CHPBRN_TOKEN } from "@/constants";
 // src/app/page.tsx
 import { redirect } from "next/navigation";
-import { useEffect } from "react";
 
 export default function Home() {
-  useEffect(() => {
-    console.log(
-      'localStorage.getItem("token")',
-      localStorage.getItem(CHPBRN_TOKEN)
-    );
-
-    typeof window !== undefined &&
-    window &&
-    window?.localStorage.getItem(CHPBRN_TOKEN)
-      ? redirect("/dashboard/home")
-      : redirect("/login");
-  }, []);
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      redirect("/dashboard/reports");
+    }
+  }
+  redirect("/login");
 }

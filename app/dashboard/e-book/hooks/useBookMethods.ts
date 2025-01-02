@@ -24,6 +24,11 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
 import { useEffect, useMemo, useState } from "react";
+import { useUpload } from "@/hooks/upload";
+import { getEbookVersion, getFile, updateEbooks } from "@/utils/book.services";
+import useEBooks from "./useEBooks";
+import { useParams } from "next/navigation";
+import { showToast } from "@/utils/toast";
 
 function isChapter(
   item: Chapter | Page | SubChapter | SubSubChapter
@@ -50,11 +55,15 @@ function isPage(
 }
 
 const useBookMethods = () => {
+  const { data: ebooks, mutation } = useEBooks();
+  const params = useParams<{ id: string }>();
+  const getUploadFileUrl = useUpload();
   const filename = "/sample-book.json";
+  const [bookVersion, setBookVersion] = useState<string>("");
   const [data, setData] = useState<Data | null>(null);
   const [tableHasHeader, setTableHasHeader] = useState<boolean>(true);
+  const [loadingBook, setLoadingBook] = useState<boolean>(true);
   const [selectedLocale, setSelectedLocale] = useState<string>("en");
-  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [showTableModal, setShowTableModal] = useState<boolean>(false);
   const [showPageDropdown, setShowPageDropdown] = useState<boolean>(false);
   const [edittingStack, setEdittingStack] = useState<Array<iTargetElements>>(
@@ -84,8 +93,6 @@ const useBookMethods = () => {
     try {
       const response = await axios.get(filename);
       const fetchedData = response.data;
-      console.log("fetchedData", fetchedData);
-
       setData(fetchedData);
     } catch (err) {
       console.log(err);
@@ -121,12 +128,6 @@ const useBookMethods = () => {
     // timeout && clearTimeout(timeout);
   };
 
-  const handleMouseLeave = () => {
-    // timeout = setTimeout(() => {
-    //   setHoverElement(null);
-    // }, 2500);
-  };
-
   const handleTableModalClose = () => {
     setShowTableModal(false);
   };
@@ -135,7 +136,6 @@ const useBookMethods = () => {
     const target = event.target as iTargetElements;
     const newStack = [...edittingStack, target];
     setEdittingStack(newStack);
-    setIsEditing(true);
   };
 
   const handleEditSave = async () => {
@@ -226,11 +226,6 @@ const useBookMethods = () => {
         }
       }
     }
-    console.log("updatedData", updatedData);
-
-    // keys.forEach((key) => {
-    //   updatedData.locales[selectedLocale][key] = `New title goes here`;
-    // });
 
     setData(updatedData);
     setShowPageDropdown(false);
@@ -445,21 +440,106 @@ const useBookMethods = () => {
     URL.revokeObjectURL(url);
   };
 
-  // useEffect(() => {
-  //   if (flattenBookData) {
-  //     localStorage.setItem(BOOK_KEY, JSON.stringify(flattenBookData));
-  //   }
-  // }, [flattenBookData, flattenBookData.length]);
+  function convertBlobToFile(blob, fileName) {
+    const file = new File([blob], fileName, { type: "application/json" }); // Create a File object
+    return file;
+  }
+
+  const saveBookUpdates = async (fileName, id) => {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const file = convertBlobToFile(blob, fileName);
+    try {
+      const url = await getUploadFileUrl(file);
+      showToast("book updated successfully");
+      await updateEbooks({ newFileUrl: url }, id);
+    } catch (error) {}
+  };
+
+  async function createNewBook() {
+    const fileUrl = "/sample-book.json";
+
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.statusText}`);
+      }
+
+      const jsonData = await response.json();
+      const jsonFile = createJsonFile(jsonData);
+      uploadBlankBook(jsonFile as File);
+    } catch (error) {
+      console.error("Error fetching file:", error.message);
+    }
+  }
+
+  function createJsonFile(jsonData, fileName = "data.json") {
+    const jsonString = JSON.stringify(jsonData); // Convert JSON object to string
+    const blob = new Blob([jsonString], { type: "application/json" }); // Create a Blob
+    const file = new File([blob], fileName, { type: "application/json" }); // Create a File object
+    return file;
+  }
+
+  const uploadBlankBook = async (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    try {
+      const fileUrl = await getUploadFileUrl(file);
+      completeCreation(fileUrl);
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
+
+  const completeCreation = async (fileUrl: string) => {
+    mutation.mutate(
+      {
+        bookType: params.id,
+        fileUrl,
+      },
+      {
+        onSuccess: () => {
+          showToast("Book created successfully", "success");
+        },
+      }
+    );
+  };
+
+  const currentBook = useMemo(() => {
+    return ebooks?.find((book) => book.bookType === params.id);
+  }, [params.id, ebooks]);
+
+  const getCurrentBookVersion = async (version: string = "") => {
+    setLoadingBook(true);
+    try {
+      const res = await getEbookVersion(currentBook.id, version);
+      downloadBook(res.data.fileUrl);
+      setBookVersion(version);
+    } catch (error) {
+      setLoadingBook(false);
+    }
+  };
+
+  const downloadBook = async (url) => {
+    try {
+      const bookData = (await getFile(url)) as Data;
+      setData(bookData);
+    } catch (error) {
+    } finally {
+      setLoadingBook(false);
+    }
+  };
 
   useEffect(() => {
-    getBook();
-  }, []);
+    if (currentBook?.versions?.length) {
+      getCurrentBookVersion();
+    }
+  }, [currentBook]);
 
   return {
     handleFileUpload,
     handleLocaleChange,
     handleMouseEnter,
-    handleMouseLeave,
     handleTableModalClose,
     handleEditStart,
     addNewPageElement,
@@ -469,8 +549,6 @@ const useBookMethods = () => {
     flattenBookData,
     locales,
     setTableHasHeader,
-    isEditing,
-    setIsEditing,
     showTableModal,
     plusPosition,
     showInfographicModal,
@@ -496,6 +574,16 @@ const useBookMethods = () => {
     updateElementAtPath,
     createNewItem,
     setBookTitle,
+    saveBookUpdates,
+    createNewBook,
+    createJsonFile,
+    uploadBlankBook,
+    completeCreation,
+    currentBook,
+    loadingBook,
+    getCurrentBookVersion,
+    ebooks,
+    bookVersion,
   };
 };
 

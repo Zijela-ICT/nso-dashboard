@@ -5,8 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../../components/ui/dialog";
-import { uploadFile } from "@/services/apis";
 import { Button } from "../../../../components/ui/button";
+import { uploadFile } from "@/utils/book.services";
 
 export interface InfographicData {
   image: File | string; // Adjust this based on your actual data structure
@@ -35,7 +35,7 @@ function AddInfographicModal({
 
     try {
       const res = await uploadFile(form);
-      addNewElement("infographic", { image: res.data.data });
+      addNewElement("infographic", { image: res.data });
     } catch (error) {
       console.log(error.response.data);
     }

@@ -11,7 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use(async (config) => {
   const headers = config.headers;
-  const accessToken = storageUtil.get("access_token");
+  const accessToken = storageUtil.get("@chprbn");
   headers.authorization = `Bearer ${accessToken}`;
   return config;
 });
@@ -51,7 +51,7 @@ const handleApiError = (
     errorMessage = {
       message:
         statusCode >= 500 || status >= 500
-          ? "Oops! Something went wrong on our end. Please try again later."
+          ? "Something went wrong on our end. Please try again later."
           : showError && formatErrorDetail(data.detail || data.message),
       status: status,
       statusCode: statusCode
@@ -66,7 +66,7 @@ const handleApiError = (
     }
   } else if (error.request) {
     errorMessage = {
-      message: "Oops! Something went wrong on our end. Please try again later.",
+      message: "Something went wrong on our end. Please try again later.",
       status: false,
       statusCode: null
     };

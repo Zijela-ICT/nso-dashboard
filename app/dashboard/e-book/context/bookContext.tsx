@@ -15,7 +15,9 @@ const MyContext = createContext<
 >(undefined);
 
 // Create a Provider component
-export const MyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const BookProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [isEditting, setIsEditting] = useState<boolean>(false);
 
   return (

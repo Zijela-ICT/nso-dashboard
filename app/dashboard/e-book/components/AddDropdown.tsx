@@ -35,12 +35,12 @@ function AddDropdown({
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <button
+          <div
             className="outline-none flex w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7]"
             onClick={() => {}}
           >
             <Plus />
-          </button>
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[200px]">
           {dropDownItems.map((item, i) => (

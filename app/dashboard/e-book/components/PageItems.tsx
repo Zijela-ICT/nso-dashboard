@@ -16,6 +16,8 @@ import { Button } from "../../../../components/ui/button";
 import AddDecisionTreeModal from "./AddDecisiontreeModal";
 import { useBookContext } from "../context/bookContext";
 import { groupClass } from "../[id]/page";
+import { getFile } from "@/utils/book.services";
+import ImageRenderer from "./ImageRenderer";
 
 interface NestedListItem {
   content: string | NestedContent[];
@@ -39,7 +41,6 @@ function PageItems({
   createNewItem,
 }: {
   items: FlattenedObj[];
-  handleMouseEnter: (event: React.MouseEvent<HTMLElement>) => void;
   data: Data;
   addNewElement: (
     type: string,
@@ -62,17 +63,13 @@ function PageItems({
     newValue?: string[]
   ) => {
     const newText = event?.currentTarget?.textContent || "";
-    console.log("newText", newText);
-
     if (itemData.content === newText) return;
     const value = newValue
       ? {
-          type: "unorderedList",
+          type: itemData.type || "unorderedList",
           items: newValue,
         }
       : createNewItem("text", newText);
-    console.log("value", value);
-
     updateElementAtPath(value, elementIndex);
   };
 
@@ -258,12 +255,14 @@ function PageItems({
                           {getLocalizedText(data, listItem)}
                         </div>
 
-                        <button
-                          onClick={() => deleteListItem(listItemIndex)}
-                          className="p-1 bg-red-500 text-white w-6 h-6 text-[14px]  flex items-center justify-center rounded-full mr-[50px]"
-                        >
-                          <X />
-                        </button>
+                        {isEditting && (
+                          <button
+                            onClick={() => deleteListItem(listItemIndex)}
+                            className="p-1 bg-red-500 text-white w-6 h-6 text-[14px]  flex items-center justify-center rounded-full mr-[50px]"
+                          >
+                            <X />
+                          </button>
+                        )}
                       </div>
                     </li>
                   );
@@ -283,13 +282,7 @@ function PageItems({
             key={index}
             className="flex justify-center items-center w-full my-4"
           >
-            <img
-              data-text_path={src}
-              data-text_type={itemData.type}
-              src={src}
-              alt={alt}
-              className="w-full mx-auto object-contain"
-            />
+            <ImageRenderer url={itemData.src} />
           </div>
         );
       } else if (itemData.type === "table") {
