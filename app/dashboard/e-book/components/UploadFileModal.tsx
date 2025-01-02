@@ -39,6 +39,7 @@ export function UploadFileModal({
             type="file"
             className="col-span-3"
             onChange={(e) => setFile(e?.target?.files?.[0])}
+            name="file"
           />
         </div>
 

@@ -16,7 +16,7 @@ import { Button } from "@/components/ui";
 import { Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast";
 
-function page(props) {
+function ApprovalPage(props) {
   const { data: ebooks } = useEBooks();
   const [currentBookID, setCurrentBookID] = useState<string | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
@@ -134,4 +134,4 @@ function page(props) {
   );
 }
 
-export default page;
+export default ApprovalPage;

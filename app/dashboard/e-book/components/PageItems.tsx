@@ -15,9 +15,9 @@ import DecisionTreeRenderer from "./DecisionTree";
 import { Button } from "../../../../components/ui/button";
 import AddDecisionTreeModal from "./AddDecisiontreeModal";
 import { useBookContext } from "../context/bookContext";
-import { groupClass } from "../[id]/page";
 import { getFile } from "@/utils/book.services";
 import ImageRenderer from "./ImageRenderer";
+import { groupClass } from "@/constants";
 
 interface NestedListItem {
   content: string | NestedContent[];
@@ -273,8 +273,6 @@ function PageItems({
           </ul>
         );
       } else if (itemData.type === "infographic") {
-        const alt = getLocalizedText(data, itemData.alt || "");
-        const src = getLocalizedText(data, itemData.src || "");
         element = (
           <div
             data-text_path={itemPath}
@@ -282,7 +280,7 @@ function PageItems({
             key={index}
             className="flex justify-center items-center w-full my-4"
           >
-            <ImageRenderer url={itemData.src} />
+            <ImageRenderer url={itemData.src} key={index} />
           </div>
         );
       } else if (itemData.type === "table") {
@@ -321,7 +319,7 @@ function PageItems({
         );
       } else if (itemData.type === "decision") {
         element = (
-          <div className="mt-4 group">
+          <div className="mt-4 group" key={index}>
             {isEditting && (
               <div className="flex justify-end mb-2">
                 <Button
@@ -353,7 +351,7 @@ function PageItems({
       }
 
       return (
-        <div className="group relative flex">
+        <div className="group relative flex" key={index}>
           {isEditting && (
             <button
               className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px]"

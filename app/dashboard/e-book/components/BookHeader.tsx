@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "../../../../components/ui/dropdown-menu";
 import { Plus } from "lucide-react";
-import { groupClass } from "../[id]/page";
+import { groupClass } from "@/constants";
 
 function BookHeader({
   setBookTitle,

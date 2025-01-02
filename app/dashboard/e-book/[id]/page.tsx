@@ -30,10 +30,9 @@ import {
 } from "@/components/ui/select";
 import RenderBook from "../components/RenderBook";
 
-export const groupClass =
-  "hover:border-[#bcbcbc] border-[1px] border-dashed border-transparent rounded-[4px] cursor-pointer text-left";
 
-function page() {
+
+function Ebook() {
   const {
     handleMouseEnter,
     setBookTitle,
@@ -136,4 +135,4 @@ function page() {
   );
 }
 
-export default page;
+export default Ebook;

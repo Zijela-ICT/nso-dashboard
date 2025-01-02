@@ -17,7 +17,7 @@ import {
 import { InfographicData } from "./AddInfographicModal";
 import AddDropdown from "./AddDropdown";
 import { useBookContext } from "../context/bookContext";
-import { groupClass } from "../[id]/page";
+import { groupClass } from "@/constants";
 
 function SectionHeader({
   updateElementAtPath,
