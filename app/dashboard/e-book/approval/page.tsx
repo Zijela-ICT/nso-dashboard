@@ -125,7 +125,7 @@ function ApprovalPage(props) {
           <RenderBook
             flattenBookData={flattenBookData}
             data={data}
-            currentBook={currentBook}
+            currentBook={data.book}
             canEdit={false}
           />
         </div>
