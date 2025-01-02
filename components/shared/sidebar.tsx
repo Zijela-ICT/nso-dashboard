@@ -138,11 +138,14 @@ const AppSidebar = () => {
                   >
                     <SidebarMenuItem
                       className={cn(
-                        "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
+                        "py-3 pl-5 cursor-pointer flex flex-col gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
                         isParentActive(route) && "bg-[#F6FEF9] rounded-[4px]"
                       )}
                     >
-                      <CollapsibleTrigger asChild>
+                      <CollapsibleTrigger
+                        asChild
+                        className="hover:!bg-transparent hover:text-title"
+                      >
                         <SidebarMenuButton>
                           <div className="flex items-center gap-3">
                             <div className="w-6 h-6">
@@ -166,7 +169,7 @@ const AppSidebar = () => {
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent className="mt-1">
-                        <div className="pl-14 flex flex-col gap-2">
+                        <div className="flex flex-col gap-2">
                           {route.subItems.map((subItem) => (
                             <div
                               key={subItem.label}

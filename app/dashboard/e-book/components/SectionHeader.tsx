@@ -70,13 +70,13 @@ function SectionHeader({
             variant="destructive"
             onClick={() => removeElement(index)}
           >
-            <Trash />
+            <Trash width={14} height={14} />
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <div className="mx-2 w-6 h-6 p-0 bg-[#0CA554] text-white">
-                <Plus />
+              <div className="mx-2 w-6 h-6 p-0 bg-[#0CA554] text-white flex items-center justify-center rounded-md">
+                <Plus width={14} height={14} />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>

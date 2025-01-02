@@ -55,14 +55,13 @@ function isPage(
 }
 
 const useBookMethods = () => {
-  const { data: ebooks, mutation } = useEBooks();
+  const { data: ebooks, mutation, isLoading } = useEBooks();
   const params = useParams<{ id: string }>();
   const getUploadFileUrl = useUpload();
   const filename = "/sample-book.json";
   const [bookVersion, setBookVersion] = useState<string>("");
   const [data, setData] = useState<Data | null>(null);
   const [tableHasHeader, setTableHasHeader] = useState<boolean>(true);
-  const [loadingBook, setLoadingBook] = useState<boolean>(true);
   const [selectedLocale, setSelectedLocale] = useState<string>("en");
   const [showTableModal, setShowTableModal] = useState<boolean>(false);
   const [showPageDropdown, setShowPageDropdown] = useState<boolean>(false);
@@ -237,8 +236,6 @@ const useBookMethods = () => {
     element_Index?: number,
     isHeader?: boolean
   ) => {
-    console.log({ type, createData, element_Index, isHeader });
-
     if ((!data || !hoverElement) && element_Index === undefined) return;
     const updatedData = { ...data };
 
@@ -510,24 +507,18 @@ const useBookMethods = () => {
   }, [params.id, ebooks]);
 
   const getCurrentBookVersion = async (version: string = "") => {
-    setLoadingBook(true);
     try {
       const res = await getEbookVersion(currentBook.id, version);
       downloadBook(res.data.fileUrl);
       setBookVersion(version);
-    } catch (error) {
-      setLoadingBook(false);
-    }
+    } catch (error) {}
   };
 
   const downloadBook = async (url) => {
     try {
       const bookData = (await getFile(url)) as Data;
       setData(bookData);
-    } catch (error) {
-    } finally {
-      setLoadingBook(false);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -580,7 +571,7 @@ const useBookMethods = () => {
     uploadBlankBook,
     completeCreation,
     currentBook,
-    loadingBook,
+    loadingBook: isLoading,
     getCurrentBookVersion,
     ebooks,
     bookVersion,

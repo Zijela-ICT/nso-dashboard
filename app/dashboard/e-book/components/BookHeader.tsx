@@ -25,12 +25,13 @@ function BookHeader({
   canEdit: boolean;
 }) {
   const { isEditting, setIsEditting } = useBookContext();
+
   return (
     <div className="container mx-auto mt-2">
       <div className="flex justify-between items-center mb-8">
         <h1
           className={`text-3xl font-bold mb-0 book-title text-[#0CA554] ${groupClass}`}
-          contentEditable={canEdit}
+          contentEditable={canEdit && isEditting}
           suppressContentEditableWarning={true}
           onBlur={(e) => setBookTitle(e.target.textContent)}
         >
@@ -55,8 +56,8 @@ function BookHeader({
             {isEditting && (
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <div className="w-8 flex items-center justify-center p-0 bg-[#0CA554] text-white h-8 text-[14px]">
-                    <Plus />
+                  <div className="w-8 flex items-center justify-center p-0 bg-[#0CA554] text-white h-8 text-[14px] rounded-md">
+                    <Plus width={16} height={16} />
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>

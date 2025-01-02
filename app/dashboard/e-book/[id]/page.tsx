@@ -30,8 +30,6 @@ import {
 } from "@/components/ui/select";
 import RenderBook from "../components/RenderBook";
 
-
-
 function Ebook() {
   const {
     handleMouseEnter,
@@ -65,6 +63,17 @@ function Ebook() {
     );
   }
 
+  if (!currentBook) {
+    return (
+      <>
+        <div className="p-10 flex flex-col items-center justify-center">
+          <h2 className="mb-4">This book does not exist yet</h2>
+          <Button onClick={createNewBook}>Create {params.id} book</Button>
+        </div>
+      </>
+    );
+  }
+
   return (
     <BookProvider>
       <div
@@ -73,61 +82,53 @@ function Ebook() {
           setShowDropdown(false);
         }}
       >
-        {!!currentBook ? (
-          loadingBook ? (
-            <Loader />
-          ) : (
-            <>
-              <Select
-                value={bookVersion}
-                onValueChange={(e) => getCurrentBookVersion(e)}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select book version" />
-                </SelectTrigger>
-                <SelectContent>
-                  {currentBook.versions.map((version, i) => (
-                    <SelectItem value={version.id.toString()} key={i}>
-                      version {version.version}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <RenderBook
-                flattenBookData={flattenBookData}
-                data={data}
-                updateElementAtPath={updateElementAtPath}
-                addNewElement={addNewElement}
-                removeElement={removeElement}
-                createNewItem={createNewItem}
-                addNewPageElement={addNewPageElement}
-                setBookTitle={setBookTitle}
-                saveBookUpdates={saveBookUpdates}
-                currentBook={currentBook}
-                canEdit={true}
-              />
-
-              <UploadFileModal onChange={handleFileUpload}>
-                <button className="fixed bottom-[120px] right-12 bg-[#136c2a] text-white px-4 h-[60px] w-[60px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg">
-                  <Upload />
-                </button>
-              </UploadFileModal>
-              <button
-                onClick={exportToJson}
-                className="fixed bottom-10 right-10 bg-[#8a260c] text-white px-4 h-[70px] w-[70px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg"
-              >
-                {/* <SaveIcon className="text-lg" /> */}
-                <FileJson2Icon />
-              </button>
-            </>
-          )
+        {loadingBook ? (
+          <Loader />
         ) : (
           <>
-            <div className="p-10 flex flex-col items-center justify-center">
-              <h2 className="mb-4">This book does not exist yet</h2>
-              <Button onClick={createNewBook}>Create {params.id} book</Button>
-            </div>
+            <Select
+              value={bookVersion}
+              onValueChange={(e) => getCurrentBookVersion(e)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select book version" />
+              </SelectTrigger>
+              <SelectContent>
+                {currentBook.versions.map((version, i) => (
+                  <SelectItem value={version.id.toString()} key={i}>
+                    version {version.version}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <RenderBook
+              flattenBookData={flattenBookData}
+              data={data}
+              updateElementAtPath={updateElementAtPath}
+              addNewElement={addNewElement}
+              removeElement={removeElement}
+              createNewItem={createNewItem}
+              addNewPageElement={addNewPageElement}
+              setBookTitle={setBookTitle}
+              saveBookUpdates={saveBookUpdates}
+              currentBook={data?.book}
+              bookInfo={currentBook}
+              canEdit={true}
+            />
+
+            <UploadFileModal onChange={handleFileUpload}>
+              <button className="fixed bottom-[120px] right-12 bg-[#136c2a] text-white px-4 h-[60px] w-[60px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg">
+                <Upload />
+              </button>
+            </UploadFileModal>
+            <button
+              onClick={exportToJson}
+              className="fixed bottom-10 right-10 bg-[#8a260c] text-white px-4 h-[70px] w-[70px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg"
+            >
+              {/* <SaveIcon className="text-lg" /> */}
+              <FileJson2Icon />
+            </button>
           </>
         )}
       </div>

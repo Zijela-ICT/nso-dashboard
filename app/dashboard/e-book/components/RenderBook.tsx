@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import PageItems from "./PageItems";
-import { Data, FlattenedObj } from "../booktypes";
+import { Book, Data, FlattenedObj } from "../booktypes";
 import SectionHeader from "./SectionHeader";
 import { ChevronDown } from "lucide-react";
 import BookHeader from "./BookHeader";
 import { useBookContext } from "../context/bookContext";
 import { useParams } from "next/navigation";
+import { IChprbnBook } from "../hooks/useEBooks";
 
 function RenderBook({
   flattenBookData,
@@ -19,10 +20,11 @@ function RenderBook({
   saveBookUpdates,
   currentBook,
   canEdit = true,
+  bookInfo,
 }: {
   flattenBookData: FlattenedObj[];
   data: Data;
-  currentBook;
+  currentBook: Book;
   updateElementAtPath?: (e, f) => void;
   addNewElement?: (e, f, g) => void;
   removeElement?: () => void;
@@ -30,7 +32,8 @@ function RenderBook({
   addNewPageElement?: (e, f) => void;
   setBookTitle?: (e) => void;
   saveBookUpdates?: (e, f) => void;
-  canEdit: boolean;
+  canEdit?: boolean;
+  bookInfo?: IChprbnBook;
 }) {
   const params = useParams();
   const { isEditting } = useBookContext();
@@ -74,8 +77,8 @@ function RenderBook({
         addNewPageElement={addNewPageElement}
         saveBookUpdates={() =>
           saveBookUpdates(
-            currentBook.title || `New ${params.id} BOOK`,
-            currentBook.id
+            currentBook.bookTitle || `New ${params.id} BOOK`,
+            bookInfo.id
           )
         }
         canEdit={canEdit}
