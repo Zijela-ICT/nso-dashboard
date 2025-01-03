@@ -50,19 +50,19 @@ const routes: RouteItem[] = [
     subItems: [
       {
         label: "JCEW",
-        href: "/jcew"
+        href: "/e-book/jcew"
       },
       {
         label: "CHEW",
-        href: "/chew"
+        href: "/e-book/chew"
       },
       {
         label: "CHO",
-        href: "/cho"
+        href: "/e-book/cho"
       },
       {
         label: "E-book Approval",
-        href: "/e-book-approval"
+        href: "/e-book/e-book-approval"
       }
     ]
   },
@@ -76,7 +76,17 @@ const routes: RouteItem[] = [
     id: 5,
     icon: "users",
     label: "Users",
-    href: "/users"
+    href: "/users",
+    subItems: [
+      {
+        label: "System Users",
+        href: "/users/system-users"
+      },
+      {
+        label: "App Users",
+        href: "/users/app-users"
+      },
+    ]
   },
   {
     id: 6,
@@ -137,12 +147,14 @@ const AppSidebar = () => {
                   >
                     <SidebarMenuItem
                       className={cn(
-                        "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
+                        "py-3 pl-5 cursor-pointer rounded-[4px]  gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
                         isParentActive(route) && "bg-[#F6FEF9] rounded-[4px]"
                       )}>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton>
-                          <div className="flex items-center gap-3">
+                        <SidebarMenuButton className="hover:!bg-transparent hover:text-title" isActive={
+                           isParentActive(route)
+                        }>
+                          <div className="flex items-center gap-3 w-full">
                             <div className="w-6 h-6">
                               <Icon
                                 name={route.icon}

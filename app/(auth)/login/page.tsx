@@ -26,9 +26,9 @@ const Login = () => {
           password: values.password
         },
         {
-          onSuccess: (data:any) => {
-            storageUtil.store('@chprbn', data.data.token);
-        navigation.push("/dashboard/home");
+          onSuccess: (data) => {
+            storageUtil.store("@chprbn", data.data.token);
+            navigation.push("/dashboard/home");
           }
         }
       );
@@ -71,7 +71,7 @@ const Login = () => {
               <span
                 className="text-[#F97066] font-normal text-xs cursor-pointer"
                 // onClick={() => navigation.push("/reset-password")}
-                >
+              >
                 Forgot Password?
               </span>
             </div>

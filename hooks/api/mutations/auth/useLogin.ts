@@ -4,8 +4,13 @@ import { useMutation } from "react-query";
 import request from "@/utils/api";
 
 type ResponseType = {
-  success: boolean;
-  data: string;
+  status: string;
+  message: string;
+  data: {
+    token: string;
+    requirePasswordReset: boolean;
+    roles: string[];
+  };
 };
 
 type InputType = {
@@ -15,7 +20,7 @@ type InputType = {
 
 type ErrorType = { error: string; success: boolean };
 
-const Login = (input: InputType): Promise<AxiosResponse<ResponseType>> => {
+const Login = (input: InputType): Promise<ResponseType> => {
   return request(
     "POST",
     `/auth/login`,
@@ -28,11 +33,9 @@ const Login = (input: InputType): Promise<AxiosResponse<ResponseType>> => {
 };
 
 const useLogin = () => {
-  return useMutation<
-    AxiosResponse<ResponseType>,
-    AxiosError<ErrorType>,
-    InputType
-  >((input: InputType) => Login(input));
+  return useMutation<ResponseType, AxiosError<ErrorType>, InputType>(
+    (input: InputType) => Login(input)
+  );
 };
 
 export { useLogin };

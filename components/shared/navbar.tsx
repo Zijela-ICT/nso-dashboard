@@ -21,8 +21,10 @@ const Navbar = () => {
           width={130}
           height={30}
           className="cursor-pointer"
+          alt="logo"
         />
       )}
+      
       <div className="flex flex-row items-center gap-2 md:gap-5">
         <div className="w-5 h-5">
           <Icon name="bell" className="w-5 h-5" />
