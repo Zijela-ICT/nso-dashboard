@@ -1,6 +1,7 @@
 import {
   AlertDialog,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
   Button,
@@ -26,14 +27,12 @@ const UploadBulkUser = ({ openModal, setOpenModal }: UploadBulkUserModal) => {
       <AlertDialogContent className="max-w-md w-full md:max-w-[600px]">
         <AlertDialogHeader className="space-y-3 relative">
           <div className="flex items-start justify-between !mt-0">
-            <AlertDialogTitle className="text-lg text-primary">
-              <h3 className="text-[#212B36] text-xl font-semibold ">
-                Upload Bulk User
-              </h3>
-              <p className="text-[#637381] text-base font-normal">
-                Import CSV /Excel file
-              </p>
+            <AlertDialogTitle className="text-[#212B36] text-xl font-semibold ">
+              Upload Bulk User
             </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#637381] text-base font-normal">
+              Import CSV /Excel file
+            </AlertDialogDescription>
             <div onClick={() => setOpenModal(false)} className="w-6 h-6">
               <Icon
                 name="cancel"
@@ -56,11 +55,11 @@ const UploadBulkUser = ({ openModal, setOpenModal }: UploadBulkUserModal) => {
             <Icon name="download" className="w-6 h-6" />
           </div>
 
-          <FileUploader onFileSelect={
-            (file) => {
+          <FileUploader
+            onFileSelect={(file) => {
               console.log(file);
-            }
-          } />
+            }}
+          />
         </div>
 
         <Button className="self-end mt-4" type="submit">
@@ -71,4 +70,4 @@ const UploadBulkUser = ({ openModal, setOpenModal }: UploadBulkUserModal) => {
   );
 };
 
-export {UploadBulkUser};
+export { UploadBulkUser };

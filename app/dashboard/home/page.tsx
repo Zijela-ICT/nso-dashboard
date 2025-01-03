@@ -1,9 +1,12 @@
+'use client'
+import { useFetchProfile } from '@/hooks/api/queries/settings';
 import React from 'react'
 
-const page = () => {
+const Page = () => {
+  const data = useFetchProfile();
   return (
-    <div>page</div>
+    <div>Page</div>
   )
 }
 
-export default page;
+export default Page;

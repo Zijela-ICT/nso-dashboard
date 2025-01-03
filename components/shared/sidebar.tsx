@@ -23,15 +23,19 @@ import {
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePermissions } from "@/hooks/custom/usePermissions";
+import {Permissions} from '@/utils/permission-enums'
 
 interface RouteItem {
   id: number;
   icon: string;
   label: string;
   href: string;
+  permission?: string | string[];
   subItems?: {
     label: string;
     href: string;
+    permission?: string | string[];
   }[];
 }
 
@@ -47,22 +51,27 @@ const routes: RouteItem[] = [
     icon: "book",
     label: "E-book",
     href: "/e-book",
+    permission: Permissions.READ_ADMIN_EBOOKS,
     subItems: [
       {
         label: "JCEW",
-        href: "/e-book/jcew"
+        href: "/e-book/jcew",
+        permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "CHEW",
-        href: "/e-book/chew"
+        href: "/e-book/chew",
+        permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "CHO",
-        href: "/e-book/cho"
+        href: "/e-book/cho",
+        permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "E-book Approval",
-        href: "/e-book/e-book-approval"
+        href: "/e-book/e-book-approval",
+        permission: Permissions.UPDATE_ADMIN_EBOOKS_APPROVE
       }
     ]
   },
@@ -70,21 +79,25 @@ const routes: RouteItem[] = [
     id: 4,
     icon: "hospital",
     label: "Nearby Facilities",
-    href: "/nearby-facilities"
+    href: "/nearby-facilities",
+    permission: Permissions.READ_FACILITIES
   },
   {
     id: 5,
     icon: "users",
     label: "Users",
     href: "/users",
+    permission: [Permissions.READ_ADMIN_USERS_APP, Permissions.READ_ADMIN_USERS_SYSTEM],
     subItems: [
       {
         label: "System Users",
-        href: "/users/system-users"
+        href: "/users/system-users",
+        permission: Permissions.READ_ADMIN_USERS_SYSTEM
       },
       {
         label: "App Users",
-        href: "/users/app-users"
+        href: "/users/app-users",
+        permission: Permissions.READ_ADMIN_USERS_APP
       },
     ]
   },
@@ -92,7 +105,8 @@ const routes: RouteItem[] = [
     id: 6,
     icon: "setting",
     label: "Settings",
-    href: "/settings"
+    href: "/settings",
+    permission: Permissions.READ_APP_SETTINGS
   }
 ];
 
@@ -101,6 +115,7 @@ const AppSidebar = () => {
   const isMobile = useIsMobile();
   const router = useRouter();
   const pathname = usePathname();
+  const { hasPermission } = usePermissions();
 
   const isParentActive = (route: RouteItem) => {
     if (route.subItems) {
@@ -119,6 +134,28 @@ const AppSidebar = () => {
     router.push(`/dashboard${href}`);
   };
 
+  // Check if user has permission to view a route
+  const canViewRoute = (permission?: string | string[]) => {
+    if (!permission) return true; // If no permission required, show the route
+    return hasPermission(permission);
+  };
+
+  // Check if user has permission to view any subitems
+  const canViewAnySubItems = (route: RouteItem) => {
+    if (!route.subItems) return false;
+    return route.subItems.some(subItem => canViewRoute(subItem.permission));
+  };
+
+  // Filter visible routes
+  const visibleRoutes = routes.filter(route => {
+    // If route has subitems, show if user can view any of them
+    if (route.subItems) {
+      return canViewAnySubItems(route);
+    }
+    // Otherwise check route's own permission
+    return canViewRoute(route.permission);
+  });
+
   return (
     <Sidebar
       className="bg-white border-none"
@@ -132,13 +169,13 @@ const AppSidebar = () => {
               className="cursor-pointer"
               height={40}
               width={100}
-              onClick={() => router.push("/dashboard/reports")}
+              onClick={() => router.push("/dashboard/home")}
             />
           </SidebarGroupLabel>
 
           <SidebarGroupContent className="flex-1 overflow-y-auto mt-9 ">
             <SidebarMenu className="gap-2">
-              {routes.map((route) =>
+              {visibleRoutes.map((route) =>
                 route.subItems ? (
                   <Collapsible
                     key={route.id}
@@ -147,13 +184,11 @@ const AppSidebar = () => {
                   >
                     <SidebarMenuItem
                       className={cn(
-                        "py-3 pl-5 cursor-pointer rounded-[4px]  gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
+                        "py-3 pl-5 cursor-pointer rounded-[4px] gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
                         isParentActive(route) && "bg-[#F6FEF9] rounded-[4px]"
                       )}>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="hover:!bg-transparent hover:text-title" isActive={
-                           isParentActive(route)
-                        }>
+                        <SidebarMenuButton className="hover:!bg-transparent hover:text-title" isActive={isParentActive(route)}>
                           <div className="flex items-center gap-3 w-full">
                             <div className="w-6 h-6">
                               <Icon
@@ -167,7 +202,6 @@ const AppSidebar = () => {
                                 "text-[#101828] text-base font-medium",
                                 isParentActive(route) && "font-semibold"
                               )}>
-                              {" "}
                               {route.label}
                             </span>
                           </div>
@@ -176,26 +210,28 @@ const AppSidebar = () => {
                       </CollapsibleTrigger>
                       <CollapsibleContent className="mt-1">
                         <div className="pl-14 flex flex-col gap-2">
-                          {route.subItems.map((subItem) => (
-                            <div
-                              key={subItem.label}
-                              className={cn(
-                                "relative cursor-pointer py-2 px-4",
-                                isActive(subItem.href) &&
-                                  "bg-[#F6FEF9] rounded-[4px] font-semibold"
-                              )}
-                              onClick={() => {
-                                handleNavigation(subItem.href);
-                                isMobile && toggleSidebar();
-                              }}>
-                              {isActive(subItem.href) && (
-                                <div className="absolute bg-[#2C6000] w-[2px] h-2 rounded-full top-1/2 -translate-y-1/2 left-0" />
-                              )}
-                              <span className="text-[#101828] text-base">
-                                {subItem.label}
-                              </span>
-                            </div>
-                          ))}
+                          {route.subItems
+                            .filter(subItem => canViewRoute(subItem.permission))
+                            .map((subItem) => (
+                              <div
+                                key={subItem.label}
+                                className={cn(
+                                  "relative cursor-pointer py-2 px-4",
+                                  isActive(subItem.href) &&
+                                    "bg-[#F6FEF9] rounded-[4px] font-semibold"
+                                )}
+                                onClick={() => {
+                                  handleNavigation(subItem.href);
+                                  isMobile && toggleSidebar();
+                                }}>
+                                {isActive(subItem.href) && (
+                                  <div className="absolute bg-[#2C6000] w-[2px] h-2 rounded-full top-1/2 -translate-y-1/2 left-0" />
+                                )}
+                                <span className="text-[#101828] text-base">
+                                  {subItem.label}
+                                </span>
+                              </div>
+                            ))}
                         </div>
                       </CollapsibleContent>
                     </SidebarMenuItem>

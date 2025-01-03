@@ -16,6 +16,7 @@ import {
   Pagination,
   Button
 } from "@/components/ui";
+import { useFetchSystemUsers } from "@/hooks/api/queries/users";
 import React, { useState } from "react";
 
 const AllUsers = () => {
@@ -27,6 +28,9 @@ const AllUsers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
   const totalPages = Math.ceil(100 / reportsPerPage);
+
+    const {data, isLoading} = useFetchSystemUsers(currentPage, reportsPerPage);
+  
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -64,14 +68,14 @@ const AllUsers = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {templates.map((_, index) => (
+          {data?.data?.data.map((user, index) => (
             <TableRow className="cursor-pointer" key={index}>
-              <TableCell>Evelyn</TableCell>
-              <TableCell>William</TableCell>
-              <TableCell>abctest@gmail.com</TableCell>
-              <TableCell>Super Admin</TableCell>
+              <TableCell>{user.firstName}</TableCell>
+              <TableCell>{user.lastName}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.roles[0]?.name}</TableCell>
               <TableCell>
-                <Badge variant="pending">Pending</Badge>
+                <Badge variant="success">{user?.cadre}</Badge>
               </TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -107,7 +111,7 @@ const AllUsers = () => {
       </Table>
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
+        totalPages={data?.data?.totalPages}
         onPageChange={setCurrentPage}
       />
 

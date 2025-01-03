@@ -1,5 +1,6 @@
 "use client";
 import {  CreateUser, EditUser, UploadBulkUser } from "@/components/modals/users";
+import { CreateRoleModal } from "@/components/modals/users/create-role";
 import {
   Badge,
   DropdownMenu,
@@ -22,10 +23,7 @@ import React, { useState } from "react";
 const Roles = () => {
   const  {data} = useFetchRoles();
 
-  const [createUserModal, setCreateUserModal] = useState(false);
-  const [bulkUploadModal, setBulkUploadModal] = useState(false);
-  const [editUserModal, setEditUserModal] = useState(false);
-
+  const [createRoleModal, setCreateRoleModal] = useState(false);
   
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
@@ -46,7 +44,7 @@ const Roles = () => {
           />
           <Icon name="search" className="absolute top-4 left-4 " fill="none" />
         </div>
-        <Button className="w-fit" onClick={() => setCreateUserModal(true)}>
+        <Button className="w-fit" onClick={() => setCreateRoleModal(true)}>
           {" "}
           Create Role
         </Button>
@@ -80,16 +78,11 @@ const Roles = () => {
         onPageChange={setCurrentPage}
       />
 
-      <CreateUser
-        openModal={createUserModal}
-        setOpenModal={setCreateUserModal}
+      <CreateRoleModal
+        openModal={createRoleModal}
+        setOpenModal={setCreateRoleModal}
       />
-      <UploadBulkUser
-        openModal={bulkUploadModal}
-        setOpenModal={setBulkUploadModal}
-      />
-
-      <EditUser openModal={editUserModal} setOpenModal={setEditUserModal} />
+     
     </div>
   );
 };

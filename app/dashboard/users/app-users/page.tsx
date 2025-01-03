@@ -16,17 +16,15 @@ import {
   Pagination,
   Button
 } from "@/components/ui";
-import { useFetchUsers } from "@/hooks/api/queries/users";
+import { useFetchAppUsers } from "@/hooks/api/queries/users";
 import React, { useState } from "react";
 
 const Page = () => {
-  const {data} = useFetchUsers();
-
-  console.log("data", data);
-  
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
   const totalPages = Math.ceil(100 / reportsPerPage);
+
+  const {data, isLoading} = useFetchAppUsers(currentPage, reportsPerPage);
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -108,8 +106,8 @@ const Page = () => {
       </Table>
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        totalPages={data?.data?.totalPages}
+        onPageChange={onPageChange}
       />
     </div>
   );

@@ -79,7 +79,7 @@ const Pagination: React.FC<PaginationProps> = ({
     <div className="flex items-center justify-between px-4 py-3 sm:px-6 w-[50%] mx-auto">
       <button
         onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        disabled={currentPage === 1 || totalPages === 0}
         className={`
           relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
           ${currentPage === 1 
@@ -97,7 +97,7 @@ const Pagination: React.FC<PaginationProps> = ({
       
       <button
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        disabled={currentPage === totalPages || totalPages === 0}
         className={`
           relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
           ${currentPage === totalPages 

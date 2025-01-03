@@ -11,3 +11,5 @@ export * from "./pagination";
 export * from "./alert-dialog";
 export * from "./select";
 export * from "./file-uploader";
+export * from "./input-otp";
+export * from "./checkbox";

@@ -2,13 +2,17 @@ import request from "@/utils/api";
 import { QUERYKEYS } from "@/utils/query-keys";
 import { useQuery } from "react-query";
 
+type PermissionResponse = {
+    id: number;
+    permissionString: string;
+}
 type RoleResp = {
   id: number;
   name: string;
-  users: number;
+  permissions: PermissionResponse[];
 };
 
-type UsersDataResponse = {
+type ProfileDataResponse = {
   id: number;
   regNumber: number;
   username: string | null;
@@ -33,31 +37,19 @@ type UsersDataResponse = {
   roles: RoleResp[];
 };
 
-type UserResp = {
+type ProfileResp = {
   success: boolean;
   message: string;
-  data: {
-    data: UsersDataResponse[];
-    totalCount: number;
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
+  data: ProfileDataResponse;
 };
 
-export const FetchUsers = async (
-  page: number = 1,
-  perPage: number = 10
-): Promise<UserResp> => {
-  return request("GET", `/admin/users?page=${page}&limit=${perPage}`);
+export const FetchProfile = async (): Promise<ProfileResp> => {
+  return request("GET", `/users/me`);
 };
 
-export const useFetchUsers = (page: number = 1, perPage: number = 10) => {
-  const queryKey = [QUERYKEYS.FETCHUSERS, page, perPage];
-  return useQuery(queryKey, () => FetchUsers(page, perPage), {
-    retry: 1,
-    keepPreviousData: true
+export const useFetchProfile = () => {
+  const queryKey = [QUERYKEYS.FETCHPROFILE];
+  return useQuery(queryKey, () => FetchProfile(), {
+    retry: 1
   });
 };
