@@ -1,0 +1,31 @@
+{
+  "book": {
+    "bookTitle": "Book title",
+    "cert_sign": "utils.cert_sign",
+    "content": [],
+    "content_keystrokes_threshold": 30,
+    "courseName": "",
+    "coverUrl": "coverUrl",
+    "cpd_enabled": true,
+    "cpd_minimum_threshold": 100,
+    "heading": "heading",
+    "learning_hours_threshold": 1,
+    "pointsConfig": {
+      "content_search_made": 5,
+      "download_made": 3,
+      "image_clicked": 1,
+      "page_visited": 2,
+      "quizMultiplier": 10,
+      "refresh_made": 5,
+      "retriesMultiplier": 0.05,
+      "top_search_made": 8,
+      "video_watched": 10
+    },
+    "points_multiplier_increment": 0.005,
+    "profile_disclaimer": "util.profile_disclaimer",
+    "sample_cert_url": "utils.sample_cert_url",
+    "subTitle": "subtitle",
+    "topbar_search_threshold": 50,
+    "trainingProvider": "Zijela"
+  }
+}

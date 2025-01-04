@@ -55,22 +55,22 @@ const routes: RouteItem[] = [
     subItems: [
       {
         label: "JCEW",
-        href: "/e-book/jcew",
+        href: "/dashboard/e-book/jcew",
         permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "CHEW",
-        href: "/e-book/chew",
+        href: "/dashboard/e-book/chew",
         permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "CHO",
-        href: "/e-book/cho",
+        href: "/dashboard/e-book/cho",
         permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "E-book Approval",
-        href: "/e-book/e-book-approval",
+        href: "/dashboard/e-book/e-book-approval",
         permission: Permissions.UPDATE_ADMIN_EBOOKS_APPROVE
       }
     ]
@@ -221,8 +221,6 @@ const AppSidebar = () => {
                                     "bg-[#F6FEF9] rounded-[4px] font-semibold"
                                 )}
                                 onClick={() => {
-                                  handleNavigation(subItem.href);
-                                  isMobile && toggleSidebar();
                                 }}>
                                 {isActive(subItem.href) && (
                                   <div className="absolute bg-[#2C6000] w-[2px] h-2 rounded-full top-1/2 -translate-y-1/2 left-0" />

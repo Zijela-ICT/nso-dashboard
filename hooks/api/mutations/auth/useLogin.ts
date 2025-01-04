@@ -26,7 +26,7 @@ const Login = (input: InputType): Promise<ResponseType> => {
     `/auth/login`,
     {
       email: input.email,
-      password: input.password
+      password: input.password,
     },
     false
   );

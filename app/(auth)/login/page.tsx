@@ -7,6 +7,7 @@ import { LoginSchema } from "@/validation-schema/auth";
 import { useFormik } from "formik";
 import { useInitiatePasswordReset, useLogin } from "@/hooks/api/mutations/auth";
 import storageUtil from "@/utils/browser-storage";
+import { CHPBRN_TOKEN } from "@/constants";
 
 const Login = () => {
   const navigation = useRouter();
@@ -17,14 +18,14 @@ const Login = () => {
   const formik = useFormik({
     initialValues: {
       email: "",
-      password: ""
+      password: "",
     },
     validationSchema: LoginSchema,
     onSubmit: (values) => {
       login.mutate(
         {
           email: values.email,
-          password: values.password
+          password: values.password,
         },
         {
           onSuccess: (data) => {
@@ -49,7 +50,7 @@ const Login = () => {
           }
         }
       );
-    }
+    },
   });
 
   return (
