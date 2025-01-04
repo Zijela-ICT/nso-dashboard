@@ -35,7 +35,7 @@ const Navbar = () => {
             <AvatarImage src="https://github.com/shadcn.png" />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-          <span className="font-medium text-sm text-primary">
+          <span className="font-medium text-sm text-primary hidden md:block">
             Danny Johnson
           </span>
         </div>

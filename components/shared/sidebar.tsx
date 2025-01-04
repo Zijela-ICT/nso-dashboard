@@ -24,7 +24,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePermissions } from "@/hooks/custom/usePermissions";
-import {Permissions} from '@/utils/permission-enums'
+import { Permissions } from "@/utils/permission-enums";
 
 interface RouteItem {
   id: number;
@@ -55,22 +55,22 @@ const routes: RouteItem[] = [
     subItems: [
       {
         label: "JCEW",
-        href: "/dashboard/e-book/jcew",
+        href: "/e-book/jcew",
         permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "CHEW",
-        href: "/dashboard/e-book/chew",
+        href: "/e-book/chew",
         permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "CHO",
-        href: "/dashboard/e-book/cho",
+        href: "/e-book/cho",
         permission: Permissions.READ_ADMIN_EBOOKS
       },
       {
         label: "E-book Approval",
-        href: "/dashboard/e-book/e-book-approval",
+        href: "/e-book/e-book-approval",
         permission: Permissions.UPDATE_ADMIN_EBOOKS_APPROVE
       }
     ]
@@ -87,7 +87,10 @@ const routes: RouteItem[] = [
     icon: "users",
     label: "Users",
     href: "/users",
-    permission: [Permissions.READ_ADMIN_USERS_APP, Permissions.READ_ADMIN_USERS_SYSTEM],
+    permission: [
+      Permissions.READ_ADMIN_USERS_APP,
+      Permissions.READ_ADMIN_USERS_SYSTEM
+    ],
     subItems: [
       {
         label: "System Users",
@@ -98,7 +101,7 @@ const routes: RouteItem[] = [
         label: "App Users",
         href: "/users/app-users",
         permission: Permissions.READ_ADMIN_USERS_APP
-      },
+      }
     ]
   },
   {
@@ -143,11 +146,11 @@ const AppSidebar = () => {
   // Check if user has permission to view any subitems
   const canViewAnySubItems = (route: RouteItem) => {
     if (!route.subItems) return false;
-    return route.subItems.some(subItem => canViewRoute(subItem.permission));
+    return route.subItems.some((subItem) => canViewRoute(subItem.permission));
   };
 
   // Filter visible routes
-  const visibleRoutes = routes.filter(route => {
+  const visibleRoutes = routes.filter((route) => {
     // If route has subitems, show if user can view any of them
     if (route.subItems) {
       return canViewAnySubItems(route);
@@ -180,15 +183,17 @@ const AppSidebar = () => {
                   <Collapsible
                     key={route.id}
                     defaultOpen={isParentActive(route)}
-                    className="group/collapsible w-full"
-                  >
+                    className="group/collapsible w-full">
                     <SidebarMenuItem
                       className={cn(
                         "py-3 pl-5 cursor-pointer rounded-[4px] gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
                         isParentActive(route) && "bg-[#F6FEF9] rounded-[4px]"
                       )}>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="hover:!bg-transparent hover:text-title" isActive={isParentActive(route)}>
+                        <SidebarMenuButton
+                          className="hover:!bg-transparent hover:text-title"
+                          isActive={isParentActive(route)}
+                          >
                           <div className="flex items-center gap-3 w-full">
                             <div className="w-6 h-6">
                               <Icon
@@ -211,7 +216,9 @@ const AppSidebar = () => {
                       <CollapsibleContent className="mt-1">
                         <div className="pl-14 flex flex-col gap-2">
                           {route.subItems
-                            .filter(subItem => canViewRoute(subItem.permission))
+                            .filter((subItem) =>
+                              canViewRoute(subItem.permission)
+                            )
                             .map((subItem) => (
                               <div
                                 key={subItem.label}
@@ -221,6 +228,8 @@ const AppSidebar = () => {
                                     "bg-[#F6FEF9] rounded-[4px] font-semibold"
                                 )}
                                 onClick={() => {
+                                  handleNavigation(subItem.href);
+                                  isMobile && toggleSidebar();
                                 }}>
                                 {isActive(subItem.href) && (
                                   <div className="absolute bg-[#2C6000] w-[2px] h-2 rounded-full top-1/2 -translate-y-1/2 left-0" />
@@ -244,9 +253,7 @@ const AppSidebar = () => {
                     <SidebarMenuButton
                       asChild
                       className="hover:!bg-transparent hover:text-title"
-                      onClick={() => {
-                        isMobile && toggleSidebar();
-                      }}>
+                      >
                       <Link href={`/dashboard${route.href}`}>
                         <div className="w-6 h-6">
                           <Icon
