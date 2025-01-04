@@ -75,7 +75,7 @@ const AllUsers = () => {
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.roles[0]?.name}</TableCell>
               <TableCell>
-                <Badge variant="success">{user?.cadre}</Badge>
+                <Badge variant={user?.isDeactivated ? "failed" : "success"}>{user?.isDeactivated ? "Inactive" : "Active"}</Badge>
               </TableCell>
               <TableCell>
                 <DropdownMenu>

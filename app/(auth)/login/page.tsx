@@ -30,16 +30,18 @@ const Login = () => {
           onSuccess: (data) => {
             if (data.data.requirePasswordReset) {
               storageUtil.store("@chprbn", data.data.token);
-              initiateReset.mutate(
-                {
-                  email: values.email
-                },
-                {
-                  onSuccess: () => {
-                    navigation.push(`/complete-registration?email=${encodeURIComponent(values.email)}`);
-                  }
-                }
-              );
+              navigation.push(`/complete-registration?email=${encodeURIComponent(values.email)}`);s
+
+              // initiateReset.mutate(
+              //   {
+              //     email: values.email
+              //   },
+              //   {
+              //     onSuccess: () => {
+              //       navigation.push(`/complete-registration?email=${encodeURIComponent(values.email)}`);
+              //     }
+              //   }
+              // );
               return;
             }
             storageUtil.store("@chprbn", data.data.token);

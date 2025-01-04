@@ -178,7 +178,7 @@ const CreateRoleModal = ({ openModal, setOpenModal }) => {
                     </button>
                     {expandedSections[resourceName] && (
                       <div className="border-t border-gray-300 py-2">
-                        {permissions.map((permission) => (
+                        {permissions?.map((permission) => (
                           <div
                             key={permission.id}
                             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
@@ -204,11 +204,11 @@ const CreateRoleModal = ({ openModal, setOpenModal }) => {
                 )
               )}
             </div>
-            {formik.touched.permissions && formik.errors.permissions && (
+            {/* {formik.touched.permissions && formik.errors.permissions && (
               <div className="text-red-500 text-sm">
                 {formik.errors.permissions}
               </div>
-            )}
+            )} */}
           </div>
 
           <Button

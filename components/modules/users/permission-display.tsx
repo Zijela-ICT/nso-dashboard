@@ -135,7 +135,7 @@ const ResourceSection = React.memo(({
         <div
           className={cn(
             "border-t border-gray-300 py-2",
-            `grid grid-cols-${columns}`
+            `grid grid-cols-3`
           )}
         >
           {permissions.map((permission) => (
@@ -167,7 +167,7 @@ export const PermissionsDisplay = ({
   const [selectedMap, setSelectedMap] = useState<Record<number, boolean>>(() => {
     // Create a map of all permissions initialized to false
     const initialMap = Object.fromEntries(
-      permissions.map(p => [p.id, false])
+      permissions?.map(p => [p.id, false])
     );
     // Set selected permissions to true
     selectedPermissions.forEach(id => {
