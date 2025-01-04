@@ -11,13 +11,7 @@ import storageUtil from "@/utils/browser-storage";
 const Login = ({
   
 }) => {
-  const navigation = useRouter();
-
-  const searchParams = useSearchParams();
   const [otp, setOtp] = useState("");
-
-  const email = searchParams.get("email") as string;
-
   const login = useLogin();
 
   const handleSubmit = async (e:any) => {

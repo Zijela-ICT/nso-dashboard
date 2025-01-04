@@ -147,7 +147,7 @@ const CreateRoleModal = ({ openModal, setOpenModal }) => {
             </p>
             <div className="bg-white py-4 max-h-[400px] overflow-y-auto">
               {Object.entries(groupedPermissions).map(
-                ([resourceName, permissions]) => (
+                ([resourceName, permissions]: any) => (
                   <div
                     key={resourceName}
                     className="border border-gray-300 rounded-lg overflow-hidden mb-2"

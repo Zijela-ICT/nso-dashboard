@@ -1,6 +1,6 @@
 "use client";
 import { Button, Icon, Input } from "@/components/ui";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLayout, OtpSection } from "@/components/shared";
 import { NewPasswordSchema } from "@/validation-schema/auth";
@@ -86,4 +86,14 @@ const CompleteRegistration = () => {
   );
 };
 
-export default CompleteRegistration;
+
+
+const Page = () => {
+  return (
+    <Suspense>
+      <CompleteRegistration />
+    </Suspense>
+  );
+};
+
+export default Page;

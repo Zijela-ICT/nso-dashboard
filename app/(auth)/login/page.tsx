@@ -1,3 +1,4 @@
+//eslint-disable-next-line @typescript-eslint/no-unused-expressions
 "use client";
 import { Button, Icon, Input } from "@/components/ui";
 import React from "react";
@@ -31,18 +32,7 @@ const Login = () => {
           onSuccess: (data) => {
             if (data.data.requirePasswordReset) {
               storageUtil.store("@chprbn", data.data.token);
-              navigation.push(`/complete-registration?email=${encodeURIComponent(values.email)}`);s
-
-              // initiateReset.mutate(
-              //   {
-              //     email: values.email
-              //   },
-              //   {
-              //     onSuccess: () => {
-              //       navigation.push(`/complete-registration?email=${encodeURIComponent(values.email)}`);
-              //     }
-              //   }
-              // );
+              navigation.push(`/complete-registration?email=${encodeURIComponent(values.email)}`);
               return;
             }
             storageUtil.store("@chprbn", data.data.token);

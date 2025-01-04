@@ -14,7 +14,7 @@ type InputType = {
   last_name: string;
   email: string;
   mobile: string;
-  role: string[];
+  role: string[] | any;
 };
 
 type ErrorType = { error: string; success: boolean };
