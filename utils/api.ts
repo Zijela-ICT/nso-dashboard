@@ -63,7 +63,7 @@ const handleApiError = (
 
     if (
       status === 401 &&
-      (data.detail?.toString().toLowerCase().includes("invalid") || false)
+      (data.detail?.toString().toLowerCase().includes("no token") || false)
     ) {
       showToast("Session expired. Please login again.", "error");
       window.location.href = "/";
@@ -77,7 +77,7 @@ const handleApiError = (
   }
   if (
     errorMessage.status === 401 &&
-    (errorMessage.message?.toString().toLowerCase().includes("invalid") ||
+    (errorMessage.message?.toString().toLowerCase().includes("no token") ||
       false)
   ) {
     showToast("Session expired. Please login again.", "error");

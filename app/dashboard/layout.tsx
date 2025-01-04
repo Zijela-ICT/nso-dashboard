@@ -13,7 +13,7 @@ const DashboardLayout: React.FC = (props: PropsWithChildren) => {
         <Sidebar />
         <main className="w-full">
           <Navbar />
-          <div className="px-4 w-full md:max-w-[80%] mx-auto">
+          <div className="px-4 w-full mx-auto">
             {props.children}
           </div>
         </main>

@@ -49,7 +49,9 @@ const AuthLayout = ({
           className="absolute bottom-0 left-0 w-full"
         />
       </div>
-      <p className="text-[#637381] text-sm font-normal text-end">© 2024 chpbrn. All Right Reserved</p>
+      <p className="text-[#637381] text-sm font-normal text-end">
+        © 2024 chpbrn. All Right Reserved
+      </p>
     </div>
   );
 };

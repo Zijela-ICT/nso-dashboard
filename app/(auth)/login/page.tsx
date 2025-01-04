@@ -1,3 +1,4 @@
+//eslint-disable-next-line @typescript-eslint/no-unused-expressions
 "use client";
 import { Button, Icon, Input } from "@/components/ui";
 import React from "react";
@@ -5,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/shared";
 import { LoginSchema } from "@/validation-schema/auth";
 import { useFormik } from "formik";
-import { useLogin } from "@/hooks/api/mutations/auth";
+import { useInitiatePasswordReset, useLogin } from "@/hooks/api/mutations/auth";
 import storageUtil from "@/utils/browser-storage";
 import { CHPBRN_TOKEN } from "@/constants";
 
@@ -13,6 +14,7 @@ const Login = () => {
   const navigation = useRouter();
 
   const login = useLogin();
+  const initiateReset = useInitiatePasswordReset();
 
   const formik = useFormik({
     initialValues: {
@@ -27,10 +29,15 @@ const Login = () => {
           password: values.password,
         },
         {
-          onSuccess: (data: any) => {
+          onSuccess: (data) => {
+            if (data.data.requirePasswordReset) {
+              storageUtil.store("@chprbn", data.data.token);
+              navigation.push(`/complete-registration?email=${encodeURIComponent(values.email)}`);
+              return;
+            }
             storageUtil.store("@chprbn", data.data.token);
             navigation.push("/dashboard/home");
-          },
+          }
         }
       );
     },
@@ -42,7 +49,7 @@ const Login = () => {
         <form className="w-full" onSubmit={formik.handleSubmit}>
           <div className="p-6 md:p-12 flex flex-col items-start gap-4">
             <div>
-              <h2 className="text-title font-[700] text-xl md:text-2xl">
+              <h2 className="text-[#212B36] font-medium text-xl md:text-2xl">
                 Log in
               </h2>
               <p>Enter your details to log in</p>
@@ -71,16 +78,14 @@ const Login = () => {
               />
               <span
                 className="text-[#F97066] font-normal text-xs cursor-pointer"
-                // onClick={() => navigation.push("/reset-password")}
-              >
+                onClick={() => navigation.push("/complete-registration")}>
                 Forgot Password?
               </span>
             </div>
             <Button
               type="submit"
               disabled={!formik.isValid || !formik.dirty}
-              isLoading={login.isLoading}
-            >
+              isLoading={login.isLoading || initiateReset.isLoading}>
               Sign in
             </Button>
           </div>
