@@ -32,7 +32,6 @@ interface PermissionsDisplayProps {
   columns?: number;
 }
 
-// Memoized permission item component
 const PermissionItem = React.memo(({ 
   permission, 
   isSelected,
@@ -74,7 +73,6 @@ const PermissionItem = React.memo(({
 
 PermissionItem.displayName = 'PermissionItem';
 
-// Memoized resource section component
 const ResourceSection = React.memo(({
   resourceName,
   permissions,
@@ -125,9 +123,10 @@ const ResourceSection = React.memo(({
         </div>
         <Icon
           name="chevron-down"
-          className={`w-6 h-6 transition-transform duration-200 ${
-            isExpanded ? "rotate-180" : ""
-          }`}
+          className={cn(
+            "w-6 h-6 transition-transform duration-200",
+            isExpanded && "rotate-180"
+          )}
           fill="none"
         />
       </button>
@@ -135,7 +134,7 @@ const ResourceSection = React.memo(({
         <div
           className={cn(
             "border-t border-gray-300 py-2",
-            `grid grid-cols-3`
+            columns > 1 && `grid grid-cols-3`
           )}
         >
           {permissions.map((permission) => (
@@ -156,7 +155,7 @@ const ResourceSection = React.memo(({
 ResourceSection.displayName = 'ResourceSection';
 
 export const PermissionsDisplay = ({
-  permissions,
+  permissions = [],
   mode = "list",
   selectedPermissions = [],
   onSelectionChange,
@@ -164,22 +163,18 @@ export const PermissionsDisplay = ({
   columns = 1,
 }: PermissionsDisplayProps) => {
   const [expandedSections, setExpandedSections] = useState<ExpandedSections>({});
-  const [selectedMap, setSelectedMap] = useState<Record<number, boolean>>(() => {
-    // Create a map of all permissions initialized to false
-    const initialMap = Object.fromEntries(
-      permissions?.map(p => [p.id, false])
-    );
-    // Set selected permissions to true
-    selectedPermissions.forEach(id => {
-      initialMap[id] = true;
+  
+  // Create a memoized selectedMap based on props
+  const selectedMap = useMemo(() => {
+    const map: Record<number, boolean> = {};
+    permissions.forEach(p => {
+      map[p.id] = selectedPermissions.includes(p.id);
     });
-    return initialMap;
-  });
+    return map;
+  }, [permissions, selectedPermissions]);
 
   // Memoize grouped permissions
   const groupedPermissions = useMemo(() => {
-    if (!permissions) return {};
-
     return permissions.reduce((groups: GroupedPermissions, permission) => {
       const [action, resource] = permission.permissionString.split("_");
       const resourceName = resource.split(":")[0];
@@ -199,59 +194,38 @@ export const PermissionsDisplay = ({
     }, {});
   }, [permissions]);
 
-  // Update selected permissions when prop changes
-  useEffect(() => {
-    const newMap = Object.fromEntries(
-      permissions.map(p => [p.id, false])
-    );
-    selectedPermissions.forEach(id => {
-      newMap[id] = true;
-    });
-    setSelectedMap(newMap);
-  }, [selectedPermissions, permissions]);
-  
-
   const toggleSection = useCallback((section: string) => {
-    setExpandedSections((prev) => ({
+    setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section],
     }));
   }, []);
 
   const togglePermission = useCallback((permissionId: number) => {
-    setSelectedMap(prev => {
-      const newSelected = { ...prev };
-      // Explicitly set to true if not selected, false if selected
-      newSelected[permissionId] = !newSelected[permissionId];
-      
-      // Get all selected IDs
-      const selectedIds = Object.entries(newSelected)
-        .filter(([_, isSelected]) => isSelected)
-        .map(([id]) => Number(id));
-      
-      onSelectionChange?.(selectedIds);
-      return newSelected;
-    });
-  }, [onSelectionChange]);
-  
+    const newSelected = new Set(selectedPermissions);
+    if (newSelected.has(permissionId)) {
+      newSelected.delete(permissionId);
+    } else {
+      newSelected.add(permissionId);
+    }
+    onSelectionChange?.(Array.from(newSelected));
+  }, [selectedPermissions, onSelectionChange]);
+
   const toggleResourcePermissions = useCallback((resourcePermissions: PermissionWithMetadata[]) => {
-    setSelectedMap(prev => {
-      const newSelected = { ...prev };
-      const allSelected = resourcePermissions.every(p => newSelected[p.id]);
-      
-      // Set all permissions in the resource to the opposite of allSelected
-      resourcePermissions.forEach(permission => {
-        newSelected[permission.id] = !allSelected;
-      });
-      
-      const selectedIds = Object.entries(newSelected)
-        .filter(([_, isSelected]) => isSelected)
-        .map(([id]) => Number(id));
-      
-      onSelectionChange?.(selectedIds);
-      return newSelected;
+    const permissionIds = resourcePermissions.map(p => p.id);
+    const allSelected = permissionIds.every(id => selectedPermissions.includes(id));
+    
+    const newSelected = new Set(selectedPermissions);
+    permissionIds.forEach(id => {
+      if (allSelected) {
+        newSelected.delete(id);
+      } else {
+        newSelected.add(id);
+      }
     });
-  }, [onSelectionChange]);
+    
+    onSelectionChange?.(Array.from(newSelected));
+  }, [selectedPermissions, onSelectionChange]);
 
   return (
     <div className={cn("bg-white py-4", className)}>

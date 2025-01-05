@@ -14,13 +14,16 @@ type RoleResp = {
   data: RoleDataResponse[];
 };
 
-export const FetchRoles = async (): Promise<RoleResp> => {
-  return request("GET", `/admin/roles`);
+export const FetchRoles = async (
+  page: number = 1,
+  perPage: number = 10
+): Promise<RoleResp> => {
+  return request("GET", `/admin/roles/?page=${page}&limit=${perPage}`);
 };
 
-export const useFetchRoles = () => {
-  const queryKey = [QUERYKEYS.FETCHROLES];
-  return useQuery(queryKey, () => FetchRoles(), {
+export const useFetchRoles = (page: number = 1, perPage: number = 10) => {
+  const queryKey = [QUERYKEYS.FETCHROLES, page, perPage];
+  return useQuery(queryKey, () => FetchRoles(page, perPage), {
     retry: 1
   });
 };

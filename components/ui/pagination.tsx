@@ -76,7 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 sm:px-6 w-[50%] mx-auto">
+    <div className="flex items-center justify-between px-4 py-3 sm:px-6 w-full md:w-[50%] mx-auto">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1 || totalPages === 0}

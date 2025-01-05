@@ -24,7 +24,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePermissions } from "@/hooks/custom/usePermissions";
-import { Permissions } from "@/utils/permission-enums";
+import { SystemPermissions } from "@/utils/permission-enums";
 
 interface RouteItem {
   id: number;
@@ -51,27 +51,27 @@ const routes: RouteItem[] = [
     icon: "book",
     label: "E-book",
     href: "/e-book",
-    permission: Permissions.READ_ADMIN_EBOOKS,
+    permission: SystemPermissions.READ_ADMIN_EBOOKS,
     subItems: [
       {
-        label: "JCEW",
+        label: "JCHEW",
         href: "/e-book/jcew",
-        permission: Permissions.READ_ADMIN_EBOOKS
+        permission: SystemPermissions.READ_ADMIN_EBOOKS
       },
       {
         label: "CHEW",
         href: "/e-book/chew",
-        permission: Permissions.READ_ADMIN_EBOOKS
+        permission: SystemPermissions.READ_ADMIN_EBOOKS
       },
       {
         label: "CHO",
         href: "/e-book/cho",
-        permission: Permissions.READ_ADMIN_EBOOKS
+        permission: SystemPermissions.READ_ADMIN_EBOOKS
       },
       {
         label: "E-book Approval",
         href: "/e-book/e-book-approval",
-        permission: Permissions.UPDATE_ADMIN_EBOOKS_APPROVE
+        permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE
       }
     ]
   },
@@ -80,7 +80,7 @@ const routes: RouteItem[] = [
     icon: "hospital",
     label: "Nearby Facilities",
     href: "/nearby-facilities",
-    permission: Permissions.READ_FACILITIES
+    permission: SystemPermissions.READ_FACILITIES
   },
   {
     id: 5,
@@ -88,19 +88,19 @@ const routes: RouteItem[] = [
     label: "Users",
     href: "/users",
     permission: [
-      Permissions.READ_ADMIN_USERS_APP,
-      Permissions.READ_ADMIN_USERS_SYSTEM
+      SystemPermissions.READ_ADMIN_USERS_APP,
+      SystemPermissions.READ_ADMIN_USERS_SYSTEM
     ],
     subItems: [
       {
         label: "System Users",
         href: "/users/system-users",
-        permission: Permissions.READ_ADMIN_USERS_SYSTEM
+        permission: SystemPermissions.READ_ADMIN_USERS_SYSTEM
       },
       {
         label: "App Users",
         href: "/users/app-users",
-        permission: Permissions.READ_ADMIN_USERS_APP
+        permission: SystemPermissions.READ_ADMIN_USERS_APP
       }
     ]
   },
@@ -109,7 +109,7 @@ const routes: RouteItem[] = [
     icon: "setting",
     label: "Settings",
     href: "/settings",
-    permission: Permissions.READ_APP_SETTINGS
+    permission: SystemPermissions.READ_APP_SETTINGS
   }
 ];
 

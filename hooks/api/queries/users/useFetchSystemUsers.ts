@@ -8,7 +8,7 @@ type RoleResp = {
   users: number;
 };
 
-type SystemUsersDataResponse = {
+export type SystemUsersDataResponse = {
   id: number;
   regNumber: number;
   username: string | null;
@@ -30,7 +30,7 @@ type SystemUsersDataResponse = {
   isTwoFAEnabled: boolean;
   createdAt: string | null;
   updatedAt: string | null;
-  roles: RoleResp[];
+  roles: RoleResp[] | any;
 };
 
 type SystemUserResp = {
