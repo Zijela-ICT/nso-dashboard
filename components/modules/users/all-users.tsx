@@ -1,5 +1,9 @@
 "use client";
-import {  CreateUser, EditUser, UploadBulkUser } from "@/components/modals/users";
+import {
+  CreateUser,
+  EditUser,
+  UploadBulkUser
+} from "@/components/modals/users";
 import {
   Badge,
   DropdownMenu,
@@ -16,27 +20,29 @@ import {
   Pagination,
   Button
 } from "@/components/ui";
-import { useFetchSystemUsers } from "@/hooks/api/queries/users";
+import {
+  SystemUsersDataResponse,
+  useFetchSystemUsers
+} from "@/hooks/api/queries/users";
+import { usePermissions } from "@/hooks/custom/usePermissions";
+import { SystemPermissions } from "@/utils/permission-enums";
 import React, { useState } from "react";
 
 const AllUsers = () => {
+  const { hasPermission } = usePermissions();
   const [createUserModal, setCreateUserModal] = useState(false);
   const [bulkUploadModal, setBulkUploadModal] = useState(false);
   const [editUserModal, setEditUserModal] = useState(false);
 
-  
+  const [selectedUser, setSelectedUser] =
+    useState<SystemUsersDataResponse | null>(null);
+
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
   const totalPages = Math.ceil(100 / reportsPerPage);
 
-    const {data, isLoading} = useFetchSystemUsers(currentPage, reportsPerPage);
-  
+  const { data, isLoading } = useFetchSystemUsers(currentPage, reportsPerPage);
 
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const templates = Array(5).fill(null);
   return (
     <div className="bg-white p-4 rounded-2xl">
       <div className="gap-4 flex flex-row items-center w-full mb-3">
@@ -47,11 +53,16 @@ const AllUsers = () => {
           />
           <Icon name="search" className="absolute top-4 left-4 " fill="none" />
         </div>
-        <Button className="w-fit" onClick={() => setCreateUserModal(true)}>
-          {" "}
-          Create User
-        </Button>
-        <Button className="w-fit" variant="outline" onClick={() => setBulkUploadModal(true)}>
+        {hasPermission(SystemPermissions.CREATE_ADMIN_USERS) && (
+          <Button className="w-fit" onClick={() => setCreateUserModal(true)}>
+            {" "}
+            Create User
+          </Button>
+        )}
+        <Button
+          className="w-fit"
+          variant="outline"
+          onClick={() => setBulkUploadModal(true)}>
           {" "}
           Bulk User
         </Button>
@@ -75,7 +86,9 @@ const AllUsers = () => {
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.roles[0]?.name}</TableCell>
               <TableCell>
-                <Badge variant={user?.isDeactivated ? "failed" : "success"}>{user?.isDeactivated ? "Inactive" : "Active"}</Badge>
+                <Badge variant={user?.isDeactivated ? "failed" : "success"}>
+                  {user?.isDeactivated ? "Inactive" : "Active"}
+                </Badge>
               </TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -91,17 +104,30 @@ const AllUsers = () => {
                   <DropdownMenuContent
                     align="end"
                     className="text-sm text-[#212B36] font-medium rounded-[8px] px-1">
-                    <DropdownMenuItem className="py-2  rounded-[8px]" onClick={
-                      () => setEditUserModal(true)
-                    }>
-                      Edit User
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="py-2 rounded-[8px]">
-                      Reset Password
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="py-2 text-[#FF3B30] rounded-[8px]">
-                      Deactivate User
-                    </DropdownMenuItem>
+                    {hasPermission(SystemPermissions.UPDATE_ADMIN_USERS) && (
+                      <DropdownMenuItem
+                        className="py-2  rounded-[8px]"
+                        onClick={() => {
+                          setEditUserModal(true);
+                          setSelectedUser(user);
+                        }}>
+                        Edit User
+                      </DropdownMenuItem>
+                    )}
+                    {hasPermission(
+                      SystemPermissions.UPDATE_ADMIN_USERS_RESET_PASSWORD
+                    ) && (
+                      <DropdownMenuItem className="py-2 rounded-[8px]">
+                        Reset Password
+                      </DropdownMenuItem>
+                    )}
+                    {hasPermission(
+                      SystemPermissions.UPDATE_ADMIN_USERS_DEACTIVATE
+                    ) && (
+                      <DropdownMenuItem className="py-2 text-[#FF3B30] rounded-[8px]">
+                        Deactivate User
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
@@ -124,7 +150,11 @@ const AllUsers = () => {
         setOpenModal={setBulkUploadModal}
       />
 
-      <EditUser openModal={editUserModal} setOpenModal={setEditUserModal} />
+      <EditUser
+        openModal={editUserModal}
+        setOpenModal={setEditUserModal}
+        user={selectedUser}
+      />
     </div>
   );
 };

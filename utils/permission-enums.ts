@@ -1,5 +1,5 @@
 // src/types/permissions.ts
-export enum Permissions {
+export enum SystemPermissions {
   // Users
   CREATE_USERS = "create_users",
   READ_USERS_ID = "read_users:id",
@@ -84,7 +84,7 @@ export enum Permissions {
 }
 
 // Type to use in function parameters and hooks
-export type PermissionType = `${Permissions}`;
+export type PermissionType = `${SystemPermissions}`;
 
 // Helper type for arrays of permissions
 export type PermissionArray = PermissionType[];
