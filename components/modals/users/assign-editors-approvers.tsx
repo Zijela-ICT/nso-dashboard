@@ -11,11 +11,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Tabs,
+  TabsList,
+  TabsTrigger
 } from "@/components/ui";
 import { SystemUsersDataResponse } from "@/hooks/api/queries/users";
 import React, { useMemo, useState } from "react";
 import useEBooks, { BookAdmin } from "@/app/dashboard/e-book/hooks/useEBooks";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { assignApprover, assignEditor } from "@/utils/book.services";
 import { showToast } from "@/utils/toast";
 
@@ -28,11 +30,11 @@ interface EditUserModal {
 const AssignEditorAndApprovers = ({
   openModal,
   setOpenModal,
-  user,
+  user
 }: EditUserModal) => {
   enum tabs {
     APPROVERS = "Approvers",
-    EDITORS = "Editors",
+    EDITORS = "Editors"
   }
   const { data: ebooks, refetch } = useEBooks();
   const [loading, setLoading] = useState(false);
@@ -109,8 +111,7 @@ const AssignEditorAndApprovers = ({
           onValueChange={(e) => {
             setCurrentTab(e as tabs);
           }}
-          className="w-full"
-        >
+          className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value={tabs.EDITORS}>Set as Editor</TabsTrigger>
             <TabsTrigger value={tabs.APPROVERS}>Set as Approver</TabsTrigger>
@@ -137,8 +138,7 @@ const AssignEditorAndApprovers = ({
               type="submit"
               disabled={!bookID}
               isLoading={loading}
-              onClick={assignUser}
-            >
+              onClick={assignUser}>
               {buttonText}
             </Button>
           </div>
