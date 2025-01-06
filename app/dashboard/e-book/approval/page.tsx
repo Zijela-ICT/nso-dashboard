@@ -42,7 +42,6 @@ function ApprovalPage(props) {
   const downloadBook = async (url) => {
     try {
       const bookData = (await getFile(url)) as Data;
-      console.log("bookData", bookData);
       setData(bookData);
     } catch (error) {
     } finally {
@@ -53,8 +52,6 @@ function ApprovalPage(props) {
   const flattenBookData: FlattenedObj[] = useMemo(() => {
     return flattenArrayOfObjects(data ? data?.book?.content : []);
   }, [data?.book]);
-
-  console.log("flattenBookData", flattenBookData);
 
   const approveVersion = async () => {
     try {

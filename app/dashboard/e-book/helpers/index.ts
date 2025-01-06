@@ -326,8 +326,6 @@ export const createNewItem = (
       break;
     }
     case "infographic": {
-      console.log({ createData });
-
       const data = createData as InfographicData;
       newItem = {
         type,

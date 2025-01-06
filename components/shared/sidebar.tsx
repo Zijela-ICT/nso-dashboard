@@ -13,12 +13,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar
+  useSidebar,
 } from "../ui";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,7 @@ const routes: RouteItem[] = [
     id: 1,
     icon: "dashboard",
     label: "Dashboard",
-    href: "/home"
+    href: "/home",
   },
   {
     id: 3,
@@ -55,32 +55,32 @@ const routes: RouteItem[] = [
     subItems: [
       {
         label: "JCHEW",
-        href: "/e-book/jcew",
-        permission: SystemPermissions.READ_ADMIN_EBOOKS
+        href: "/e-book/jchew",
+        permission: SystemPermissions.READ_ADMIN_EBOOKS,
       },
       {
         label: "CHEW",
         href: "/e-book/chew",
-        permission: SystemPermissions.READ_ADMIN_EBOOKS
+        permission: SystemPermissions.READ_ADMIN_EBOOKS,
       },
       {
         label: "CHO",
         href: "/e-book/cho",
-        permission: SystemPermissions.READ_ADMIN_EBOOKS
+        permission: SystemPermissions.READ_ADMIN_EBOOKS,
       },
       {
         label: "E-book Approval",
         href: "/e-book/e-book-approval",
-        permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE
-      }
-    ]
+        permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE,
+      },
+    ],
   },
   {
     id: 4,
     icon: "hospital",
     label: "Nearby Facilities",
     href: "/nearby-facilities",
-    permission: SystemPermissions.READ_FACILITIES
+    permission: SystemPermissions.READ_FACILITIES,
   },
   {
     id: 5,
@@ -89,28 +89,28 @@ const routes: RouteItem[] = [
     href: "/users",
     permission: [
       SystemPermissions.READ_ADMIN_USERS_APP,
-      SystemPermissions.READ_ADMIN_USERS_SYSTEM
+      SystemPermissions.READ_ADMIN_USERS_SYSTEM,
     ],
     subItems: [
       {
         label: "System Users",
         href: "/users/system-users",
-        permission: SystemPermissions.READ_ADMIN_USERS_SYSTEM
+        permission: SystemPermissions.READ_ADMIN_USERS_SYSTEM,
       },
       {
         label: "App Users",
         href: "/users/app-users",
-        permission: SystemPermissions.READ_ADMIN_USERS_APP
-      }
-    ]
+        permission: SystemPermissions.READ_ADMIN_USERS_APP,
+      },
+    ],
   },
   {
     id: 6,
     icon: "setting",
     label: "Settings",
     href: "/settings",
-    permission: SystemPermissions.READ_APP_SETTINGS
-  }
+    permission: SystemPermissions.READ_APP_SETTINGS,
+  },
 ];
 
 const AppSidebar = () => {
@@ -162,7 +162,8 @@ const AppSidebar = () => {
   return (
     <Sidebar
       className="bg-white border-none"
-      side={isMobile ? "right" : "left"}>
+      side={isMobile ? "right" : "left"}
+    >
       <SidebarContent className="flex flex-col h-full bg-white max-w-[300px] border-r border-r-[#EAEDFF]">
         <SidebarGroup className="px-3">
           <SidebarGroupLabel className="mt-4 ml-7 pr-0">
@@ -183,17 +184,19 @@ const AppSidebar = () => {
                   <Collapsible
                     key={route.id}
                     defaultOpen={isParentActive(route)}
-                    className="group/collapsible w-full">
+                    className="group/collapsible w-full"
+                  >
                     <SidebarMenuItem
                       className={cn(
                         "py-3 pl-5 cursor-pointer rounded-[4px] gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
                         isParentActive(route) && "bg-[#F6FEF9] rounded-[4px]"
-                      )}>
+                      )}
+                    >
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
                           className="hover:!bg-transparent hover:text-title"
                           isActive={isParentActive(route)}
-                          >
+                        >
                           <div className="flex items-center gap-3 w-full">
                             <div className="w-6 h-6">
                               <Icon
@@ -206,7 +209,8 @@ const AppSidebar = () => {
                               className={cn(
                                 "text-[#101828] text-base font-medium",
                                 isParentActive(route) && "font-semibold"
-                              )}>
+                              )}
+                            >
                               {route.label}
                             </span>
                           </div>
@@ -230,7 +234,8 @@ const AppSidebar = () => {
                                 onClick={() => {
                                   handleNavigation(subItem.href);
                                   isMobile && toggleSidebar();
-                                }}>
+                                }}
+                              >
                                 {isActive(subItem.href) && (
                                   <div className="absolute bg-[#2C6000] w-[2px] h-2 rounded-full top-1/2 -translate-y-1/2 left-0" />
                                 )}
@@ -249,11 +254,12 @@ const AppSidebar = () => {
                     className={cn(
                       "py-3 pl-5 cursor-pointer flex flex-row gap-3 items-center w-[240px] hover:bg-[#F6FEF9] hover:rounded-[4px]",
                       isActive(route.href) && "bg-[#F6FEF9] rounded-[4px]"
-                    )}>
+                    )}
+                  >
                     <SidebarMenuButton
                       asChild
                       className="hover:!bg-transparent hover:text-title"
-                      >
+                    >
                       <Link href={`/dashboard${route.href}`}>
                         <div className="w-6 h-6">
                           <Icon
@@ -266,7 +272,8 @@ const AppSidebar = () => {
                           className={cn(
                             "text-[#101828] text-base font-medium",
                             isActive(route.href) && "font-semibold"
-                          )}>
+                          )}
+                        >
                           {route.label}
                         </span>
                       </Link>

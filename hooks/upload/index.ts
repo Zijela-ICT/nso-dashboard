@@ -6,8 +6,6 @@ export const useUpload = () => {
     form.append("file", file);
     try {
       const res = await uploadFile(form);
-      console.log(res);
-
       return res.data;
     } catch (error) {
       throw error;
