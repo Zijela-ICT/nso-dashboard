@@ -65,6 +65,7 @@ const useBookMethods = () => {
   const [selectedLocale, setSelectedLocale] = useState<string>("en");
   const [showTableModal, setShowTableModal] = useState<boolean>(false);
   const [showPageDropdown, setShowPageDropdown] = useState<boolean>(false);
+  const [fetchingVersion, setFetchingVersion] = useState<boolean>(false);
   const [edittingStack, setEdittingStack] = useState<Array<iTargetElements>>(
     []
   );
@@ -510,10 +511,14 @@ const useBookMethods = () => {
 
   const getCurrentBookVersion = async (version: string = "") => {
     try {
+      setFetchingVersion(true);
       const res = await getEbookVersion(currentBook.id, version);
       downloadBook(res.data.fileUrl);
       setBookVersion(version);
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setFetchingVersion(false);
+    }
   };
 
   const downloadBook = async (url) => {
@@ -573,7 +578,7 @@ const useBookMethods = () => {
     uploadBlankBook,
     completeCreation,
     currentBook,
-    loadingBook: isLoading,
+    loadingBook: isLoading || fetchingVersion,
     getCurrentBookVersion,
     ebooks,
     bookVersion,

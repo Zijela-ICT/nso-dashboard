@@ -11,14 +11,15 @@ interface AuthLayoutProps {
 const AuthLayout = ({
   children,
   className,
-  containerClass
+  containerClass,
 }: AuthLayoutProps) => {
   return (
     <div
       className={cn(
         "bg-[#F8FAFC] w-full overflow-y-scroll h-screen relative px-4 md:px-7 py-4",
         containerClass && containerClass
-      )}>
+      )}
+    >
       <div>
         <Image
           src="/svgs/logo.svg"
@@ -33,7 +34,8 @@ const AuthLayout = ({
         className={cn(
           "mx-auto h-[80vh] md:py-15 md:px-12 bg-[#FCFCFD] rounded-[20px]  md:max-w-[700px] flex flex-col items-center justify-center mt-16 md:mt-24 relative z-10 overflow-y-screen",
           className
-        )}>
+        )}
+      >
         <div className=" h-fit w-full px-4 md:px-8 py-8 md:py-16 bg-white-400 bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-10 border border-white rounded-[40px] flex flex-col items-center justify-center z-40">
           <div className="mb-6 w-44 h-44">
             <Icon name="logo-image" className="w-44 h-44" />

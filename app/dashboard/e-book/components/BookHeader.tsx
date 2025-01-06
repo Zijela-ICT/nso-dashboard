@@ -36,7 +36,7 @@ function BookHeader({
   }, [bookInfo, user]);
 
   return (
-    <div className="container mx-auto mt-2">
+    <div className="container mx-auto mt-[20px] md:w-[800px]">
       <div className="flex justify-between items-center mb-8">
         <h1
           className={`text-3xl font-bold mb-0 book-title text-[#0CA554] ${groupClass}`}
@@ -48,18 +48,24 @@ function BookHeader({
         </h1>
         {canEdit && (
           <div className="flex gap-2">
-            {hasEditAccess && (
+            {hasEditAccess && !isEditting && (
               <Button
                 variant={isEditting ? "outline" : "default"}
                 onClick={() => setIsEditting(!isEditting)}
                 className="h-8 text-[14px]"
               >
-                {isEditting ? "Stop editting" : "Start Edit"}
+                Start Edit
               </Button>
             )}
 
             {isEditting && (
-              <Button onClick={saveBookUpdates} className="h-8 text-[14px]">
+              <Button
+                onClick={() => {
+                  saveBookUpdates();
+                  setIsEditting(false);
+                }}
+                className="h-8 text-[14px]"
+              >
                 Save
               </Button>
             )}

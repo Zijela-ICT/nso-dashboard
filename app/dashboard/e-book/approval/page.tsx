@@ -100,22 +100,24 @@ function ApprovalPage(props) {
             </SelectTrigger>
             <SelectContent>
               {currentBook?.versions?.map((version, i) => (
-                <SelectItem value={version.id.toString()} key={i}>
+                <SelectItem value={version.version.toString()} key={i}>
                   version {version.version}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <Button
-          className="w-fit h-[40px]"
-          onClick={approveVersion}
-          disabled={!currentBookID || !currentVersion || !hasApprovalAccess}
-        >
-          {hasApprovalAccess
-            ? "Approve"
-            : "You do not have access to approve this book"}
-        </Button>
+        {currentBookID && (
+          <Button
+            className="w-fit h-[40px]"
+            onClick={approveVersion}
+            disabled={!currentVersion || !hasApprovalAccess}
+          >
+            {hasApprovalAccess
+              ? "Approve"
+              : "You do not have access to approve this book"}
+          </Button>
+        )}
       </div>
       {!currentBookID || !currentVersion ? (
         <div className="mt-[50px] p-6 text-center">
@@ -130,7 +132,7 @@ function ApprovalPage(props) {
           <RenderBook
             flattenBookData={flattenBookData}
             data={data}
-            currentBook={data.book}
+            currentBook={data?.book}
             canEdit={false}
           />
         </div>
