@@ -29,7 +29,6 @@ const CreateRoleModal = ({ openModal, setOpenModal }) => {
     },
     validationSchema: CreateRoleSchema,
     onSubmit: (values) => {
-      console.log("values", values);
       mutate(
         {
           name: values.roleName,

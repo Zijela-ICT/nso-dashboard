@@ -3,8 +3,9 @@ import {
   CreateUser,
   EditUser,
   UploadBulkUser,
+  AssignEditorAndApprovers,
+  DeleteModal
 } from "@/components/modals/users";
-import { AssignEditorAndApprovers } from "@/components/modals/users/assign-editors-approvers";
 import {
   Badge,
   DropdownMenu,
@@ -19,29 +20,36 @@ import {
   TableHeader,
   TableRow,
   Pagination,
-  Button,
+  Button
 } from "@/components/ui";
+import { useDeactivate, useResetPassword } from "@/hooks/api/mutations/user";
 import {
   SystemUsersDataResponse,
-  useFetchSystemUsers,
+  useFetchSystemUsers
 } from "@/hooks/api/queries/users";
 import { usePermissions } from "@/hooks/custom/usePermissions";
+import { cn } from "@/lib/utils";
 import { SystemPermissions } from "@/utils/permission-enums";
 import React, { useState } from "react";
 
 const AllUsers = () => {
   const { hasPermission } = usePermissions();
+  const { mutate, isLoading: isLoadingCreateRole } = useResetPassword();
+  const { mutate: mutateDeactivate, isLoading: isLoadingDeactivating } =
+    useDeactivate();
+
   const [createUserModal, setCreateUserModal] = useState(false);
   const [bulkUploadModal, setBulkUploadModal] = useState(false);
   const [editUserModal, setEditUserModal] = useState(false);
   const [assignUserModal, setAssignUserModal] = useState(false);
+  const [resetPasswordModal, setResetPasswordModal] = useState(false);
+  const [deactivateModal, setDeactivateModal] = useState(false);
 
   const [selectedUser, setSelectedUser] =
     useState<SystemUsersDataResponse | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
-  const totalPages = Math.ceil(100 / reportsPerPage);
 
   const { data, isLoading } = useFetchSystemUsers(currentPage, reportsPerPage);
 
@@ -64,8 +72,7 @@ const AllUsers = () => {
         <Button
           className="w-fit"
           variant="outline"
-          onClick={() => setBulkUploadModal(true)}
-        >
+          onClick={() => setBulkUploadModal(true)}>
           {" "}
           Bulk User
         </Button>
@@ -106,16 +113,14 @@ const AllUsers = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="text-sm text-[#212B36] font-medium rounded-[8px] px-1"
-                  >
+                    className="text-sm text-[#212B36] font-medium rounded-[8px] px-1">
                     {hasPermission(SystemPermissions.UPDATE_ADMIN_USERS) && (
                       <DropdownMenuItem
                         className="py-2  rounded-[8px]"
                         onClick={() => {
                           setEditUserModal(true);
                           setSelectedUser(user);
-                        }}
-                      >
+                        }}>
                         Edit User
                       </DropdownMenuItem>
                     )}
@@ -125,23 +130,37 @@ const AllUsers = () => {
                         onClick={() => {
                           setAssignUserModal(true);
                           setSelectedUser(user);
-                        }}
-                      >
+                        }}>
                         Assign Editor/Approver
                       </DropdownMenuItem>
                     )}
                     {hasPermission(
                       SystemPermissions.UPDATE_ADMIN_USERS_RESET_PASSWORD
                     ) && (
-                      <DropdownMenuItem className="py-2 rounded-[8px]">
+                      <DropdownMenuItem
+                        className="py-2 rounded-[8px]"
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setResetPasswordModal(true);
+                        }}>
                         Reset Password
                       </DropdownMenuItem>
                     )}
                     {hasPermission(
                       SystemPermissions.UPDATE_ADMIN_USERS_DEACTIVATE
                     ) && (
-                      <DropdownMenuItem className="py-2 text-[#FF3B30] rounded-[8px]">
-                        Deactivate User
+                      <DropdownMenuItem
+                        className={cn(
+                          "py-2 text-[#FF3B30] rounded-[8px]",
+                          user?.isDeactivated && "text-[#036B26]"
+                        )}
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setDeactivateModal(true);
+                        }}>
+                        {user?.isDeactivated
+                          ? "Re-activate User"
+                          : "Deactivate User"}
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
@@ -172,6 +191,51 @@ const AllUsers = () => {
         user={selectedUser}
       />
 
+      <DeleteModal
+        openModal={resetPasswordModal}
+        setOpenModal={setResetPasswordModal}
+        header="Reset Password"
+        subText="Are you sure you want to reset this user’s password?"
+        loading={isLoadingCreateRole}
+        handleConfirm={() => {
+          mutate(
+            {
+              id: selectedUser.id
+            },
+            {
+              onSuccess: () => {
+                setResetPasswordModal(false);
+              }
+            }
+          );
+        }}
+      />
+
+      {selectedUser?.id && (
+        <DeleteModal
+          openModal={deactivateModal}
+          setOpenModal={setDeactivateModal}
+          header={
+            selectedUser.isDeactivated ? "Re-activate User" : "Deactivate User"
+          }
+          subText={`Are you sure you want to ${
+            selectedUser.isDeactivated ? "re-activate" : "deactivate"
+          } this user?`}
+          loading={isLoadingDeactivating}
+          handleConfirm={() => {
+            mutateDeactivate(
+              {
+                id: selectedUser.id
+              },
+              {
+                onSuccess: () => {
+                  setDeactivateModal(false);
+                }
+              }
+            );
+          }}
+        />
+      )}
       <AssignEditorAndApprovers
         openModal={assignUserModal}
         setOpenModal={setAssignUserModal}
