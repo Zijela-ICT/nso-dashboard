@@ -25,33 +25,35 @@ const Page = () => {
     {
       name: "All Users",
       permission: SystemPermissions.READ_ADMIN_USERS_SYSTEM,
-      component: <AllUsers />
+      component: <AllUsers />,
     },
     {
       name: "Roles",
       permission: SystemPermissions.READ_ADMIN_ROLES,
-      component: <Roles />
+      component: <Roles />,
     },
     {
       name: "Permissions",
       permission: SystemPermissions.READ_PERMISSIONS,
-      component: <Permissions />
-    }
+      component: <Permissions />,
+    },
   ];
 
   // Filter tabs based on permissions
-  const availableTabs = tabConfigs.filter(tab => hasPermission(tab.permission));
-  
+  const availableTabs = tabConfigs.filter((tab) =>
+    hasPermission(tab.permission)
+  );
+
   const tab = searchParams.get("tab") as TabTypes;
   const [selectedTab, setSelectedTab] = useState<TabTypes>(
-    tab && availableTabs.some(t => t.name === tab) 
-      ? tab 
-      : (availableTabs[0]?.name || "All Users")
+    tab && availableTabs.some((t) => t.name === tab)
+      ? tab
+      : availableTabs[0]?.name || "All Users"
   );
 
   useEffect(() => {
     const tab = searchParams.get("tab") as TabTypes;
-    if (tab && availableTabs.some(t => t.name === tab)) {
+    if (tab && availableTabs.some((t) => t.name === tab)) {
       setSelectedTab(tab);
     } else if (availableTabs.length > 0 && !tab) {
       // Redirect to first available tab if no tab is selected
@@ -65,12 +67,14 @@ const Page = () => {
   };
 
   const renderTabContent = () => {
-    const currentTab = tabConfigs.find(t => t.name === selectedTab);
+    const currentTab = tabConfigs.find((t) => t.name === selectedTab);
     return currentTab?.component || <div>No content available</div>;
   };
 
   if (availableTabs.length === 0) {
-    return <div className="p-4">You don't have permission to view any tabs.</div>;
+    return (
+      <div className="p-4">You don't have permission to view any tabs.</div>
+    );
   }
 
   return (
@@ -86,7 +90,8 @@ const Page = () => {
                   "py-3 font-semibold text-[#637381] cursor-pointer",
                   activeTab && "border-b-2 border-[#0CA554] text-[#212B36]"
                 )}
-                onClick={() => handleTabClick(name)}>
+                onClick={() => handleTabClick(name)}
+              >
                 {name}
               </div>
             );
