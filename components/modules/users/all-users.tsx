@@ -2,8 +2,9 @@
 import {
   CreateUser,
   EditUser,
-  UploadBulkUser
+  UploadBulkUser,
 } from "@/components/modals/users";
+import { AssignEditorAndApprovers } from "@/components/modals/users/assign-editors-approvers";
 import {
   Badge,
   DropdownMenu,
@@ -18,11 +19,11 @@ import {
   TableHeader,
   TableRow,
   Pagination,
-  Button
+  Button,
 } from "@/components/ui";
 import {
   SystemUsersDataResponse,
-  useFetchSystemUsers
+  useFetchSystemUsers,
 } from "@/hooks/api/queries/users";
 import { usePermissions } from "@/hooks/custom/usePermissions";
 import { SystemPermissions } from "@/utils/permission-enums";
@@ -33,6 +34,7 @@ const AllUsers = () => {
   const [createUserModal, setCreateUserModal] = useState(false);
   const [bulkUploadModal, setBulkUploadModal] = useState(false);
   const [editUserModal, setEditUserModal] = useState(false);
+  const [assignUserModal, setAssignUserModal] = useState(false);
 
   const [selectedUser, setSelectedUser] =
     useState<SystemUsersDataResponse | null>(null);
@@ -62,7 +64,8 @@ const AllUsers = () => {
         <Button
           className="w-fit"
           variant="outline"
-          onClick={() => setBulkUploadModal(true)}>
+          onClick={() => setBulkUploadModal(true)}
+        >
           {" "}
           Bulk User
         </Button>
@@ -103,15 +106,28 @@ const AllUsers = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="text-sm text-[#212B36] font-medium rounded-[8px] px-1">
+                    className="text-sm text-[#212B36] font-medium rounded-[8px] px-1"
+                  >
                     {hasPermission(SystemPermissions.UPDATE_ADMIN_USERS) && (
                       <DropdownMenuItem
                         className="py-2  rounded-[8px]"
                         onClick={() => {
                           setEditUserModal(true);
                           setSelectedUser(user);
-                        }}>
+                        }}
+                      >
                         Edit User
+                      </DropdownMenuItem>
+                    )}
+                    {hasPermission(SystemPermissions.UPDATE_ADMIN_USERS) && (
+                      <DropdownMenuItem
+                        className="py-2  rounded-[8px]"
+                        onClick={() => {
+                          setAssignUserModal(true);
+                          setSelectedUser(user);
+                        }}
+                      >
+                        Assign Editor/Approver
                       </DropdownMenuItem>
                     )}
                     {hasPermission(
@@ -153,6 +169,12 @@ const AllUsers = () => {
       <EditUser
         openModal={editUserModal}
         setOpenModal={setEditUserModal}
+        user={selectedUser}
+      />
+
+      <AssignEditorAndApprovers
+        openModal={assignUserModal}
+        setOpenModal={setAssignUserModal}
         user={selectedUser}
       />
     </div>

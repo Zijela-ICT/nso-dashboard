@@ -86,8 +86,6 @@ const TableRenderer = ({
           <div className="w-full">
             <EditTableModal
               onSave={(e) => {
-                console.log("updated table", e);
-
                 onSave?.(e);
                 setOpenModal(false);
               }}

@@ -82,6 +82,7 @@ function RenderBook({
           )
         }
         canEdit={canEdit}
+        bookInfo={bookInfo}
       />
 
       <div className="w-full md:w-[800px] min-h-[90vh] bg-white py-[40px] px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">

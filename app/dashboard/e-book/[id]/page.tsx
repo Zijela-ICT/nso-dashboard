@@ -1,24 +1,11 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import "./page.css";
-
-import { FlattenedObj } from "../booktypes/index";
-import PageItems from "../components/PageItems";
-import {
-  ChevronDown,
-  FileJson,
-  FileJson2Icon,
-  Loader,
-  Loader2,
-  SaveIcon,
-  Upload,
-} from "lucide-react";
+import { FileJson2Icon, Loader, Loader2, Upload } from "lucide-react";
 import useBookMethods from "../hooks/useBookMethods";
 
 import { UploadFileModal } from "../components/UploadFileModal";
-import { BookProvider, useBookContext } from "../context/bookContext";
-import BookHeader from "../components/BookHeader";
-import SectionHeader from "../components/SectionHeader";
+import { BookProvider } from "../context/bookContext";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import RenderBook from "../components/RenderBook";
+import { useFetchProfile } from "@/hooks/api/queries/settings";
 
 function Ebook() {
   const {
@@ -53,7 +41,12 @@ function Ebook() {
     bookVersion,
   } = useBookMethods();
 
+  const { data: user } = useFetchProfile();
   const params = useParams<{ id: string }>();
+
+  const hasEditAccess = useMemo(() => {
+    return !!currentBook?.editors.find((u) => u.id === user?.data?.id);
+  }, [currentBook, user]);
 
   if (loadingBook) {
     return (
@@ -68,7 +61,11 @@ function Ebook() {
       <>
         <div className="p-10 flex flex-col items-center justify-center">
           <h2 className="mb-4">This book does not exist yet</h2>
-          <Button onClick={createNewBook}>Create {params.id} book</Button>
+          <Button disabled={!hasEditAccess} onClick={createNewBook}>
+            {hasEditAccess
+              ? `Create ${params.id} book`
+              : "You do not have access to update this book"}
+          </Button>
         </div>
       </>
     );
@@ -117,18 +114,21 @@ function Ebook() {
               canEdit={true}
             />
 
-            <UploadFileModal onChange={handleFileUpload}>
-              <button className="fixed bottom-[120px] right-12 bg-[#136c2a] text-white px-4 h-[60px] w-[60px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg">
-                <Upload />
-              </button>
-            </UploadFileModal>
-            <button
-              onClick={exportToJson}
-              className="fixed bottom-10 right-10 bg-[#8a260c] text-white px-4 h-[70px] w-[70px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg"
-            >
-              {/* <SaveIcon className="text-lg" /> */}
-              <FileJson2Icon />
-            </button>
+            {hasEditAccess && (
+              <>
+                <UploadFileModal onChange={handleFileUpload}>
+                  <button className="fixed bottom-[120px] right-12 bg-[#136c2a] text-white px-4 h-[60px] w-[60px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg">
+                    <Upload />
+                  </button>
+                </UploadFileModal>
+                <button
+                  onClick={exportToJson}
+                  className="fixed bottom-10 right-10 bg-[#8a260c] text-white px-4 h-[70px] w-[70px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg"
+                >
+                  <FileJson2Icon />
+                </button>
+              </>
+            )}
           </>
         )}
       </div>

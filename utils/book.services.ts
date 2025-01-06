@@ -41,3 +41,27 @@ export const uploadFile = (data): Promise<AxiosResponse<string>> => {
 export const getFile = (url: string) => {
   return request("GET", `/uploads/${url.split("/uploads/")[1]}`);
 };
+
+export const assignEditor = (
+  ebookId: string,
+  data: { editorId: number },
+  isEditor: boolean
+) => {
+  return request(
+    "PATCH",
+    `/admin/ebooks/${ebookId}/${isEditor ? "unassign" : "assign"}-editor`,
+    data
+  );
+};
+
+export const assignApprover = (
+  ebookId: string,
+  data: { approverId: number },
+  isApprover: boolean
+) => {
+  return request(
+    "PATCH",
+    `/admin/ebooks/${ebookId}/${isApprover ? "unassign" : "assign"}-approver`,
+    data
+  );
+};

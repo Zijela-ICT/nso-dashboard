@@ -1,5 +1,5 @@
 import { Book, PageItemType } from "../booktypes";
-import React from "react";
+import React, { useMemo } from "react";
 import { Button } from "../../../../components/ui/button";
 import { useBookContext } from "../context/bookContext";
 import {
@@ -10,6 +10,8 @@ import {
 } from "../../../../components/ui/dropdown-menu";
 import { Plus } from "lucide-react";
 import { groupClass } from "@/constants";
+import { useFetchProfile } from "@/hooks/api/queries/settings";
+import { IChprbnBook } from "../hooks/useEBooks";
 
 function BookHeader({
   setBookTitle,
@@ -17,14 +19,21 @@ function BookHeader({
   addNewPageElement,
   saveBookUpdates,
   canEdit,
+  bookInfo,
 }: {
   setBookTitle: (e: string) => void;
   book: Book;
   addNewPageElement: (e, f) => void;
   saveBookUpdates: () => void;
   canEdit: boolean;
+  bookInfo: IChprbnBook;
 }) {
+  const { data: user } = useFetchProfile();
   const { isEditting, setIsEditting } = useBookContext();
+
+  const hasEditAccess = useMemo(() => {
+    return !!bookInfo?.editors.find((u) => u.id === user?.data?.id);
+  }, [bookInfo, user]);
 
   return (
     <div className="container mx-auto mt-2">
@@ -39,13 +48,15 @@ function BookHeader({
         </h1>
         {canEdit && (
           <div className="flex gap-2">
-            <Button
-              variant={isEditting ? "outline" : "default"}
-              onClick={() => setIsEditting(!isEditting)}
-              className="h-8 text-[14px]"
-            >
-              {isEditting ? "Stop editting" : "Start Edit"}
-            </Button>
+            {hasEditAccess && (
+              <Button
+                variant={isEditting ? "outline" : "default"}
+                onClick={() => setIsEditting(!isEditting)}
+                className="h-8 text-[14px]"
+              >
+                {isEditting ? "Stop editting" : "Start Edit"}
+              </Button>
+            )}
 
             {isEditting && (
               <Button onClick={saveBookUpdates} className="h-8 text-[14px]">

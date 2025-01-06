@@ -95,9 +95,9 @@ const useBookMethods = () => {
       setData(fetchedData);
     } catch (err) {
       console.log(err);
-
-      alert(
-        "Failed to load the book. Please check the console for more details."
+      showToast(
+        "Failed to load the book. Please check the console for more details.",
+        "error"
       );
     }
   };
@@ -491,7 +491,7 @@ const useBookMethods = () => {
   const completeCreation = async (fileUrl: string) => {
     mutation.mutate(
       {
-        bookType: params.id,
+        bookType: params.id.toUpperCase(),
         fileUrl,
       },
       {
@@ -503,7 +503,9 @@ const useBookMethods = () => {
   };
 
   const currentBook = useMemo(() => {
-    return ebooks?.find((book) => book.bookType === params.id);
+    return ebooks?.find(
+      (book) => book.bookType.toUpperCase() === params.id.toUpperCase()
+    );
   }, [params.id, ebooks]);
 
   const getCurrentBookVersion = async (version: string = "") => {
