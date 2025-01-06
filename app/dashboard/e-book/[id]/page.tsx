@@ -92,7 +92,7 @@ function Ebook() {
               </SelectTrigger>
               <SelectContent>
                 {currentBook.versions.map((version, i) => (
-                  <SelectItem value={version.id.toString()} key={i}>
+                  <SelectItem value={version.version.toString()} key={i}>
                     version {version.version}
                   </SelectItem>
                 ))}

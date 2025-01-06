@@ -74,6 +74,11 @@ const routes: RouteItem[] = [
         href: "/e-book/approval",
         permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE,
       },
+      {
+        label: "Book Admins",
+        href: "/e-book/assign-editors-approvers",
+        permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE,
+      },
     ],
   },
   {
@@ -201,7 +206,8 @@ const AppSidebar = () => {
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
                           className="hover:!bg-transparent hover:text-title"
-                          isActive={isParentActive(route)}>
+                          isActive={isParentActive(route)}
+                        >
                           <div className="flex items-center gap-3 w-full">
                             <div className="w-6 h-6">
                               <Icon
@@ -263,7 +269,8 @@ const AppSidebar = () => {
                   >
                     <SidebarMenuButton
                       asChild
-                      className="hover:!bg-transparent hover:text-title">
+                      className="hover:!bg-transparent hover:text-title"
+                    >
                       <Link href={`/dashboard${route.href}`}>
                         <div className="w-6 h-6">
                           <Icon
@@ -292,9 +299,14 @@ const AppSidebar = () => {
         <SidebarMenu className="mt-10 border-t ">
           <SidebarMenuItem
             onClick={handleLogout}
-            className="py-3 pl-11 cursor-pointer flex flex-row gap-3 items-center ">
+            className="py-3 pl-11 cursor-pointer flex flex-row gap-3 items-center "
+          >
             <div className="w-6 h-6">
-              <Icon name="sign-out" className="w-6 h-6 hover:text-red-700" stroke="none" />
+              <Icon
+                name="sign-out"
+                className="w-6 h-6 hover:text-red-700"
+                stroke="none"
+              />
             </div>
             <span>Sign out</span>
           </SidebarMenuItem>

@@ -4,7 +4,6 @@ import {
   EditUser,
   UploadBulkUser,
 } from "@/components/modals/users";
-import { AssignEditorAndApprovers } from "@/components/modals/users/assign-editors-approvers";
 import {
   Badge,
   DropdownMenu,
@@ -34,7 +33,6 @@ const AllUsers = () => {
   const [createUserModal, setCreateUserModal] = useState(false);
   const [bulkUploadModal, setBulkUploadModal] = useState(false);
   const [editUserModal, setEditUserModal] = useState(false);
-  const [assignUserModal, setAssignUserModal] = useState(false);
 
   const [selectedUser, setSelectedUser] =
     useState<SystemUsersDataResponse | null>(null);
@@ -119,17 +117,6 @@ const AllUsers = () => {
                         Edit User
                       </DropdownMenuItem>
                     )}
-                    {hasPermission(SystemPermissions.UPDATE_ADMIN_USERS) && (
-                      <DropdownMenuItem
-                        className="py-2  rounded-[8px]"
-                        onClick={() => {
-                          setAssignUserModal(true);
-                          setSelectedUser(user);
-                        }}
-                      >
-                        Assign Editor/Approver
-                      </DropdownMenuItem>
-                    )}
                     {hasPermission(
                       SystemPermissions.UPDATE_ADMIN_USERS_RESET_PASSWORD
                     ) && (
@@ -169,12 +156,6 @@ const AllUsers = () => {
       <EditUser
         openModal={editUserModal}
         setOpenModal={setEditUserModal}
-        user={selectedUser}
-      />
-
-      <AssignEditorAndApprovers
-        openModal={assignUserModal}
-        setOpenModal={setAssignUserModal}
         user={selectedUser}
       />
     </div>

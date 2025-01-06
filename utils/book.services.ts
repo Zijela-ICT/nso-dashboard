@@ -43,8 +43,8 @@ export const getFile = (url: string) => {
 };
 
 export const assignEditor = (
-  ebookId: string,
-  data: { editorId: number },
+  ebookId: number,
+  data: { editorIds: number[] },
   isEditor: boolean
 ) => {
   return request(
@@ -55,8 +55,8 @@ export const assignEditor = (
 };
 
 export const assignApprover = (
-  ebookId: string,
-  data: { approverId: number },
+  ebookId: number,
+  data: { approverIds: number[] },
   isApprover: boolean
 ) => {
   return request(
