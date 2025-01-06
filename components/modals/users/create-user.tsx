@@ -17,6 +17,7 @@ import { useFetchRoles } from "@/hooks/api/queries/users";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import React from "react";
+import { CreateUserSchema } from "@/validation-schema/user";
 
 interface CreateUserModalProps {
   openModal: boolean;
@@ -24,23 +25,6 @@ interface CreateUserModalProps {
 }
 
 // Validation schema
-const CreateUserSchema = Yup.object().shape({
-  firstName: Yup.string()
-    .min(2, "First name must be at least 2 characters")
-    .required("First name is required"),
-  lastName: Yup.string()
-    .min(2, "Last name must be at least 2 characters")
-    .required("Last name is required"),
-  phoneNumber: Yup.string()
-    .matches(/^[0-9+\-\s()]+$/, "Invalid phone number format")
-    .min(10, "Phone number must be at least 10 digits")
-    .required("Phone number is required"),
-  emailAddress: Yup.string()
-    .email("Invalid email address")
-    .required("Email address is required"),
-  role: Yup.string()
-    .required("Role selection is required")
-});
 
 const CreateUser = ({ openModal, setOpenModal }: CreateUserModalProps) => {
   const { mutate, isLoading } = useCreateUser();

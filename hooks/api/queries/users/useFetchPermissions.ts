@@ -23,7 +23,7 @@ export type PermissionResp = {
 
 export const FetchPermissions = async (
   page: number = 1,
-  perPage: number = 60
+  perPage: number = 100
 ): Promise<PermissionResp> => {
   return request(
     "GET",
