@@ -15,9 +15,11 @@ import { flattenArrayOfObjects } from "../helpers";
 import { Button } from "@/components/ui";
 import { Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast";
+import { useFetchProfile } from "@/hooks/api/queries/settings";
 
 function ApprovalPage(props) {
   const { data: ebooks } = useEBooks();
+  const { data: user } = useFetchProfile();
   const [currentBookID, setCurrentBookID] = useState<string | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
   const [loadingBook, setLoadingBook] = useState(false);
@@ -26,6 +28,10 @@ function ApprovalPage(props) {
   const currentBook: IChprbnBook | undefined = useMemo(() => {
     return ebooks?.find((b) => b.id.toString() === currentBookID) || undefined;
   }, [currentBookID]);
+
+  const hasApprovalAccess = useMemo(() => {
+    return !!currentBook?.approvers.find((u) => u.id === user?.data?.id);
+  }, [currentBook, user]);
 
   const getCurrentBookVersion = async (id: string, version: string | null) => {
     if (id) {
@@ -102,11 +108,13 @@ function ApprovalPage(props) {
           </Select>
         </div>
         <Button
-          className="w-[140px] h-[40px]"
+          className="w-fit h-[40px]"
           onClick={approveVersion}
-          disabled={!currentBookID || !currentVersion}
+          disabled={!currentBookID || !currentVersion || !hasApprovalAccess}
         >
-          Approve
+          {hasApprovalAccess
+            ? "Approve"
+            : "You do not have access to approve this book"}
         </Button>
       </div>
       {!currentBookID || !currentVersion ? (

@@ -70,7 +70,7 @@ const routes: RouteItem[] = [
       },
       {
         label: "E-book Approval",
-        href: "/e-book/e-book-approval",
+        href: "/e-book/approval",
         permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE,
       },
     ],
