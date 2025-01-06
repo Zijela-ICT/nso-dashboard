@@ -7,6 +7,7 @@ import {
   Icon,
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -159,6 +160,11 @@ const AppSidebar = () => {
     return canViewRoute(route.permission);
   });
 
+  const handleLogout = () => {
+    localStorage.removeItem("chprbn");
+    window.location.href = "/login";
+  };
+
   return (
     <Sidebar
       className="bg-white border-none"
@@ -192,8 +198,7 @@ const AppSidebar = () => {
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
                           className="hover:!bg-transparent hover:text-title"
-                          isActive={isParentActive(route)}
-                          >
+                          isActive={isParentActive(route)}>
                           <div className="flex items-center gap-3 w-full">
                             <div className="w-6 h-6">
                               <Icon
@@ -252,8 +257,7 @@ const AppSidebar = () => {
                     )}>
                     <SidebarMenuButton
                       asChild
-                      className="hover:!bg-transparent hover:text-title"
-                      >
+                      className="hover:!bg-transparent hover:text-title">
                       <Link href={`/dashboard${route.href}`}>
                         <div className="w-6 h-6">
                           <Icon
@@ -277,6 +281,17 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarMenu className="mt-10 border-t ">
+          <SidebarMenuItem
+            onClick={handleLogout}
+            className="py-3 pl-11 cursor-pointer flex flex-row gap-3 items-center ">
+            <div className="w-6 h-6">
+              <Icon name="sign-out" className="w-6 h-6 hover:text-red-700" stroke="none" />
+            </div>
+            <span>Sign out</span>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarContent>
     </Sidebar>
   );

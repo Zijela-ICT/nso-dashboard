@@ -119,7 +119,7 @@ const Roles = () => {
                       Edit role
                     </div>
                   )}
-                  {hasPermission(SystemPermissions.DELETE_ADMIN_ROLES) && (
+                  {hasPermission(SystemPermissions.DELETE_ADMIN_ROLES) && role.name !== "super_admin" && (
                     <Icon
                       name="trash"
                       className="text-[#FF3B30]"
