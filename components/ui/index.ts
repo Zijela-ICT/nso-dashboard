@@ -14,3 +14,4 @@ export * from "./file-uploader";
 export * from "./input-otp";
 export * from "./checkbox";
 export * from "./tabs";
+export * from "./multi-select";
