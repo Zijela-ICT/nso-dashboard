@@ -1,0 +1,241 @@
+"use client";
+import {
+  CreateUser,
+  EditUser,
+  UploadBulkUser,
+  DeleteModal,
+} from "@/components/modals/users";
+import {
+  Badge,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Icon,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Pagination,
+  Button,
+} from "@/components/ui";
+import { useDeactivate, useResetPassword } from "@/hooks/api/mutations/user";
+import {
+  SystemUsersDataResponse,
+  useFetchSystemUsers,
+} from "@/hooks/api/queries/users";
+import { usePermissions } from "@/hooks/custom/usePermissions";
+import { cn } from "@/lib/utils";
+import { SystemPermissions } from "@/utils/permission-enums";
+import React, { useState } from "react";
+
+const AllUsers = () => {
+  const { hasPermission } = usePermissions();
+  const { mutate, isLoading: isLoadingCreateRole } = useResetPassword();
+  const { mutate: mutateDeactivate, isLoading: isLoadingDeactivating } =
+    useDeactivate();
+
+  const [createUserModal, setCreateUserModal] = useState(false);
+  const [bulkUploadModal, setBulkUploadModal] = useState(false);
+  const [editUserModal, setEditUserModal] = useState(false);
+  const [resetPasswordModal, setResetPasswordModal] = useState(false);
+  const [deactivateModal, setDeactivateModal] = useState(false);
+
+  const [selectedUser, setSelectedUser] =
+    useState<SystemUsersDataResponse | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const reportsPerPage = 20; // Adjust as needed
+
+  const { data, isLoading } = useFetchSystemUsers(currentPage, reportsPerPage);
+
+  const formatRoles = (roles) => {
+    if (!roles || roles.length === 0) return '-';
+    return roles.map(role => role.name).join(', ');
+  };
+
+  return (
+    <div className="bg-white p-4 rounded-2xl">
+      <div className="gap-4 flex flex-row items-center w-full mb-3">
+        <div className="relative w-full">
+          <input
+            className="border border-[#919EAB33] px-12 py-4 rounded-lg w-full text-[#637381] placeholder:text-[#637381] text-sm"
+            placeholder="Search"
+          />
+          <Icon name="search" className="absolute top-4 left-4 " fill="none" />
+        </div>
+        {hasPermission(SystemPermissions.CREATE_ADMIN_USERS) && (
+          <Button className="w-fit" onClick={() => setCreateUserModal(true)}>
+            {" "}
+            Create User
+          </Button>
+        )}
+        <Button
+          className="w-fit"
+          variant="outline"
+          onClick={() => setBulkUploadModal(true)}
+        >
+          {" "}
+          Bulk User
+        </Button>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>First Name</TableHead>
+            <TableHead>Last Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data?.data?.data.map((user, index) => (
+            <TableRow className="cursor-pointer" key={index}>
+              <TableCell>{user.firstName}</TableCell>
+              <TableCell>{user.lastName}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{formatRoles(user.roles)}</TableCell>
+              <TableCell>
+                <Badge variant={user?.isDeactivated ? "failed" : "success"}>
+                  {user?.isDeactivated ? "Inactive" : "Active"}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="w-4 h-4">
+                      <Icon
+                        name="menu-dots"
+                        className="w-4 h-4 text-quaternary"
+                        fill="none"
+                      />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="text-sm text-[#212B36] font-medium rounded-[8px] px-1"
+                  >
+                    {hasPermission(SystemPermissions.UPDATE_ADMIN_USERS) && (
+                      <DropdownMenuItem
+                        className="py-2  rounded-[8px]"
+                        onClick={() => {
+                          setEditUserModal(true);
+                          setSelectedUser(user);
+                        }}
+                      >
+                        Edit User
+                      </DropdownMenuItem>
+                    )}
+                    {hasPermission(
+                      SystemPermissions.UPDATE_ADMIN_USERS_RESET_PASSWORD
+                    ) && (
+                      <DropdownMenuItem
+                        className="py-2 rounded-[8px]"
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setResetPasswordModal(true);
+                        }}
+                      >
+                        Reset Password
+                      </DropdownMenuItem>
+                    )}
+                    {hasPermission(
+                      SystemPermissions.UPDATE_ADMIN_USERS_DEACTIVATE
+                    ) && (
+                      <DropdownMenuItem
+                        className={cn(
+                          "py-2 text-[#FF3B30] rounded-[8px]",
+                          user?.isDeactivated && "text-[#036B26]"
+                        )}
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setDeactivateModal(true);
+                        }}
+                      >
+                        {user?.isDeactivated
+                          ? "Re-activate User"
+                          : "Deactivate User"}
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={data?.data?.totalPages}
+        onPageChange={setCurrentPage}
+      />
+
+      <CreateUser
+        openModal={createUserModal}
+        setOpenModal={setCreateUserModal}
+      />
+      <UploadBulkUser
+        openModal={bulkUploadModal}
+        setOpenModal={setBulkUploadModal}
+      />
+
+      <EditUser
+        openModal={editUserModal}
+        setOpenModal={setEditUserModal}
+        user={selectedUser}
+      />
+
+      <DeleteModal
+        openModal={resetPasswordModal}
+        setOpenModal={setResetPasswordModal}
+        header="Reset Password"
+        subText="Are you sure you want to reset this user’s password?"
+        loading={isLoadingCreateRole}
+        handleConfirm={() => {
+          mutate(
+            {
+              id: selectedUser.id,
+            },
+            {
+              onSuccess: () => {
+                setResetPasswordModal(false);
+              },
+            }
+          );
+        }}
+      />
+
+      {selectedUser?.id && (
+        <DeleteModal
+          openModal={deactivateModal}
+          setOpenModal={setDeactivateModal}
+          header={
+            selectedUser.isDeactivated ? "Re-activate User" : "Deactivate User"
+          }
+          subText={`Are you sure you want to ${
+            selectedUser.isDeactivated ? "re-activate" : "deactivate"
+          } this user?`}
+          loading={isLoadingDeactivating}
+          handleConfirm={() => {
+            mutateDeactivate(
+              {
+                id: selectedUser.id,
+              },
+              {
+                onSuccess: () => {
+                  setDeactivateModal(false);
+                },
+              }
+            );
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+export default AllUsers;
