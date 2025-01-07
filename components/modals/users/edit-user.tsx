@@ -8,17 +8,11 @@ import {
   Icon,
   Input,
   MultiSelect,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
 } from "@/components/ui";
 import { SystemUsersDataResponse } from "@/hooks/api/queries/users";
 import { useFetchRoles } from "@/hooks/api/queries/users";
 import { InputType, useUpdateUser } from "@/hooks/api/mutations/user";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import React, { useEffect, useState } from "react";
 import { EditUserSchema } from "@/validation-schema/user";
 
@@ -107,11 +101,6 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
   const handleClose = () => {
     formik.resetForm();
     setOpenModal(false);
-  };
-
-  const handleRoleChange = (value: string) => {
-    // Convert single selection to array
-    formik.setFieldValue("roles", [value]);
   };
 
   return (

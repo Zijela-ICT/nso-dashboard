@@ -2,11 +2,10 @@ import React from "react";
 import {
   Avatar,
   AvatarFallback,
-  AvatarImage,
   Icon,
   SidebarTrigger
 } from "../ui";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFetchProfile } from "@/hooks/api/queries/settings";
 
@@ -14,7 +13,7 @@ const Navbar = () => {
   const { data } = useFetchProfile();
   const isMobile = useIsMobile();
 
-  const router = useRouter();
+  // const router = useRouter();
   return (
     <div className="w-full flex flex-row justify-between md:justify-end px-4 md:px-10 py-4 bg-white border-b border-b-[#EAEDFF]">
       {isMobile && (

@@ -49,7 +49,7 @@ const AllUsers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
 
-  const { data, isLoading } = useFetchSystemUsers(currentPage, reportsPerPage);
+  const { data } = useFetchSystemUsers(currentPage, reportsPerPage);
 
   const formatRoles = (roles) => {
     if (!roles || roles.length === 0) return '-';

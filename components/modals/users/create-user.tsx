@@ -7,16 +7,10 @@ import {
   Button,
   Input,
   MultiSelect,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
 } from "@/components/ui";
 import { useCreateUser } from "@/hooks/api/mutations/user";
 import { useFetchRoles } from "@/hooks/api/queries/users";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import React from "react";
 import { CreateUserSchema } from "@/validation-schema/user";
 
