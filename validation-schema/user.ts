@@ -31,5 +31,8 @@ export const CreateUserSchema = Yup.object().shape({
   emailAddress: Yup.string()
     .email("Invalid email address")
     .required("Email address is required"),
-  role: Yup.string().required("Role selection is required")
+  role: Yup.array()
+    .of(Yup.string())
+    .min(1, "At least one role must be selected")
+    .required("Role selection is required")
 });

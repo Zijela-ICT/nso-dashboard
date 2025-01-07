@@ -53,6 +53,11 @@ const AllUsers = () => {
 
   const { data, isLoading } = useFetchSystemUsers(currentPage, reportsPerPage);
 
+  const formatRoles = (roles) => {
+    if (!roles || roles.length === 0) return '-';
+    return roles.map(role => role.name).join(', ');
+  };
+
   return (
     <div className="bg-white p-4 rounded-2xl">
       <div className="gap-4 flex flex-row items-center w-full mb-3">
@@ -94,7 +99,7 @@ const AllUsers = () => {
               <TableCell>{user.firstName}</TableCell>
               <TableCell>{user.lastName}</TableCell>
               <TableCell>{user.email}</TableCell>
-              <TableCell>{user.roles[0]?.name}</TableCell>
+              <TableCell>{formatRoles(user.roles)}</TableCell>
               <TableCell>
                 <Badge variant={user?.isDeactivated ? "failed" : "success"}>
                   {user?.isDeactivated ? "Inactive" : "Active"}

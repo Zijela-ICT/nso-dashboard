@@ -6,6 +6,7 @@ import {
   AlertDialogTitle,
   Button,
   Input,
+  MultiSelect,
   Select,
   SelectContent,
   SelectItem,
@@ -46,7 +47,7 @@ const CreateUser = ({ openModal, setOpenModal }: CreateUserModalProps) => {
           last_name: values.lastName,
           mobile: values.phoneNumber,
           email: values.emailAddress,
-          role: [values.role]
+          role: values.role
         },
         {
           onSuccess: () => {
@@ -57,6 +58,15 @@ const CreateUser = ({ openModal, setOpenModal }: CreateUserModalProps) => {
       );
     }
   });
+
+  const roleOptions = React.useMemo(() => {
+    if (!rolesData?.data) return [];
+    return rolesData.data.map(role => ({
+      label: role.name,
+      value: role.name
+    }));
+  }, [rolesData?.data]);
+
 
   const handleClose = () => {
     formik.resetForm();
@@ -158,33 +168,21 @@ const CreateUser = ({ openModal, setOpenModal }: CreateUserModalProps) => {
             <label className="block text-sm font-medium text-[#637381] mb-1.5">
               Role
             </label>
-            <Select
-              name="role"
-              onValueChange={(value) => formik.setFieldValue("role", value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue
-                  placeholder="Select role"
-                  className="text-placeholder font-normal"
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {isLoadingRoles ? (
-                  <SelectItem value="loading" disabled>
-                    Loading roles...
-                  </SelectItem>
-                ) : (
-                  rolesData?.data?.map((role) => (
-                    <SelectItem key={role.id} value={role.name}>
-                      {role.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-            {/* {formik.touched.role && formik.errors.role && (
-              <div className="text-red-500 text-sm mt-1">{formik.errors.role}</div>
-            )} */}
+            <MultiSelect
+              isMulti
+              usePortal
+              options={roleOptions}
+              value={formik.values.role}
+              onChange={(value) => formik.setFieldValue("role", value)}
+              isLoading={isLoadingRoles}
+              placeholder="Select roles"
+              error={!!(formik.touched.role && formik.errors.role)}
+            />
+            {formik.touched.role && formik.errors.role && (
+              <div className="text-red-500 text-sm mt-1">
+                {typeof formik.errors.role === 'string' ? formik.errors.role : 'Please select a valid role(s)'}
+              </div>
+            )}
           </div>
 
           <Button

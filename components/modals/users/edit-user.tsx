@@ -7,6 +7,7 @@ import {
   Button,
   Icon,
   Input,
+  MultiSelect,
   Select,
   SelectContent,
   SelectItem,
@@ -30,7 +31,7 @@ interface EditUserModal {
 const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
   const { mutate: updateUser, isLoading: isUpdating } = useUpdateUser();
   const { data: rolesData, isLoading: isLoadingRoles } = useFetchRoles();
-  
+
   // Initialize with empty array for roles
   const [initialValues, setInitialValues] = useState({
     firstName: "",
@@ -48,7 +49,9 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
         phoneNumber: user.mobile || "",
         emailAddress: user.email || "",
         // Ensure roles is always an array
-        roles: Array.isArray(user.roles) ? user.roles : [user.roles].filter(Boolean)
+        roles: Array.isArray(user.roles)
+          ? user.roles
+          : [user.roles].filter(Boolean)
       };
       setInitialValues(values);
     }
@@ -74,9 +77,10 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
       if (values.emailAddress !== initialValues.emailAddress) {
         updates.email = values.emailAddress;
       }
-      
+
       // Compare role arrays properly
-      const rolesChanged = JSON.stringify(values.roles) !== JSON.stringify(initialValues.roles);
+      const rolesChanged =
+        JSON.stringify(values.roles) !== JSON.stringify(initialValues.roles);
       if (rolesChanged) {
         updates.role = values.roles;
       }
@@ -91,6 +95,14 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
     },
     enableReinitialize: true
   });
+
+  const roleOptions = React.useMemo(() => {
+    if (!rolesData?.data) return [];
+    return rolesData.data.map((role) => ({
+      label: role.name,
+      value: role.name
+    }));
+  }, [rolesData?.data]);
 
   const handleClose = () => {
     formik.resetForm();
@@ -126,8 +138,7 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
 
         <form
           className="w-full flex flex-col gap-4"
-          onSubmit={formik.handleSubmit}
-        >
+          onSubmit={formik.handleSubmit}>
           <div className="flex flex-col md:flex-row items-start w-full gap-4">
             <div className="w-full">
               <Input
@@ -137,7 +148,9 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.firstName}
-                errorMessage={formik.touched.firstName && formik.errors.firstName}
+                errorMessage={
+                  formik.touched.firstName && formik.errors.firstName
+                }
               />
             </div>
             <div className="w-full">
@@ -152,7 +165,7 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
               />
             </div>
           </div>
-          
+
           <Input
             label="Phone number"
             name="phoneNumber"
@@ -161,9 +174,11 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.phoneNumber}
-            errorMessage={formik.touched.phoneNumber && formik.errors.phoneNumber}
+            errorMessage={
+              formik.touched.phoneNumber && formik.errors.phoneNumber
+            }
           />
-          
+
           <Input
             label="Email address"
             name="emailAddress"
@@ -172,42 +187,31 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.emailAddress}
-            errorMessage={formik.touched.emailAddress && formik.errors.emailAddress}
+            errorMessage={
+              formik.touched.emailAddress && formik.errors.emailAddress
+            }
           />
 
           <div className="w-full">
             <label className="block text-sm font-medium text-[#637381] mb-1.5">
               Role
             </label>
-            <Select
-              value={formik.values.roles[0] || ""}
-              onValueChange={handleRoleChange}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue
-                  placeholder={isLoadingRoles ? "Loading roles..." : "Select role"}
-                  className="text-placeholder font-normal"
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {isLoadingRoles ? (
-                  <SelectItem value="loading" disabled>
-                    Loading roles...
-                  </SelectItem>
-                ) : (
-                  rolesData?.data?.map((role) => (
-                    <SelectItem key={role.id} value={role.name}>
-                      {role.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+
+            <MultiSelect
+              isMulti
+              usePortal
+              options={roleOptions}
+              value={formik.values.roles}
+              onChange={(value) => formik.setFieldValue("roles", value)}
+              isLoading={isLoadingRoles}
+              placeholder="Select roles"
+              error={!!(formik.touched.roles && formik.errors.roles)}
+            />
             {formik.touched.roles && formik.errors.roles && (
               <div className="text-red-500 text-sm mt-1">
-                {Array.isArray(formik.errors.roles) 
-                  ? formik.errors.roles[0] 
-                  : formik.errors.roles}
+                {typeof formik.errors.roles === "string"
+                  ? formik.errors.roles
+                  : "Please select a valid role(s)"}
               </div>
             )}
           </div>
@@ -216,8 +220,7 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
             className="self-end mt-4 w-fit"
             type="submit"
             disabled={!formik.isValid || !formik.dirty || isUpdating}
-            isLoading={isUpdating}
-          >
+            isLoading={isUpdating}>
             {isUpdating ? "Updating..." : "Update User"}
           </Button>
         </form>
