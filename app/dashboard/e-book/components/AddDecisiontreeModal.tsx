@@ -69,13 +69,7 @@ function AddDecisionTreeModal({
       history: questions.filter((e) => e),
       examinationsActions: examinations.filter((e) => e),
       findingsOnExamination: allSymptoms.filter((e) => e),
-      cases: ailments.filter((c) => {
-        return (
-          c.findingsOnHistory &&
-          c.findingsOnExamination.filter((e) => e).length &&
-          c.actions.filter((e) => e).length
-        );
-      }),
+      cases: ailments,
       healthEducation: healthEducation.filter((e) => e),
     };
     if (decisionTreeData) {

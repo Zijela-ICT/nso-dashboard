@@ -326,6 +326,8 @@ const useBookMethods = () => {
   };
 
   const updateElementAtPath = (payload, elementPosition) => {
+    console.log({ payload, elementPosition });
+
     const updatedData = { ...data };
     const flattenedArr = flattenArrayOfObjects(updatedData.book.content);
     const updatedFlattenedArr = [...flattenedArr];
@@ -336,7 +338,7 @@ const useBookMethods = () => {
 
     const unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
     updatedData.book.content = unflattendContent;
-
+    console.log("updatedData", updatedData);
     setData(updatedData);
   };
 
@@ -352,13 +354,11 @@ const useBookMethods = () => {
     const [chapterIndex, ...rest] = path;
 
     switch (path.length) {
-      case 1: // Remove chapter
-        console.log("na here 1");
+      case 1:
         updatedData.book.content.splice(chapterIndex, 1);
         break;
 
-      case 2: // Remove subchapter or page at that level
-        console.log("na here 2");
+      case 2:
         if (typeof flattenedArr[elementIndex].data === "string") {
           updatedData.book.content[chapterIndex].subChapters.splice(rest[0], 1);
         } else {

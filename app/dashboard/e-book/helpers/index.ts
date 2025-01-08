@@ -107,7 +107,7 @@ export function flattenArrayOfObjects(
           if (Array.isArray(subChapter.subSubChapters)) {
             subChapter.subSubChapters.forEach((subSubChapter, subSubIndex) => {
               // Add subSubChapter title if it exists
-              if (subSubChapter.subSubChapterTitle) {
+              if (subSubChapter?.subSubChapterTitle) {
                 results.push({
                   data: subSubChapter.subSubChapterTitle,
                   parentIndex: [...currentParentIndex, subIndex, subSubIndex],
@@ -115,7 +115,7 @@ export function flattenArrayOfObjects(
               }
 
               // Handle pages with pageTitle and items array
-              if (Array.isArray(subSubChapter.pages)) {
+              if (Array.isArray(subSubChapter?.pages)) {
                 subSubChapter.pages.forEach((page, pageIndex) => {
                   // Add page title
                   if (page.pageTitle) {
