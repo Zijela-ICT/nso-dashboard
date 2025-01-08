@@ -10,7 +10,7 @@ import {
   useVerifyPasswordReset
 } from "@/hooks/api/mutations/auth";
 
-const Page = () => {
+const CompleteRegistration = () => {
   const initiateReset = useInitiatePasswordReset();
   const verifyReset = useVerifyPasswordReset();
   const navigation = useRouter();
@@ -125,6 +125,15 @@ const Page = () => {
         </AuthLayout>
       )}
     </>
+  );
+};
+
+
+const Page = () => {
+  return (
+    <Suspense>
+      <CompleteRegistration />
+    </Suspense>
   );
 };
 
