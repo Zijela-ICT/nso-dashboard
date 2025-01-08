@@ -7,7 +7,6 @@ import {
   Icon,
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -86,7 +85,7 @@ const routes: RouteItem[] = [
     icon: "hospital",
     label: "Nearby Facilities",
     href: "/nearby-facilities",
-    permission: SystemPermissions.READ_FACILITIES,
+    permission: SystemPermissions.READ_ADMIN_FACILITIES,
   },
   {
     id: 5,

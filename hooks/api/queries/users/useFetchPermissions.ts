@@ -31,8 +31,11 @@ export const FetchPermissions = async (
   );
 };
 
-export const useFetchPermissions = (page: number = 1, perPage: number = 60) => {
-  const queryKey = [QUERYKEYS.FETCHPERMISSIONS, , page, perPage];
+export const useFetchPermissions = (
+  page: number = 1,
+  perPage: number = 100
+) => {
+  const queryKey = [QUERYKEYS.FETCHPERMISSIONS, page, perPage];
   return useQuery(queryKey, () => FetchPermissions(page, perPage), {
     retry: 1
   });
