@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "../../../../components/ui/dialog";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Trash } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import {
   Accordion,
@@ -61,14 +61,22 @@ function AddDecisionTreeModal({
   }, [decisionTreeData]);
 
   const handleSave = () => {
+    console.log("ailments", ailments);
+
     const decisionTree = {
       type: "decision",
       title,
-      history: questions,
-      examinationsActions: examinations,
-      findingsOnExamination: allSymptoms,
-      cases: ailments,
-      healthEducation,
+      history: questions.filter((e) => e),
+      examinationsActions: examinations.filter((e) => e),
+      findingsOnExamination: allSymptoms.filter((e) => e),
+      cases: ailments.filter((c) => {
+        return (
+          c.findingsOnHistory &&
+          c.findingsOnExamination.filter((e) => e).length &&
+          c.actions.filter((e) => e).length
+        );
+      }),
+      healthEducation: healthEducation.filter((e) => e),
     };
     if (decisionTreeData) {
       editElement(decisionTree, elementIndex);
@@ -129,32 +137,42 @@ function AddDecisionTreeModal({
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {questions.map((q, index) => (
-                        <input
-                          key={index}
-                          value={q}
-                          onChange={(e) => {
-                            const newQuestions = [...questions];
-                            newQuestions[index] = e.target.value;
-                            setQuestions(newQuestions);
-                          }}
-                          className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
-                        />
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                        onClick={() => setQuestions([...questions, ""])}
-                      >
-                        <Plus width={12} />
-                      </button>
+                        <div className="flex items-center">
+                          <input
+                            key={index}
+                            value={q}
+                            onChange={(e) => {
+                              const newQuestions = [...questions];
+                              newQuestions[index] = e.target.value;
+                              setQuestions(newQuestions);
+                            }}
+                            className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
+                          />
+                          <div className="flex gap-2 ml-2">
+                            <button
+                              className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                              onClick={() => {
+                                const newArray = [...questions];
+                                newArray.splice(index + 1, 0, "");
+                                setQuestions(newArray);
+                              }}
+                            >
+                              <Plus width={12} />
+                            </button>
 
-                      <button
-                        onClick={() => setQuestions([...questions, ""])}
-                        className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                      >
-                        <Minus />
-                      </button>
+                            <button
+                              onClick={() => {
+                                const questions_ = [...questions];
+                                questions_.splice(index, 1);
+                                setQuestions(questions_);
+                              }}
+                              className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                            >
+                              <Minus />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -164,33 +182,42 @@ function AddDecisionTreeModal({
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {examinations.map((e, index) => (
-                        <input
-                          key={index}
-                          value={e}
-                          onChange={(e) => {
-                            const newExaminations = [...examinations];
-                            newExaminations[index] = e.target.value;
-                            setExaminations(newExaminations);
-                          }}
-                          className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
-                        />
+                        <div className="flex items-center">
+                          <input
+                            key={index}
+                            value={e}
+                            onChange={(e) => {
+                              const newExaminations = [...examinations];
+                              newExaminations[index] = e.target.value;
+                              setExaminations(newExaminations);
+                            }}
+                            className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
+                          />
+                          <div className="flex gap-2 ml-2">
+                            <button
+                              className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                              onClick={() => {
+                                const newArray = [...examinations];
+                                newArray.splice(index + 1, 0, "");
+                                setExaminations(newArray);
+                              }}
+                            >
+                              <Plus width={12} />
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                const examinations_ = [...examinations];
+                                examinations_.splice(index, 1);
+                                setExaminations(examinations_);
+                              }}
+                              className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                            >
+                              <Minus />
+                            </button>
+                          </div>
+                        </div>
                       ))}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                        onClick={() => setExaminations([...examinations, ""])}
-                      >
-                        <Plus width={12} />
-                      </button>
-
-                      <button
-                        onClick={() => setQuestions([...questions, ""])}
-                        className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                      >
-                        <Minus />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -250,9 +277,21 @@ function AddDecisionTreeModal({
                   {ailments.map((ailment, i) => (
                     <AccordionItem key={i} value={`item-${i}`}>
                       <AccordionTrigger>
-                        <span className="capitalize">
-                          {ailment.findingsOnHistory || `Case ${i + 1}`}
-                        </span>
+                        <div className="flex justify-between items-center w-full">
+                          <span className="capitalize">
+                            {ailment.findingsOnHistory || `Case ${i + 1}`}
+                          </span>
+                          <button
+                            onClick={() => {
+                              setAilments(
+                                [...ailments].filter((_, j) => i !== j)
+                              );
+                            }}
+                            className="text-red-600 text-[12px]"
+                          >
+                            <Trash width={14} />
+                          </button>
+                        </div>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="">

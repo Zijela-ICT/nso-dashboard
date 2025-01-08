@@ -71,7 +71,7 @@ function AddDropdown({
               </div>
             </DropdownMenuItem>
           )}
-          <div className="p-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
+          <div className="px-4 py-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
             <button
               className="text-sm w-full h-full text-left"
               onClick={() => setShowTableModal(true)}
@@ -87,7 +87,7 @@ function AddDropdown({
               }}
             />
           </div>
-          <div className="p-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
+          <div className="px-4 py-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
             <button
               className="text-sm w-full h-full text-left"
               onClick={() => setShowInfographicModal(true)}
@@ -103,7 +103,7 @@ function AddDropdown({
               }}
             />
           </div>
-          <div className="p-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
+          <div className="px-4 py-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
             <button
               className="text-sm w-full h-full text-left"
               onClick={() => setShowLinkableModal(true)}
@@ -119,7 +119,7 @@ function AddDropdown({
               }}
             />
           </div>
-          <div className="p-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
+          <div className="px-4 py-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
             <button
               className="text-sm w-full h-full text-left"
               onClick={() => setShowDecisionTreeModal(true)}

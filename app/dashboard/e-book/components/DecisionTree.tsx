@@ -61,7 +61,7 @@ const DecisionTreeRenderer: React.FC<{
               key={index}
               className={index % 2 === 0 ? "bg-[#ECFDF3]" : "bg-[#fbffff]"}
             >
-              <td className="border border-gray-300 p-2">
+              <td className="border border-gray-300 p-2 align-top">
                 <ul>
                   {ailment.findingsOnExamination.map((itm, i) => (
                     <li className="mb-1" key={i}>
@@ -70,7 +70,7 @@ const DecisionTreeRenderer: React.FC<{
                   ))}
                 </ul>
               </td>
-              <td className="border border-gray-300 p-2">
+              <td className="border border-gray-300 p-2 align-top">
                 <ul>
                   {ailment.decisionDependencies.map((finding, findingIndex) => (
                     <li className="mb-1" key={findingIndex}>
@@ -79,29 +79,35 @@ const DecisionTreeRenderer: React.FC<{
                   ))}
                 </ul>
               </td>
-              <td className="border border-gray-300 p-2">
+              <td className="border border-gray-300 p-2 align-top">
                 {ailment.clinicalJudgement}
               </td>
-              <td className="border border-gray-300 p-2">
-                <ul>
+              <td className="border border-gray-300 p-2 align-top">
+                <ol className="pl-6 list-decimal">
                   {ailment.actions.map((action, actionIndex) => (
-                    <li key={actionIndex}>{action}</li>
+                    <li className="w-full" key={actionIndex}>
+                      {action}
+                    </li>
                   ))}
-                </ul>
+                </ol>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <p className="mt-4 mb-2 text-[#0CA554]">Health education</p>
-      <ul>
-        {decisionTree?.healthEducation.map((item, i) => (
-          <li key={i} className="mb-1">
-            {i + 1}. {item}
-          </li>
-        ))}
-      </ul>
+      {!!decisionTree?.healthEducation.length && (
+        <>
+          <p className="mt-4 mb-2 text-[#0CA554]">Health education</p>
+          <ul>
+            {decisionTree?.healthEducation.map((item, i) => (
+              <li key={i} className="mb-1">
+                {i + 1}. {item}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 };

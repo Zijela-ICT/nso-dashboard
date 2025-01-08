@@ -353,20 +353,26 @@ const useBookMethods = () => {
 
     switch (path.length) {
       case 1: // Remove chapter
-        if (updatedData.book.content.length === 1) return;
+        console.log("na here 1");
         updatedData.book.content.splice(chapterIndex, 1);
         break;
 
       case 2: // Remove subchapter or page at that level
+        console.log("na here 2");
         if (typeof flattenedArr[elementIndex].data === "string") {
           updatedData.book.content[chapterIndex].subChapters.splice(rest[0], 1);
         } else {
-          updatedData.book.content[chapterIndex].pages.splice(rest[0], 1);
+          // updatedData.book.content[chapterIndex].pages.splice(rest[0], 1);
+          updatedData.book.content = unflattenArrayOfObjects(
+            flattenedArr.filter((_, n) => n !== elementIndex)
+          );
         }
         break;
 
       case 3:
         {
+          console.log("na here 3");
+
           // Remove subChapter or its page
           const subChapter =
             updatedData.book.content[chapterIndex].subChapters[rest[0]];
@@ -377,7 +383,10 @@ const useBookMethods = () => {
             ].subSubChapters.splice(rest[2], 1);
           } else {
             // Remove subChapter page
-            subChapter.pages.splice(rest[2], 1);
+            // subChapter.pages.splice(rest[2], 1);
+            updatedData.book.content = unflattenArrayOfObjects(
+              flattenedArr.filter((_, n) => n !== elementIndex)
+            );
           }
         }
         break;

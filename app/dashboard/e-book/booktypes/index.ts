@@ -104,6 +104,12 @@ export interface Linkable {
   style?: object;
 }
 
+export interface Spacer {
+  type: "spacer";
+  width?: string;
+  height?: string;
+}
+
 export interface Book {
   bookTitle: string;
   cert_sign: string;
