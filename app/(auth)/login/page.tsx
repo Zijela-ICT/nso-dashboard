@@ -1,6 +1,6 @@
 //eslint-disable-next-line @typescript-eslint/no-unused-expressions
 "use client";
-import { Button, Icon, Input } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/shared";
@@ -8,7 +8,6 @@ import { LoginSchema } from "@/validation-schema/auth";
 import { useFormik } from "formik";
 import { useInitiatePasswordReset, useLogin } from "@/hooks/api/mutations/auth";
 import storageUtil from "@/utils/browser-storage";
-import { CHPBRN_TOKEN } from "@/constants";
 
 const Login = () => {
   const navigation = useRouter();
@@ -19,20 +18,24 @@ const Login = () => {
   const formik = useFormik({
     initialValues: {
       email: "",
-      password: "",
+      password: ""
     },
     validationSchema: LoginSchema,
     onSubmit: (values) => {
       login.mutate(
         {
           email: values.email,
-          password: values.password,
+          password: values.password
         },
         {
           onSuccess: (data) => {
             if (data.data.requirePasswordReset) {
               storageUtil.store("@chprbn", data.data.token);
-              navigation.push(`/complete-registration?email=${encodeURIComponent(values.email)}`);
+              navigation.push(
+                `/complete-registration?email=${encodeURIComponent(
+                  values.email
+                )}`
+              );
               return;
             }
             storageUtil.store("@chprbn", data.data.token);
@@ -40,9 +43,10 @@ const Login = () => {
           }
         }
       );
-    },
+    }
   });
 
+  const encodedEmail = encodeURIComponent(formik.values.email).replace(/\+/g, '%2B');
   return (
     <AuthLayout>
       <div className="w-full rounded-2xl drop-shadow-sm bg-white">
@@ -78,7 +82,13 @@ const Login = () => {
               />
               <span
                 className="text-[#F97066] font-normal text-xs cursor-pointer"
-                onClick={() => navigation.push("/complete-registration")}>
+                onClick={() =>
+                  navigation.push(
+                    !!formik.values.email
+                      ? `/forgot-password?mode=email&email=${encodedEmail}`
+                      : "/forgot-password?mode=email"
+                  )
+                }>
                 Forgot Password?
               </span>
             </div>

@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useMutation } from "react-query";
 
 import request from "@/utils/api";
@@ -30,7 +30,9 @@ const VerifyPasswordReset = (input: InputType): Promise<ResponseType> => {
       password: input.password,
       otp: input.otp
     },
-    false
+    true,
+    true,
+    "Password reset successful"
   );
 };
 

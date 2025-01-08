@@ -1,18 +1,15 @@
 "use client";
-import { Button, Icon, Input } from "@/components/ui";
-import React, { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { AuthLayout, OtpSection } from "@/components/shared";
+import { Button, Input } from "@/components/ui";
+import React, { Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { AuthLayout } from "@/components/shared";
 import { NewPasswordSchema } from "@/validation-schema/auth";
 import { useFormik } from "formik";
 import { usePasswordChange } from "@/hooks/api/mutations/auth";
-import storageUtil from "@/utils/browser-storage";
 
 const CompleteRegistration = () => {
   const resetPassword = usePasswordChange();
   const navigation = useRouter();
-
-  const searchParams = useSearchParams();
 
   const formik = useFormik({
     initialValues: {
@@ -85,8 +82,6 @@ const CompleteRegistration = () => {
     </AuthLayout>
   );
 };
-
-
 
 const Page = () => {
   return (
