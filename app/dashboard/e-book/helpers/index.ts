@@ -109,7 +109,7 @@ export function flattenArrayOfObjects(
               // Add subSubChapter title if it exists
               if (subSubChapter?.subSubChapterTitle) {
                 results.push({
-                  data: subSubChapter.subSubChapterTitle,
+                  data: subSubChapter?.subSubChapterTitle,
                   parentIndex: [...currentParentIndex, subIndex, subSubIndex],
                 });
               }
