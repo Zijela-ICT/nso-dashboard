@@ -12,36 +12,43 @@ const DecisionTreeRenderer: React.FC<{
       onMouseEnter={handleMouseEnter}
     >
       {/* Upper Table: Questions and Examinations */}
-      <table className="w-full border-collapse border border-gray-300 mb-4">
-        <thead className="bg-[#0CA554] text-white">
-          <tr>
-            <th className="border border-gray-300 p-2">HISTORY</th>
-            <th className="border border-gray-300 p-2">EXAMINATIONS/ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody className="bg-[#FFFAEB]">
-          <tr>
-            <td className="border border-gray-300 p-2">
-              <ul>
-                {decisionTree.history.map((question, index) => (
-                  <li className="mb-1" key={index}>
-                    {index + 1}.{question}
-                  </li>
-                ))}
-              </ul>
-            </td>
-            <td className="border border-gray-300 p-2">
-              <ul>
-                {decisionTree.examinationsActions.map((examination, index) => (
-                  <li className="mb-1" key={index}>
-                    {index + 1}.{examination}
-                  </li>
-                ))}
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      {decisionTree.history.filter((h) => h).length ||
+      decisionTree.examinationsActions.filter((h) => h).length ? (
+        <table className="w-full border-collapse border border-gray-300 mb-4">
+          <thead className="bg-[#0CA554] text-white">
+            <tr>
+              <th className="border border-gray-300 p-2">HISTORY</th>
+              <th className="border border-gray-300 p-2">
+                EXAMINATIONS/ACTIONS
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-[#FFFAEB]">
+            <tr>
+              <td className="border border-gray-300 p-2">
+                <ul>
+                  {decisionTree.history.map((question, index) => (
+                    <li className="mb-1" key={index}>
+                      {index + 1}.{question}
+                    </li>
+                  ))}
+                </ul>
+              </td>
+              <td className="border border-gray-300 p-2">
+                <ul>
+                  {decisionTree.examinationsActions.map(
+                    (examination, index) => (
+                      <li className="mb-1" key={index}>
+                        {index + 1}.{examination}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      ) : null}
 
       {/* Lower Table: Findings and Actions */}
       <table className="w-full border-collapse border border-gray-300">

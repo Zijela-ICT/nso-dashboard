@@ -55,7 +55,7 @@ function isPage(
 }
 
 const useBookMethods = () => {
-  const { data: ebooks, mutation, isLoading } = useEBooks();
+  const { data: ebooks, mutation, refetch: getEbooks, isLoading } = useEBooks();
   const params = useParams<{ id: string }>();
   const getUploadFileUrl = useUpload();
   const filename = "/sample-book.json";
@@ -458,6 +458,7 @@ const useBookMethods = () => {
       const url = await getUploadFileUrl(file);
       showToast("book updated successfully");
       await updateEbooks({ newFileUrl: url }, id);
+      getEbooks();
     } catch (error) {}
   };
 
@@ -521,7 +522,12 @@ const useBookMethods = () => {
       setFetchingVersion(true);
       const res = await getEbookVersion(currentBook.id, version);
       downloadBook(res.data.fileUrl);
-      setBookVersion(version);
+      setBookVersion(
+        version ||
+          currentBook.versions[
+            currentBook.versions.length - 1
+          ].version.toString()
+      );
     } catch (error) {
     } finally {
       setFetchingVersion(false);
@@ -539,7 +545,7 @@ const useBookMethods = () => {
     if (currentBook?.versions?.length) {
       getCurrentBookVersion();
     }
-  }, [currentBook]);
+  }, [currentBook, currentBook?.versions?.length]);
 
   return {
     handleFileUpload,

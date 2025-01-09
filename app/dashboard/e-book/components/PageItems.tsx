@@ -357,7 +357,6 @@ function PageItems({
               className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px]"
               onClick={() => {
                 removeElement(elementIndex);
-                console.log("elementIndex", elementIndex, items[0]);
               }}
             >
               <Trash className="w-4" />
