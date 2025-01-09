@@ -61,7 +61,7 @@ function SectionHeader({
       suppressContentEditableWarning={true}
       className={`group  text-[18px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`}
     >
-      <p>{chapter.data as string}</p>
+      <p>{(chapter.data as string) || "---"}</p>
 
       {isEditting && (
         <div className="group-hover:opacity-100 flex opacity-0 items-center">

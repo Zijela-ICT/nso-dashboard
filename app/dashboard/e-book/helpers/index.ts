@@ -86,7 +86,7 @@ export function flattenArrayOfObjects(
       if (Array.isArray(typedItem.subChapters)) {
         typedItem.subChapters.forEach((subChapter, subIndex) => {
           // Add subChapter title
-          if (subChapter.subChapterTitle) {
+          if (subChapter.subChapterTitle !== undefined) {
             results.push({
               data: subChapter.subChapterTitle as string,
               parentIndex: [...currentParentIndex, subIndex],
@@ -107,7 +107,7 @@ export function flattenArrayOfObjects(
           if (Array.isArray(subChapter.subSubChapters)) {
             subChapter.subSubChapters.forEach((subSubChapter, subSubIndex) => {
               // Add subSubChapter title if it exists
-              if (subSubChapter?.subSubChapterTitle) {
+              if (subSubChapter?.subSubChapterTitle !== undefined) {
                 results.push({
                   data: subSubChapter?.subSubChapterTitle,
                   parentIndex: [...currentParentIndex, subIndex, subSubIndex],

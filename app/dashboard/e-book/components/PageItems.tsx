@@ -207,7 +207,7 @@ function PageItems({
           <p
             ref={contentRef}
             key={index}
-            className={`text-[14px] w-[100%] ${groupClass}`}
+            className={`text-[14px] w-[100%] !mb-4 ${groupClass}`}
             contentEditable={isEditting}
             suppressContentEditableWarning={true}
             style={{ lineHeight: "160%" }}

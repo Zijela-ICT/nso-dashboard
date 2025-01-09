@@ -335,10 +335,8 @@ const useBookMethods = () => {
       ...updatedFlattenedArr[elementPosition],
       data: payload,
     };
-
     const unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
     updatedData.book.content = unflattendContent;
-    console.log("updatedData", updatedData);
     setData(updatedData);
   };
 

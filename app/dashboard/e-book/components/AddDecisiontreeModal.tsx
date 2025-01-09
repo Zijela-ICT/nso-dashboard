@@ -61,8 +61,6 @@ function AddDecisionTreeModal({
   }, [decisionTreeData]);
 
   const handleSave = () => {
-    console.log("ailments", ailments);
-
     const decisionTree = {
       type: "decision",
       title,
@@ -172,7 +170,19 @@ function AddDecisionTreeModal({
                 </div>
 
                 <div>
-                  <h3 className="mt-2 mb-1">Examinations/Actions</h3>
+                  <div className="flex justify-between">
+                    <h3 className="mt-2 mb-1">Examinations/Actions</h3>
+                    <button
+                      className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                      onClick={() => {
+                        const newArray = [...examinations];
+                        newArray.splice(0, 0, "");
+                        setExaminations(newArray);
+                      }}
+                    >
+                      <Plus width={12} />
+                    </button>
+                  </div>
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {examinations.map((e, index) => (
@@ -220,14 +230,26 @@ function AddDecisionTreeModal({
 
             {step === 2 && (
               <div className="pt-4">
-                <h3>Add all possibile findings for all cases.</h3>
+                <div className="flex justify-between">
+                  <h3>Add all possibile findings for all cases.</h3>{" "}
+                  <button
+                    className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                    onClick={() => {
+                      const newSymptoms = [...allSymptoms];
+                      newSymptoms.unshift("");
+                      setAllSymptoms(newSymptoms);
+                    }}
+                  >
+                    <Plus width={12} />
+                  </button>
+                </div>
                 <div className="flex pt-4">
                   <div className="flex-1 pr-2">
                     {allSymptoms.map((symptom, index) => (
-                      <div key={index}>
+                      <div className="flex items-center" key={index}>
                         <input
                           placeholder="Symptom"
-                          value={allSymptoms[index]}
+                          value={symptom}
                           onChange={(e) => {
                             const newSymptoms = [...allSymptoms];
                             newSymptoms[index] = e.target.value;
@@ -235,31 +257,33 @@ function AddDecisionTreeModal({
                           }}
                           className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
                         />
+
+                        <div className="flex gap-2 pl-2">
+                          <button
+                            className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                            onClick={() => {
+                              const newSymptoms = [...allSymptoms];
+                              newSymptoms.splice(index + 1, 0, "");
+                              setAllSymptoms(newSymptoms);
+                            }}
+                          >
+                            <Plus width={12} />
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              const newSymptoms = [...allSymptoms];
+                              setAllSymptoms(
+                                newSymptoms.filter((_, j) => index !== j)
+                              );
+                            }}
+                            className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                          >
+                            <Minus />
+                          </button>
+                        </div>
                       </div>
                     ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                      onClick={() => {
-                        const newSymptoms = [...allSymptoms];
-                        newSymptoms.push("");
-                        setAllSymptoms(newSymptoms);
-                      }}
-                    >
-                      <Plus width={12} />
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        const newSymptoms = [...allSymptoms];
-                        newSymptoms.push("");
-                        setAllSymptoms(newSymptoms);
-                      }}
-                      className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                    >
-                      <Minus />
-                    </button>
                   </div>
                 </div>
               </div>
@@ -393,50 +417,92 @@ function AddDecisionTreeModal({
                             </div>
                           </div>
 
-                          <h3 className="mt-2 mb-1">Actions</h3>
+                          <div className="flex justify-between items-center">
+                            <h3 className="mt-2 mb-1">Actions</h3>
+                            <button
+                              className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                              onClick={() => {
+                                const currentItem = ailments[i];
+                                const currentItemActions = currentItem.actions;
+                                const newActions = [...currentItemActions, ""];
+                                const currentItem_ = {
+                                  ...currentItem,
+                                  actions: newActions,
+                                };
+                                const newdata = [...ailments];
+                                newdata[i] = currentItem_;
+                                setAilments(newdata);
+                              }}
+                            >
+                              <Plus width={12} />
+                            </button>
+                          </div>
                           <div className="flex">
                             <div className="flex-1 pr-2">
                               {ailment.actions.map((e, index) => (
-                                <input
-                                  key={index}
-                                  value={e}
-                                  onChange={(e) => {
-                                    const currentActions = [...ailment.actions];
-                                    currentActions[index] = e.target.value;
-                                    const currAilment = ailments[i];
-                                    currAilment.actions = currentActions;
-                                    const newdata = [...ailments];
-                                    newdata[i] = currAilment;
-                                    setAilments(newdata);
-                                  }}
-                                  className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
-                                />
+                                <div className="flex items-center justify-between">
+                                  <input
+                                    key={index}
+                                    value={e}
+                                    onChange={(e) => {
+                                      const currentActions = [
+                                        ...ailment.actions,
+                                      ];
+                                      currentActions[index] = e.target.value;
+                                      const currAilment = ailments[i];
+                                      currAilment.actions = currentActions;
+                                      const newdata = [...ailments];
+                                      newdata[i] = currAilment;
+                                      setAilments(newdata);
+                                    }}
+                                    className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
+                                  />
+
+                                  <div className="flex gap-2 pl-2">
+                                    <button
+                                      className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                                      onClick={() => {
+                                        const currentItem = ailments[i];
+                                        const currentItemActions =
+                                          currentItem.actions;
+                                        currentItemActions.splice(
+                                          index + 1,
+                                          0,
+                                          ""
+                                        );
+                                        const currentItem_ = {
+                                          ...currentItem,
+                                          actions: currentItemActions,
+                                        };
+                                        const newdata = [...ailments];
+                                        newdata[i] = currentItem_;
+                                        setAilments(newdata);
+                                      }}
+                                    >
+                                      <Plus width={12} />
+                                    </button>
+
+                                    <button
+                                      onClick={() => {
+                                        const currentItem = ailments[i];
+                                        const currentItemActions =
+                                          currentItem.actions;
+                                        currentItemActions.splice(index, 1);
+                                        const currentItem_ = {
+                                          ...currentItem,
+                                          actions: currentItemActions,
+                                        };
+                                        const newdata = [...ailments];
+                                        newdata[i] = currentItem_;
+                                        setAilments(newdata);
+                                      }}
+                                      className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                                    >
+                                      <Minus />
+                                    </button>
+                                  </div>
+                                </div>
                               ))}
-                            </div>
-
-                            <div className="flex gap-2">
-                              <button
-                                className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                                onClick={() => {
-                                  const currentItem = ailments[i];
-                                  const currentItem_ = {
-                                    ...currentItem,
-                                    actions: [...currentItem.actions, ""],
-                                  };
-                                  const newdata = [...ailments];
-                                  newdata[i] = currentItem_;
-                                  setAilments(newdata);
-                                }}
-                              >
-                                <Plus width={12} />
-                              </button>
-
-                              <button
-                                onClick={() => setQuestions([...questions, ""])}
-                                className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                              >
-                                <Minus />
-                              </button>
                             </div>
                           </div>
                         </div>
@@ -453,41 +519,44 @@ function AddDecisionTreeModal({
                 <div className="flex pt-4">
                   <div className="flex-1 pr-2">
                     {healthEducation?.map((education, index) => (
-                      <div key={index}>
+                      <div className="flex" key={index}>
                         <input
                           value={education}
                           onChange={(e) => {
                             const newHealthEducation = [...healthEducation];
                             healthEducation[index] = e.target.value;
-                            setAllSymptoms(newHealthEducation);
+                            setHealthEducation(newHealthEducation);
                           }}
                           className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
                         />
+
+                        <div className="flex gap-2">
+                          <button
+                            className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                            onClick={() => {
+                              const newHealthEducation = [...healthEducation];
+                              newHealthEducation.push("");
+                              setHealthEducation(newHealthEducation);
+                            }}
+                          >
+                            <Plus width={12} />
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              const newHealthEducation = [...healthEducation];
+                              setHealthEducation(
+                                newHealthEducation.filter((_, n) => n !== index)
+                              );
+                            }}
+                            disabled={healthEducation.length === 1}
+                            className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                          >
+                            <Minus />
+                          </button>
+                        </div>
                       </div>
                     ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                      onClick={() => {
-                        const newHealthEducation = [...healthEducation];
-                        newHealthEducation.push("");
-                        setHealthEducation(newHealthEducation);
-                      }}
-                    >
-                      <Plus width={12} />
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        const newSymptoms = [...allSymptoms];
-                        newSymptoms.push("");
-                        setAllSymptoms(newSymptoms);
-                      }}
-                      className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
-                    >
-                      <Minus />
-                    </button>
                   </div>
                 </div>
               </div>
