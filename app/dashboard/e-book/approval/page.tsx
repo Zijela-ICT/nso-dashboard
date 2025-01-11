@@ -8,7 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { approveEbook, getEbookVersion, getFile } from "@/utils/book.services";
+import {
+  approveEbook,
+  getEbookVersion,
+  getFile,
+  unApproveEbook,
+} from "@/utils/book.services";
 import { Data, FlattenedObj } from "../booktypes";
 import RenderBook from "../components/RenderBook";
 import { flattenArrayOfObjects } from "../helpers";
@@ -24,6 +29,7 @@ function ApprovalPage(props) {
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
   const [loadingBook, setLoadingBook] = useState(false);
   const [approving, setApproving] = useState(false);
+  const [unApproving, setUnApproving] = useState(false);
   const [data, setData] = useState<Data | null>(null);
 
   const currentBook: IChprbnBook | undefined = useMemo(() => {
@@ -80,6 +86,17 @@ function ApprovalPage(props) {
     }
   };
 
+  const unApproveVersion = async () => {
+    setUnApproving(true);
+    try {
+      await unApproveEbook(currentVersionID);
+      showToast("Un approval successful");
+    } catch (error) {
+    } finally {
+      setUnApproving(false);
+    }
+  };
+
   return (
     <div className="py-6">
       <div className="flex items-center justify-between">
@@ -122,16 +139,28 @@ function ApprovalPage(props) {
           </Select>
         </div>
         {currentBookID && (
-          <Button
-            className="w-fit h-[40px]"
-            onClick={approveVersion}
-            disabled={!currentVersion || !hasApprovalAccess}
-            isLoading={approving}
-          >
-            {hasApprovalAccess
-              ? "Approve"
-              : "You do not have access to approve this book"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              className="w-fit h-[40px]"
+              onClick={approveVersion}
+              disabled={!currentVersion || !hasApprovalAccess || unApproving}
+              isLoading={approving}
+            >
+              {hasApprovalAccess
+                ? "Approve"
+                : "You do not have access to approve this book"}
+            </Button>
+            <Button
+              className="w-fit h-[40px]"
+              onClick={unApproveVersion}
+              disabled={!currentVersion || !hasApprovalAccess || approving}
+              isLoading={unApproving}
+            >
+              {hasApprovalAccess
+                ? "Un-approve"
+                : "You do not have access to approve this book"}
+            </Button>
+          </div>
         )}
       </div>
       {!currentBookID || !currentVersion ? (

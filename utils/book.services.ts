@@ -34,6 +34,10 @@ export const approveEbook = (id) => {
   return request("PATCH", `/admin/ebooks/approve/${id}`);
 };
 
+export const unApproveEbook = (id) => {
+  return request("PATCH", `/admin/ebooks/disapprove/${id}`);
+};
+
 export const uploadFile = (data): Promise<AxiosResponse<string>> => {
   return request("POST", "/uploads", data);
 };
