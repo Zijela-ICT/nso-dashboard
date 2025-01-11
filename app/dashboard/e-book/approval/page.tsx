@@ -22,11 +22,27 @@ import { Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast";
 import { useFetchProfile } from "@/hooks/api/queries/settings";
 
+export interface VersionData {
+  id: number;
+  version: number;
+  status: "PUBLISHED" | "DRAFT";
+  fileUrl: string;
+  difference: {
+    lhs: string;
+    rhs: string;
+    kind: string;
+    path: string[];
+  }[];
+  approvedAt: string;
+  createdAt: string;
+}
 function ApprovalPage(props) {
   const { data: ebooks } = useEBooks();
   const { data: user } = useFetchProfile();
   const [currentBookID, setCurrentBookID] = useState<string | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
+  const [currentVersionDetails, setCurrentVersionDetails] =
+    useState<VersionData | null>(null);
   const [loadingBook, setLoadingBook] = useState(false);
   const [approving, setApproving] = useState(false);
   const [unApproving, setUnApproving] = useState(false);
@@ -45,6 +61,7 @@ function ApprovalPage(props) {
       setLoadingBook(true);
       try {
         const res = await getEbookVersion(Number(id), version);
+        setCurrentVersionDetails(res.data);
         downloadBook(res.data.fileUrl);
       } catch (error) {
         setLoadingBook(false);
@@ -140,27 +157,30 @@ function ApprovalPage(props) {
         </div>
         {currentBookID && (
           <div className="flex gap-2">
-            <Button
-              className="w-fit h-[40px]"
-              onClick={unApproveVersion}
-              disabled={!currentVersion || !hasApprovalAccess || approving}
-              isLoading={unApproving}
-              variant="outline"
-            >
-              {hasApprovalAccess
-                ? "Un-approve"
-                : "You do not have access to approve this book"}
-            </Button>
-            <Button
-              className="w-fit h-[40px]"
-              onClick={approveVersion}
-              disabled={!currentVersion || !hasApprovalAccess || unApproving}
-              isLoading={approving}
-            >
-              {hasApprovalAccess
-                ? "Approve"
-                : "You do not have access to approve this book"}
-            </Button>
+            {currentVersionDetails?.status === "PUBLISHED" ? (
+              <Button
+                className="w-fit h-[40px]"
+                onClick={unApproveVersion}
+                disabled={!currentVersion || !hasApprovalAccess || approving}
+                isLoading={unApproving}
+                variant="outline"
+              >
+                {hasApprovalAccess
+                  ? "Un-approve"
+                  : "You do not have access to approve this book"}
+              </Button>
+            ) : (
+              <Button
+                className="w-fit h-[40px]"
+                onClick={approveVersion}
+                disabled={!currentVersion || !hasApprovalAccess || unApproving}
+                isLoading={approving}
+              >
+                {hasApprovalAccess
+                  ? "Approve"
+                  : "You do not have access to approve this book"}
+              </Button>
+            )}
           </div>
         )}
       </div>

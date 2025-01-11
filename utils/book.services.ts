@@ -1,6 +1,7 @@
 import { AxiosResponse } from "axios";
 import request from "./api";
 import { IChprbnBook } from "@/app/dashboard/e-book/hooks/useEBooks";
+import { VersionData } from "@/app/dashboard/e-book/approval/page";
 
 export const getEbooks = (): Promise<AxiosResponse<IChprbnBook[]>> => {
   return request("GET", "/admin/ebooks");
@@ -9,12 +10,7 @@ export const getEbooks = (): Promise<AxiosResponse<IChprbnBook[]>> => {
 export const getEbookVersion = (
   id: number,
   version: string = ""
-): Promise<
-  AxiosResponse<{
-    fileUrl: string;
-    versions: { id: number; version: number }[];
-  }>
-> => {
+): Promise<AxiosResponse<VersionData>> => {
   let param = "";
   if (version) {
     param = `?version=${version}`;
