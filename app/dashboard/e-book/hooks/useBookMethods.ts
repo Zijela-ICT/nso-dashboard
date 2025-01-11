@@ -19,6 +19,7 @@ import {
   TableData,
   Linkable,
   IDecisionTree,
+  Space,
 } from "../booktypes";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -233,7 +234,7 @@ const useBookMethods = () => {
 
   const addNewElement = (
     type: string,
-    createData?: InfographicData | TableData | Linkable | IDecisionTree,
+    createData?: InfographicData | TableData | Linkable | IDecisionTree | Space,
     element_Index?: number,
     isHeader?: boolean
   ) => {
@@ -275,13 +276,13 @@ const useBookMethods = () => {
         type === "table" ||
         type === "linkable" ||
         type === "decision" ||
-        type === "infographic"
+        type === "infographic" ||
+        type === "space"
       ) {
         newItem = createNewItem(type, newItemKey, createData);
       } else {
         newItem = createNewItem(type, newItemKey);
       }
-
       // Create the new path for insertion
       const newPath = [...path.slice(0, -1), path[path.length - 1] + 1];
 
@@ -326,8 +327,6 @@ const useBookMethods = () => {
   };
 
   const updateElementAtPath = (payload, elementPosition) => {
-    console.log({ payload, elementPosition });
-
     const updatedData = { ...data };
     const flattenedArr = flattenArrayOfObjects(updatedData.book.content);
     const updatedFlattenedArr = [...flattenedArr];
@@ -369,8 +368,6 @@ const useBookMethods = () => {
 
       case 3:
         {
-          console.log("na here 3");
-
           // Remove subChapter or its page
           const subChapter =
             updatedData.book.content[chapterIndex].subChapters[rest[0]];

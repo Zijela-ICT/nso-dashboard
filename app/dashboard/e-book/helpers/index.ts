@@ -8,6 +8,7 @@ import {
   Linkable,
   Page,
   PageItemType,
+  Space,
   SubChapter,
   SubSubChapter,
   TableData,
@@ -299,7 +300,7 @@ export const getLocalizedText = (data: Data, key: string): string => {
 export const createNewItem = (
   type: string,
   newItemKey: string,
-  createData?: TableData | IDecisionTree | Linkable | InfographicData
+  createData?: TableData | IDecisionTree | Linkable | InfographicData | Space
 ): Item | null => {
   let newItem: Item | null;
   switch (type) {
@@ -352,6 +353,10 @@ export const createNewItem = (
     }
     case "linkable": {
       newItem = createData as Linkable;
+      break;
+    }
+    case "space": {
+      newItem = createData as Space;
       break;
     }
     default:

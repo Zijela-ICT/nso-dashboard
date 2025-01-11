@@ -10,6 +10,7 @@ import { Plus } from "lucide-react";
 import AddDecisionTreeModal from "./AddDecisiontreeModal";
 import AddLinkableModal from "./AddLinkableModal";
 import AddTableModal from "./AddTableModal";
+import AddSpacerModal from "./AddSpacer";
 
 function AddDropdown({
   addNewElement,
@@ -22,6 +23,7 @@ function AddDropdown({
   const [showInfographicModal, setShowInfographicModal] =
     useState<boolean>(false);
   const [showLinkableModal, setShowLinkableModal] = useState<boolean>(false);
+  const [showSpacerModal, setSpacerModal] = useState<boolean>(false);
   const [showTableModal, setShowTableModal] = useState<boolean>(false);
   const dropDownItems: string[] = ["unorderedList", "orderedList", "text"];
   const closeModals = () => {
@@ -113,6 +115,22 @@ function AddDropdown({
             <AddLinkableModal
               onClose={() => setShowLinkableModal(false)}
               showLinkableModal={showLinkableModal}
+              addNewElement={(e, f) => {
+                addNewElement(e, f);
+                closeModals();
+              }}
+            />
+          </div>
+          <div className="px-4 py-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
+            <button
+              className="text-sm w-full h-full text-left"
+              onClick={() => setSpacerModal(true)}
+            >
+              Spacer
+            </button>
+            <AddSpacerModal
+              onClose={() => setSpacerModal(false)}
+              showSpacerModal={showSpacerModal}
               addNewElement={(e, f) => {
                 addNewElement(e, f);
                 closeModals();

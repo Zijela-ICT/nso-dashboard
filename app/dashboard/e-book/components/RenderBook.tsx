@@ -68,6 +68,7 @@ function RenderBook({
     }
     return present;
   };
+  console.log("flattenBookData", flattenBookData);
 
   return (
     <>

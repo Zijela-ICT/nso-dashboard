@@ -15,7 +15,6 @@ import DecisionTreeRenderer from "./DecisionTree";
 import { Button } from "../../../../components/ui/button";
 import AddDecisionTreeModal from "./AddDecisiontreeModal";
 import { useBookContext } from "../context/bookContext";
-import { getFile } from "@/utils/book.services";
 import ImageRenderer from "./ImageRenderer";
 import { groupClass } from "@/constants";
 
@@ -207,7 +206,7 @@ function PageItems({
           <p
             ref={contentRef}
             key={index}
-            className={`text-[14px] w-[100%] !mb-4 ${groupClass}`}
+            className={`text-[14px] w-[100%] ${groupClass}`}
             contentEditable={isEditting}
             suppressContentEditableWarning={true}
             style={{ lineHeight: "160%" }}
@@ -345,6 +344,13 @@ function PageItems({
               />
             </div>
           </div>
+        );
+      } else if (itemData.type === "space") {
+        element = (
+          <div
+            className="w-full hover:bg-[#fafafa]"
+            style={{ height: `${itemData.content}` }}
+          ></div>
         );
       } else {
         element = <></>;

@@ -23,6 +23,7 @@ function ApprovalPage(props) {
   const [currentBookID, setCurrentBookID] = useState<string | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
   const [loadingBook, setLoadingBook] = useState(false);
+  const [approving, setApproving] = useState(false);
   const [data, setData] = useState<Data | null>(null);
 
   const currentBook: IChprbnBook | undefined = useMemo(() => {
@@ -59,11 +60,24 @@ function ApprovalPage(props) {
     return flattenArrayOfObjects(data ? data?.book?.content : []);
   }, [data?.book]);
 
+  const currentVersionID: number | null = useMemo(() => {
+    const whichBook = ebooks?.find((b) => b.id === Number(currentBookID));
+    const whichID = whichBook
+      ? whichBook?.versions.find((v) => v.version === Number(currentVersion))
+          ?.id
+      : null;
+    return whichID;
+  }, [ebooks, currentBookID, currentVersion]);
+
   const approveVersion = async () => {
+    setApproving(true);
     try {
-      await approveEbook(currentVersion);
+      await approveEbook(currentVersionID);
       showToast("Approval successful");
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setApproving(false);
+    }
   };
 
   return (
@@ -112,6 +126,7 @@ function ApprovalPage(props) {
             className="w-fit h-[40px]"
             onClick={approveVersion}
             disabled={!currentVersion || !hasApprovalAccess}
+            isLoading={approving}
           >
             {hasApprovalAccess
               ? "Approve"

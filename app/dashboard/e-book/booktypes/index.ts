@@ -59,6 +59,7 @@ export interface Item {
     | "text"
     | "infographic"
     | "linkable"
+    | "space"
     | "heading2"
     | "heading3"
     | "heading4"
@@ -104,10 +105,9 @@ export interface Linkable {
   style?: object;
 }
 
-export interface Spacer {
-  type: "spacer";
-  width?: string;
-  height?: string;
+export interface Space {
+  type: "space";
+  content: string;
 }
 
 export interface Book {
