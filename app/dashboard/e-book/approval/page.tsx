@@ -155,6 +155,7 @@ function ApprovalPage(props) {
               onClick={unApproveVersion}
               disabled={!currentVersion || !hasApprovalAccess || approving}
               isLoading={unApproving}
+              variant="outline"
             >
               {hasApprovalAccess
                 ? "Un-approve"
