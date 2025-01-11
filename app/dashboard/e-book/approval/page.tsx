@@ -142,16 +142,6 @@ function ApprovalPage(props) {
           <div className="flex gap-2">
             <Button
               className="w-fit h-[40px]"
-              onClick={approveVersion}
-              disabled={!currentVersion || !hasApprovalAccess || unApproving}
-              isLoading={approving}
-            >
-              {hasApprovalAccess
-                ? "Approve"
-                : "You do not have access to approve this book"}
-            </Button>
-            <Button
-              className="w-fit h-[40px]"
               onClick={unApproveVersion}
               disabled={!currentVersion || !hasApprovalAccess || approving}
               isLoading={unApproving}
@@ -159,6 +149,16 @@ function ApprovalPage(props) {
             >
               {hasApprovalAccess
                 ? "Un-approve"
+                : "You do not have access to approve this book"}
+            </Button>
+            <Button
+              className="w-fit h-[40px]"
+              onClick={approveVersion}
+              disabled={!currentVersion || !hasApprovalAccess || unApproving}
+              isLoading={approving}
+            >
+              {hasApprovalAccess
+                ? "Approve"
                 : "You do not have access to approve this book"}
             </Button>
           </div>
