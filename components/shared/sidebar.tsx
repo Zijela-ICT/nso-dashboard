@@ -82,13 +82,20 @@ const routes: RouteItem[] = [
   },
   {
     id: 4,
-    icon: "hospital",
-    label: "Nearby Facilities",
-    href: "/nearby-facilities",
+    icon: "subtitle",
+    label: "Decisions",
+    href: "/decisions",
     permission: SystemPermissions.READ_ADMIN_FACILITIES,
   },
   {
     id: 5,
+    icon: "hospital",
+    label: "Nearb Facilities",
+    href: "/nearby-facilities",
+    permission: SystemPermissions.READ_ADMIN_FACILITIES,
+  },
+  {
+    id: 6,
     icon: "users",
     label: "Users",
     href: "/users",
@@ -110,7 +117,7 @@ const routes: RouteItem[] = [
     ],
   },
   {
-    id: 6,
+    id: 7,
     icon: "setting",
     label: "Settings",
     href: "/settings",
