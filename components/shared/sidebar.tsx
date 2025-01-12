@@ -82,7 +82,7 @@ const routes: RouteItem[] = [
   },
   {
     id: 4,
-    icon: "subtitle",
+    icon: "decisions",
     label: "Decisions",
     href: "/decisions",
     permission: SystemPermissions.READ_ADMIN_FACILITIES,
