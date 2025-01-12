@@ -33,8 +33,11 @@ import SortIcon from "@/assets/icons/sort.svg";
 
 function Decisions() {
   const [currentPage, setCurrentPage] = useState(1);
-  const { decisions = [], isLoading } = useFetchDecisions(currentPage, 10);
-  console.log("decisions", decisions);
+  const {
+    data,
+    decisions = [],
+    isLoading,
+  } = useFetchDecisions(currentPage, 10);
 
   return (
     <div className="bg-white p-4 mt-[50px] rounded-2xl">
@@ -139,11 +142,11 @@ function Decisions() {
               ))}
             </TableBody>
           </Table>
-          {/* <Pagination
-        currentPage={currentPage}
-        totalPages={data?.data?.totalPages || 1}
-        onPageChange={setCurrentPage}
-      /> */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={data?.data?.totalPages || 1}
+            onPageChange={setCurrentPage}
+          />
         </>
       )}
     </div>
