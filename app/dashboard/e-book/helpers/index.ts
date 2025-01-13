@@ -215,33 +215,31 @@ export function unflattenArrayOfObjects(
         break;
 
       case 3:
-        {
-          const subChapter = chapter.subChapters[rest[0]];
-          if (typeof data === "string") {
-            if (!subChapter || !subChapter.subSubChapters[rest[0]]) {
-              subChapter.subSubChapters[rest[0]] = {
-                subSubChapterTitle: "",
-                pages: [],
-              };
-            }
-            subChapter.subSubChapters[rest[0]].subSubChapterTitle = data;
+        const subChapter = chapter.subChapters[rest[0]];
+        if (!subChapter) {
+          chapter.subChapters[rest[0]] = {
+            subChapterTitle: "",
+            pages: [],
+            subSubChapters: [],
+          };
+        }
+
+        if (typeof data === "string") {
+          if (!subChapter.subSubChapters[rest[1]]) {
+            subChapter.subSubChapters[rest[1]] = {
+              subSubChapterTitle: data,
+              pages: [],
+            };
           } else {
-            // SubChapter pages
-            if (!subChapter) {
-              chapter.subChapters[rest[0]] = {
-                subChapterTitle: "",
-                pages: [],
-                subSubChapters: [],
-              };
-            }
-            chapter.subChapters[rest[0]].pages[rest[1]] = data as Item;
+            subChapter.subSubChapters[rest[1]].subSubChapterTitle = data;
           }
+        } else {
+          subChapter.pages[rest[1]] = data as Item;
         }
         break;
 
       case 4:
         {
-          // SubSubChapter page titles
           const targetSubChapter = chapter.subChapters[rest[0]];
           if (
             !targetSubChapter.subSubChapters[rest[1]] ||

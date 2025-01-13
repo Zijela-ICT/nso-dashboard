@@ -327,6 +327,8 @@ const useBookMethods = () => {
   };
 
   const updateElementAtPath = (payload, elementPosition) => {
+    console.log({ payload, elementPosition });
+
     const updatedData = { ...data };
     const flattenedArr = flattenArrayOfObjects(updatedData.book.content);
     const updatedFlattenedArr = [...flattenedArr];
