@@ -536,7 +536,12 @@ function AddDecisionTreeModal({
                           value={education}
                           onChange={(e) => {
                             const newHealthEducation = [...healthEducation];
-                            healthEducation[index] = e.target.value;
+                            newHealthEducation[index] = e.target.value;
+                            console.log(
+                              "newHealthEducation",
+                              newHealthEducation
+                            );
+
                             setHealthEducation(newHealthEducation);
                           }}
                           className="border-[#cccfd3] bg-[#FCFCFD] border px-4 rounded-sm h-[50px] w-full outline-none focus:outline-none"
