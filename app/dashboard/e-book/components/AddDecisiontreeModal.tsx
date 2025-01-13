@@ -515,11 +515,23 @@ function AddDecisionTreeModal({
 
             {step === 4 && (
               <div className="pt-4">
-                <h3>Health education</h3>
+                <div className="flex justify-between">
+                  <h3>Health education</h3>
+                  <button
+                    className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                    onClick={() => {
+                      const newHealthEducation = [...healthEducation];
+                      newHealthEducation.push("");
+                      setHealthEducation(newHealthEducation);
+                    }}
+                  >
+                    <Plus width={12} />
+                  </button>
+                </div>
                 <div className="flex pt-4">
                   <div className="flex-1 pr-2">
                     {healthEducation?.map((education, index) => (
-                      <div className="flex" key={index}>
+                      <div className="flex gap-3 items-center mb-4" key={index}>
                         <input
                           value={education}
                           onChange={(e) => {
@@ -527,7 +539,7 @@ function AddDecisionTreeModal({
                             healthEducation[index] = e.target.value;
                             setHealthEducation(newHealthEducation);
                           }}
-                          className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
+                          className="border-[#cccfd3] bg-[#FCFCFD] border px-4 rounded-sm h-[50px] w-full outline-none focus:outline-none"
                         />
 
                         <div className="flex gap-2">
