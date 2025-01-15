@@ -7,7 +7,7 @@ const DecisionTreeRenderer: React.FC<{
 }> = ({ decisionTree, handleMouseEnter }) => {
   return (
     <div
-      className="decision-tree-renderer"
+      className="decision-tree-renderer mb-6"
       data-text_path={decisionTree.title}
       onMouseEnter={handleMouseEnter}
     >
@@ -25,7 +25,7 @@ const DecisionTreeRenderer: React.FC<{
           </thead>
           <tbody className="bg-[#FFFAEB]">
             <tr>
-              <td className="border border-gray-300 p-2">
+              <td className="border border-gray-300 p-2 align-top w-[250px]">
                 <ul>
                   {decisionTree.history.map((question, index) => (
                     <li className="mb-1" key={index}>
@@ -34,7 +34,7 @@ const DecisionTreeRenderer: React.FC<{
                   ))}
                 </ul>
               </td>
-              <td className="border border-gray-300 p-2">
+              <td className="border border-gray-300 p-2 align-top">
                 <ul>
                   {decisionTree.examinationsActions.map(
                     (examination, index) => (
