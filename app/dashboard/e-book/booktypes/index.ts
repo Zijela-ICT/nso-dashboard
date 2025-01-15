@@ -24,7 +24,7 @@ export type iContent = string | { text?: string; linkTo?: string }[];
 export interface IAilment {
   findingsOnHistory: string;
   findingsOnExamination: string[]; // Related findings on examination
-  clinicalJudgement: string[]; // Clinical judgement for the case
+  clinicalJudgement: string; // Clinical judgement for the case
   actions: string[];
   decisionScore: number;
   decisionDependencies: string[];
@@ -49,22 +49,26 @@ export interface UnorderedList {
   items: (string | Text | Linkable | UnorderedNestedListItem)[];
 }
 
+export type ItemTypes =
+  | "unorderedList"
+  | "orderedList"
+  | "text"
+  | "infographic"
+  | "linkable"
+  | "space"
+  | "heading2"
+  | "heading3"
+  | "heading4"
+  | "decision"
+  | "table"
+  | "listitem";
+
 export interface Item {
-  content?: iContent | Linkable | IDecisionTree | string;
+  content?: iContent | Linkable | IDecisionTree | string[] | string;
   alt?: string;
   src?: string;
-  type:
-    | "unorderedList"
-    | "orderedList"
-    | "text"
-    | "infographic"
-    | "linkable"
-    | "space"
-    | "heading2"
-    | "heading3"
-    | "heading4"
-    | "decision"
-    | "table";
+  type: ItemTypes;
+
   // decision_tree?: IDecisionTree;
   items?:
     | string[]
@@ -179,6 +183,7 @@ export interface TableData {
   itemsPerPage?: number;
   columnCount?: number;
   headerRowCount?: number;
+  fromDecisionTree?: boolean;
 }
 
 export enum PageItemType {

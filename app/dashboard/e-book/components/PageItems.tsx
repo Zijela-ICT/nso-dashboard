@@ -303,7 +303,7 @@ function PageItems({
         element = (
           <div style={itemData.style} data-text_path={itemPath}>
             {Array.isArray(itemData.content) &&
-              itemData.content.map((link: LinkableContent, index) => (
+              itemData.content.map((link, index) => (
                 <a
                   key={index}
                   href={link.linkTo}

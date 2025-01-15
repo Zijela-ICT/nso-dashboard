@@ -20,6 +20,7 @@ import {
   Linkable,
   IDecisionTree,
   Space,
+  ItemTypes,
 } from "../booktypes";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -198,9 +199,15 @@ const useBookMethods = () => {
       keys = ["sub sub title", "new page title"];
       const newElement = createNewPageData(type, keys);
       if (
+        !updatedData.book.content[chapterIndex].subChapters[subChapterIndex] &&
         !updatedData.book.content[chapterIndex].subChapters[subChapterIndex]
-          .subSubChapters
+          ?.subSubChapters
       ) {
+        // updatedData.book.content[chapterIndex].subChapters[subChapterIndex] = {
+        //   subChapterTitle: "",
+        //   pages: [],
+        //   subSubChapters: [],
+        // };
         updatedData.book.content[chapterIndex].subChapters[
           subChapterIndex
         ].subSubChapters = [];
@@ -233,7 +240,7 @@ const useBookMethods = () => {
   };
 
   const addNewElement = (
-    type: string,
+    type: ItemTypes,
     createData?: InfographicData | TableData | Linkable | IDecisionTree | Space,
     element_Index?: number,
     isHeader?: boolean

@@ -15,7 +15,15 @@ import {
   AccordionTrigger,
 } from "../../../../components/ui/accordion";
 import { MultiSelect } from "./MultiSelect";
-import { IDecisionTree } from "../booktypes";
+import {
+  IAilment,
+  IDecisionTree,
+  Item,
+  ItemTypes,
+  TableData,
+  TableHeader,
+  TableRows,
+} from "../booktypes";
 
 function AddDecisionTreeModal({
   addNewElement,
@@ -25,7 +33,7 @@ function AddDecisionTreeModal({
   elementIndex,
   decisionTreeData,
 }: {
-  addNewElement?: (e, f) => void;
+  addNewElement?: (e: ItemTypes, f) => void;
   showDecisionTreeModal: boolean;
   onClose: () => void;
   editElement?: (e, f) => void;
@@ -41,7 +49,7 @@ function AddDecisionTreeModal({
   const [ailments, setAilments] = useState([
     {
       findingsOnHistory: "",
-      clinicalJudgement: [""],
+      clinicalJudgement: "",
       actions: [""],
       findingsOnExamination: [""],
       decisionScore: 0,
@@ -61,7 +69,7 @@ function AddDecisionTreeModal({
   }, [decisionTreeData]);
 
   const handleSave = () => {
-    const decisionTree = {
+    const decisionTree: IDecisionTree = {
       type: "decision",
       title,
       history: questions.filter((e) => e),
@@ -70,11 +78,101 @@ function AddDecisionTreeModal({
       cases: ailments,
       healthEducation: healthEducation.filter((e) => e),
     };
+    const { upperTable, lowerTable } =
+      generateTablesFromDecisionTree(decisionTree);
+    console.log({
+      upperTable,
+      lowerTable,
+    });
+
     if (decisionTreeData) {
       editElement(decisionTree, elementIndex);
+      // editElement(upperTable, elementIndex + 1);
+      editElement(lowerTable, elementIndex + 1);
     } else {
       addNewElement("decision", decisionTree);
+      // addNewElement("table", upperTable);
+      // addNewElement("table", lowerTable);
     }
+  };
+
+  const generateTablesFromDecisionTree = (
+    decisionTree: IDecisionTree
+  ): { upperTable: TableData; lowerTable: TableData } => {
+    const { history, examinationsActions, cases } = decisionTree;
+    console.log("decisionTree", decisionTree);
+
+    // Upper table
+    const upperTable: TableData = {
+      type: "table",
+      headers: [
+        [
+          { content: "HISTORY", type: "text" },
+          { content: "EXAMINATIONS/ACTIONS", type: "text" },
+        ],
+      ],
+      rows: [
+        [
+          {
+            content: history,
+            type: "orderedList",
+          },
+          {
+            content: examinationsActions,
+            type: "orderedList",
+          },
+        ],
+      ],
+      showCellBorders: true,
+      tableStyle: {},
+      columnCount: 2,
+      fromDecisionTree: true,
+    };
+
+    // Lower table
+    const lowerTable: TableData = {
+      type: "table",
+      headers: [
+        [
+          { content: "FINDINGS ON HISTORY", type: "text" },
+          { content: "FINDINGS ON EXAMINATION", type: "text" },
+          { content: "CLINICAL JUDGMENT", type: "text" },
+          { content: "ACTIONS", type: "text" },
+        ],
+      ],
+      rows: cases.map((caseItem) => [
+        {
+          content: caseItem.findingsOnHistory,
+          rowSpan: 1,
+          colSpan: 1,
+          type: "text",
+        },
+        {
+          content: caseItem.findingsOnExamination,
+          rowSpan: 1,
+          colSpan: 1,
+          type: "orderedList",
+        },
+        {
+          content: caseItem.clinicalJudgement,
+          rowSpan: 1,
+          colSpan: 1,
+          type: "text",
+        },
+        {
+          content: caseItem.actions,
+          rowSpan: 1,
+          colSpan: 1,
+          type: "orderedList",
+        },
+      ]),
+      showCellBorders: true,
+      tableStyle: {},
+      columnCount: 4,
+      fromDecisionTree: true,
+    };
+
+    return { upperTable, lowerTable };
   };
 
   const updateAilment = (
@@ -537,11 +635,6 @@ function AddDecisionTreeModal({
                           onChange={(e) => {
                             const newHealthEducation = [...healthEducation];
                             newHealthEducation[index] = e.target.value;
-                            console.log(
-                              "newHealthEducation",
-                              newHealthEducation
-                            );
-
                             setHealthEducation(newHealthEducation);
                           }}
                           className="border-[#cccfd3] bg-[#FCFCFD] border px-4 rounded-sm h-[50px] w-full outline-none focus:outline-none"
@@ -590,7 +683,7 @@ function AddDecisionTreeModal({
                         ...ailments,
                         {
                           findingsOnHistory: "",
-                          clinicalJudgement: [""],
+                          clinicalJudgement: "",
                           actions: [""],
                           findingsOnExamination: [""],
                           decisionScore: 0,

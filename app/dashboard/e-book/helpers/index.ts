@@ -75,7 +75,9 @@ export function flattenArrayOfObjects(
           parentIndex: currentParentIndex,
         });
       }
-
+      if (typedItem.type === "table" && typedItem.fromDecisionTree) {
+        return;
+      }
       // Add chapter pages
       if (Array.isArray(typedItem.pages)) {
         results.push(
@@ -284,6 +286,104 @@ export function unflattenArrayOfObjects(
 
   return result;
 }
+
+const flattenForExporting = (data: Data) => {
+  const originalContent = data.book.content;
+  let flattendData = flattenArrayOfObjects(originalContent);
+  flattendData.forEach((item, index) => {
+    if (
+      typeof item.data === "object" &&
+      item.data !== null && // Ensure it's not null
+      "content" in item.data && // Check if 'content' exists in item.data
+      (item.data as Record<string, any>).content.type === "decision"
+    ) {
+      const { upperTable, lowerTable } = generateTablesFromDecisionTree(
+        item.data.content as IDecisionTree
+      );
+      flattendData.splice(index, 0, upperTable);
+      flattendData.splice(index + 1, 0, upperTable);
+    }
+  });
+};
+
+const generateTablesFromDecisionTree = (
+  decisionTree: IDecisionTree
+): { upperTable: TableData; lowerTable: TableData } => {
+  const { history, examinationsActions, cases } = decisionTree;
+  console.log("decisionTree", decisionTree);
+
+  // Upper table
+  const upperTable: TableData = {
+    type: "table",
+    headers: [
+      [
+        { content: "HISTORY", type: "text" },
+        { content: "EXAMINATIONS/ACTIONS", type: "text" },
+      ],
+    ],
+    rows: [
+      [
+        {
+          content: history,
+          type: "orderedList",
+        },
+        {
+          content: examinationsActions,
+          type: "orderedList",
+        },
+      ],
+    ],
+    showCellBorders: true,
+    tableStyle: {},
+    columnCount: 2,
+    fromDecisionTree: true,
+  };
+
+  // Lower table
+  const lowerTable: TableData = {
+    type: "table",
+    headers: [
+      [
+        { content: "FINDINGS ON HISTORY", type: "text" },
+        { content: "FINDINGS ON EXAMINATION", type: "text" },
+        { content: "CLINICAL JUDGMENT", type: "text" },
+        { content: "ACTIONS", type: "text" },
+      ],
+    ],
+    rows: cases.map((caseItem) => [
+      {
+        content: caseItem.findingsOnHistory,
+        rowSpan: 1,
+        colSpan: 1,
+        type: "text",
+      },
+      {
+        content: caseItem.findingsOnExamination,
+        rowSpan: 1,
+        colSpan: 1,
+        type: "orderedList",
+      },
+      {
+        content: caseItem.clinicalJudgement,
+        rowSpan: 1,
+        colSpan: 1,
+        type: "text",
+      },
+      {
+        content: caseItem.actions,
+        rowSpan: 1,
+        colSpan: 1,
+        type: "orderedList",
+      },
+    ]),
+    showCellBorders: true,
+    tableStyle: {},
+    columnCount: 4,
+    fromDecisionTree: true,
+  };
+
+  return { upperTable, lowerTable };
+};
 
 export const getLocalizedText = (data: Data, key: string): string => {
   if (!key || typeof key !== "string") {

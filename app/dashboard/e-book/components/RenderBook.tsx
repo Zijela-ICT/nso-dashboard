@@ -68,7 +68,6 @@ function RenderBook({
     }
     return present;
   };
-  console.log("flattenBookData", flattenBookData);
 
   return (
     <>
@@ -99,9 +98,10 @@ function RenderBook({
               {isHeader ? (
                 <div
                   style={{
-                    marginLeft: isEditting
-                      ? chapter.parentIndex.length * 20
-                      : 0,
+                    marginLeft: chapter.parentIndex.length * 25,
+                    // isEditting
+                    //   ? chapter.parentIndex.length * 20
+                    //   : 0,
                   }}
                 >
                   <div className="flex items-center mb-2">
@@ -128,11 +128,11 @@ function RenderBook({
                 </div>
               ) : (
                 <div
-                  className=""
                   style={{
-                    marginLeft: isEditting
-                      ? chapter.parentIndex.length * 20
-                      : 0,
+                    marginLeft: chapter.parentIndex.length * 20,
+                    // isEditting
+                    //   ? chapter.parentIndex.length * 20
+                    //   : 0,
                   }}
                 >
                   <PageItems
