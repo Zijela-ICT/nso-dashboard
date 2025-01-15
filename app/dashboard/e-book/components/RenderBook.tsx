@@ -68,7 +68,22 @@ function RenderBook({
     }
     return present;
   };
-  console.log("flattenBookData", flattenBookData);
+
+  const iconText = (length) => {
+    switch (length) {
+      case 1:
+        return "📘";
+      case 2:
+        return "📖";
+      case 3:
+        return "🔖";
+      case 4:
+        return "📄";
+
+      default:
+        return "📄";
+    }
+  };
 
   return (
     <>
@@ -86,7 +101,7 @@ function RenderBook({
         bookInfo={bookInfo}
       />
 
-      <div className="w-full md:w-[800px] min-h-[90vh] bg-white py-[40px] px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">
+      <div className="w-full md:w-[900px] min-h-[90vh] bg-white py-[40px] px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">
         {flattenBookData.map((chapter, index) => {
           const isHeader = typeof chapter.data === "string";
           const indices = [...chapter.parentIndex];
@@ -94,14 +109,15 @@ function RenderBook({
           if (parentFolded(indices)) {
             return null;
           }
+          if (isHeader) {
+            console.log(chapter);
+          }
           return (
             <div key={index} className="container mx-auto">
               {isHeader ? (
                 <div
                   style={{
-                    marginLeft: isEditting
-                      ? chapter.parentIndex.length * 20
-                      : 0,
+                    marginLeft: chapter.parentIndex.length * 20,
                   }}
                 >
                   <div className="flex items-center mb-2">
@@ -115,6 +131,9 @@ function RenderBook({
                           : "rotate-0"
                       } cursor-pointer`}
                     />
+                    <span className="mr-2 text-[20px]">
+                      {iconText(chapter.parentIndex.length)}
+                    </span>
                     <SectionHeader
                       updateElementAtPath={updateElementAtPath}
                       index={index}
@@ -130,9 +149,7 @@ function RenderBook({
                 <div
                   className=""
                   style={{
-                    marginLeft: isEditting
-                      ? chapter.parentIndex.length * 20
-                      : 0,
+                    marginLeft: chapter.parentIndex.length * 20,
                   }}
                 >
                   <PageItems
