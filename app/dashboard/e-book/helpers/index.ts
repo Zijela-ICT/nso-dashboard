@@ -215,13 +215,15 @@ export function unflattenArrayOfObjects(
         break;
 
       case 3:
-        const subChapter = chapter.subChapters[rest[0]];
+        let subChapter = chapter.subChapters[rest[0]];
         if (!subChapter) {
-          chapter.subChapters[rest[0]] = {
+          const newSubChapter = {
             subChapterTitle: "",
             pages: [],
             subSubChapters: [],
           };
+          chapter.subChapters[rest[0]] = newSubChapter;
+          subChapter = newSubChapter;
         }
 
         if (typeof data === "string") {
