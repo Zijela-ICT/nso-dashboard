@@ -49,7 +49,7 @@ const routes: RouteItem[] = [
   {
     id: 3,
     icon: "book",
-    label: "E-book",
+    label: "Standing Order",
     href: "/e-book",
     permission: SystemPermissions.READ_ADMIN_EBOOKS,
     subItems: [
@@ -69,12 +69,12 @@ const routes: RouteItem[] = [
         permission: SystemPermissions.READ_ADMIN_EBOOKS,
       },
       {
-        label: "E-book Approval",
+        label: "Standing Order Approval",
         href: "/e-book/approval",
         permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE,
       },
       {
-        label: "Book Admins",
+        label: "Standing Order Admins",
         href: "/e-book/assign-editors-approvers",
         permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE,
       },
@@ -235,7 +235,7 @@ const AppSidebar = () => {
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent className="mt-1">
-                        <div className="pl-14 flex flex-col gap-2">
+                        <div className="pl-4 flex flex-col gap-2">
                           {route.subItems
                             .filter((subItem) =>
                               canViewRoute(subItem.permission)
@@ -256,7 +256,7 @@ const AppSidebar = () => {
                                 {isActive(subItem.href) && (
                                   <div className="absolute bg-[#2C6000] w-[2px] h-2 rounded-full top-1/2 -translate-y-1/2 left-0" />
                                 )}
-                                <span className="text-[#101828] text-base">
+                                <span className="text-[#101828] text-[14px]">
                                   {subItem.label}
                                 </span>
                               </div>
