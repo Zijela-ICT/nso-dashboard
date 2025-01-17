@@ -140,7 +140,14 @@ export interface iPosition {
 }
 
 export interface FlattenedObj {
-  data: any;
+  data:
+    | string
+    | number
+    | boolean
+    | null
+    | Item
+    | object
+    | Record<string, string | Item>;
   parentIndex: number[];
   dataPath?: string;
 }

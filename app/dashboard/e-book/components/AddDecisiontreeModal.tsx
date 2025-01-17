@@ -44,7 +44,7 @@ function AddDecisionTreeModal({
       clinicalJudgement: [""],
       actions: [""],
       findingsOnExamination: [""],
-      decisionScore: 0,
+      decisionScore: 100,
       decisionDependencies: [""],
     },
   ]);
@@ -596,7 +596,7 @@ function AddDecisionTreeModal({
                           clinicalJudgement: [""],
                           actions: [""],
                           findingsOnExamination: [""],
-                          decisionScore: 0,
+                          decisionScore: 100,
                           decisionDependencies: [""],
                         },
                       ]);

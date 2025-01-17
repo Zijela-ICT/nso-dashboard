@@ -518,9 +518,15 @@ const useBookMethods = () => {
     const file = convertBlobToFile(blob, fileName);
     try {
       const url = await getUploadFileUrl(file);
-      showToast("book updated successfully");
-      await updateEbooks({ newFileUrl: url }, id);
+      handleUpdate({ newFileUrl: url }, id);
+    } catch (error) {}
+  };
+
+  const handleUpdate = async (data, id) => {
+    try {
+      await updateEbooks(data, id);
       getEbooks();
+      showToast("book updated successfully");
     } catch (error) {}
   };
 
