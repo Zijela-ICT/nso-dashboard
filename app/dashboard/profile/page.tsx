@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, Icon, Switch } from "@/components/ui";
 import { useChangePassword } from "@/hooks/api/mutations/auth";
 import { useUpdate2Fa } from "@/hooks/api/mutations/profile";
 import { useFetchProfile } from "@/hooks/api/queries/settings";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface SettingsSectionProps {
@@ -56,6 +57,8 @@ const Page = () => {
   const [twoFactorAuth, setTwoFactorAuth] = useState(false);
 
   const { data } = useFetchProfile();
+    const router = useRouter();
+  
 
   const profile = data?.data;
 
@@ -99,7 +102,7 @@ const Page = () => {
 
   return (
     <div className="mt-10">
-      <div className="flex flex-row items-center">
+      <div className="flex flex-row items-center" onClick={() => router.back()}>
         <Icon name="arrow-left" />
         <span className="text-[#0CA554] text-base font-normal">Back</span>
       </div>
