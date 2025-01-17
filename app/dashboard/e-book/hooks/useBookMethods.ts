@@ -3,6 +3,8 @@ import {
   createNewItem,
   createNewPageData,
   flattenArrayOfObjects,
+  generateTablesFromDecisionTree,
+  handleCreateNewElement,
   unflattenArrayOfObjects,
 } from "../helpers";
 import {
@@ -79,6 +81,58 @@ const useBookMethods = () => {
     useState<boolean>(false);
   const [showLinkableModal, setShowLinkableModal] = useState<boolean>(false);
 
+  useEffect(() => {
+    const a = [
+      {
+        chapter: "chapter title",
+        subChapters: [
+          {
+            subSubChapters: [
+              {
+                pages: [
+                  {
+                    pageTitle: "new page title",
+                    items: [
+                      {
+                        type: "text",
+                        content: "this is the text content in the page page!",
+                      },
+                    ],
+                  },
+                ],
+                subSubChapterTitle: "sub sub title",
+              },
+            ],
+            subChapterTitle: "sub chapter title",
+            pages: [
+              {
+                pageTitle: "",
+                items: [
+                  {
+                    type: "text",
+                    content:
+                      "this is the text content in the sub chapter level",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        pages: [
+          {
+            pageTitle: "new page title",
+            items: [
+              {
+                type: "text",
+                content: "this is the text content in the chapter level",
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    console.log("tester", flattenArrayOfObjects(a));
+  }, []);
   const handleFileUpload = async (file: File | undefined) => {
     if (!file) {
       return;
@@ -198,6 +252,7 @@ const useBookMethods = () => {
     } else if (type === PageItemType.SubSubChapter) {
       keys = ["sub sub title", "new page title"];
       const newElement = createNewPageData(type, keys);
+
       if (
         !updatedData.book.content[chapterIndex].subChapters[subChapterIndex] &&
         !updatedData.book.content[chapterIndex].subChapters[subChapterIndex]
@@ -220,20 +275,26 @@ const useBookMethods = () => {
     } else if (type === PageItemType.Page) {
       keys = ["new page title"];
       const newElement = createNewPageData(type, keys);
+      console.log("isPage(newElement)", isPage(newElement));
 
       if (isPage(newElement)) {
+        console.log("subSubIndex", subSubIndex);
+        console.log("pageToBeUpdatedIndices", pageToBeUpdatedIndices);
+        console.log({ chapterIndex, subChapterIndex, subSubIndex });
+
         if (typeof subSubIndex !== "undefined") {
           // Add page to subSubChapter
           updatedData.book.content[chapterIndex]?.subChapters[
             subChapterIndex
           ]?.subSubChapters[subSubIndex]?.pages.splice(
-            pageIndex + 1,
+            pageIndex + 1 || 1,
             0,
             newElement
           );
         }
       }
     }
+    console.log("updatedData", updatedData);
 
     setData(updatedData);
     setShowPageDropdown(false);
@@ -243,88 +304,22 @@ const useBookMethods = () => {
     type: ItemTypes,
     createData?: InfographicData | TableData | Linkable | IDecisionTree | Space,
     element_Index?: number,
-    isHeader?: boolean
+    isHeader?: boolean,
+    returnData?: boolean
   ) => {
-    if ((!data || !hoverElement) && element_Index === undefined) return;
     const updatedData = { ...data };
-
-    if (element_Index === undefined) return;
-
-    const flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
-      updatedData.book.content
+    const unflattendContent = handleCreateNewElement(
+      type,
+      createData,
+      element_Index,
+      isHeader,
+      updatedData,
+      "un_flat"
     );
-    const elementIndex = element_Index;
-    if (elementIndex < 0) return;
-
-    const itemAtIndex = flattenedArr[elementIndex];
-    const path = isHeader
-      ? [...itemAtIndex.parentIndex, -1]
-      : itemAtIndex.parentIndex;
-    const newItemKey = `here is some new text content`;
-    let unflattendContent: Chapter[] = null;
-    if (
-      type === "listitem" &&
-      typeof flattenedArr[elementIndex].data === "object" &&
-      "items" in flattenedArr[elementIndex].data &&
-      Array.isArray(flattenedArr[elementIndex].data.items)
-    ) {
-      const newElementData = {
-        ...flattenedArr[elementIndex],
-        data: {
-          ...flattenedArr[elementIndex].data,
-          items: [...flattenedArr[elementIndex].data.items, "New list item"],
-        },
-      };
-      flattenedArr[elementIndex] = newElementData;
-      unflattendContent = unflattenArrayOfObjects([...flattenedArr]);
-    } else {
-      let newItem: Item | null;
-      if (
-        type === "table" ||
-        type === "linkable" ||
-        type === "decision" ||
-        type === "infographic" ||
-        type === "space"
-      ) {
-        newItem = createNewItem(type, newItemKey, createData);
-      } else {
-        newItem = createNewItem(type, newItemKey);
-      }
-      // Create the new path for insertion
-      const newPath = [...path.slice(0, -1), path[path.length - 1] + 1];
-
-      // Increment indices of all existing elements at or after the insertion point
-      const updatedFlattenedArr = flattenedArr.map((item) => {
-        const currentPath = item.parentIndex;
-        // Only adjust elements at the same level and after the insertion point
-        if (
-          currentPath.length === path.length &&
-          currentPath.slice(0, -1).every((val, i) => val === path[i]) &&
-          currentPath[currentPath.length - 1] > path[path.length - 1] &&
-          typeof item.data !== "string"
-        ) {
-          return {
-            ...item,
-            parentIndex: [
-              ...currentPath.slice(0, -1),
-              currentPath[currentPath.length - 1] + 1,
-            ],
-          };
-        }
-        return item;
-      });
-
-      // Insert the new element
-      updatedFlattenedArr.splice(elementIndex + 1, 0, {
-        data: newItem,
-        parentIndex: newPath, // Use the new path here
-      });
-
-      // Reconstruct the book content
-      unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
+    if (returnData) {
+      return unflattendContent;
     }
-
-    updatedData.book.content = unflattendContent;
+    updatedData.book.content = unflattendContent as Chapter[];
     setData(updatedData);
     setShowDropdown(false);
     setShowInfographicModal(false);
@@ -334,15 +329,41 @@ const useBookMethods = () => {
   };
 
   const updateElementAtPath = (payload, elementPosition) => {
-    console.log({ payload, elementPosition });
+    console.log("payload", payload);
 
     const updatedData = { ...data };
     const flattenedArr = flattenArrayOfObjects(updatedData.book.content);
     const updatedFlattenedArr = [...flattenedArr];
+
     updatedFlattenedArr[elementPosition] = {
       ...updatedFlattenedArr[elementPosition],
       data: payload,
     };
+    if (typeof payload === "object" && payload?.type === "decision") {
+      console.log("payload", payload);
+
+      const { upperTable, lowerTable } = generateTablesFromDecisionTree(
+        payload as IDecisionTree
+      );
+      updatedFlattenedArr[elementPosition + 1] = {
+        ...updatedFlattenedArr[elementPosition + 1],
+        data: upperTable,
+      };
+
+      updatedFlattenedArr[elementPosition + 2] = {
+        ...updatedFlattenedArr[elementPosition + 2],
+        data: lowerTable,
+      };
+
+      updatedFlattenedArr[elementPosition + 3] = {
+        ...updatedFlattenedArr[elementPosition + 3],
+        data: {
+          type: "orderedList",
+          items: payload?.healthEducation,
+          fromDecisionTree: true,
+        },
+      };
+    }
     const unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
     updatedData.book.content = unflattendContent;
     setData(updatedData);
@@ -462,9 +483,15 @@ const useBookMethods = () => {
     const file = convertBlobToFile(blob, fileName);
     try {
       const url = await getUploadFileUrl(file);
-      showToast("book updated successfully");
-      await updateEbooks({ newFileUrl: url }, id);
+      handleUpdate({ newFileUrl: url }, id);
+    } catch (error) {}
+  };
+
+  const handleUpdate = async (data, id) => {
+    try {
+      await updateEbooks(data, id);
       getEbooks();
+      showToast("book updated successfully");
     } catch (error) {}
   };
 

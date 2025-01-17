@@ -7,8 +7,8 @@ const DecisionTreeRenderer: React.FC<{
 }> = ({ decisionTree, handleMouseEnter }) => {
   return (
     <div
-      className="decision-tree-renderer"
-      data-text_path={decisionTree.title}
+      className="decision-tree-renderer mb-6"
+      data-text_path={decisionTree.name}
       onMouseEnter={handleMouseEnter}
     >
       {/* Upper Table: Questions and Examinations */}
@@ -25,7 +25,7 @@ const DecisionTreeRenderer: React.FC<{
           </thead>
           <tbody className="bg-[#FFFAEB]">
             <tr>
-              <td className="border border-gray-300 p-2">
+              <td className="border border-gray-300 p-2 align-top w-[250px]">
                 <ul>
                   {decisionTree.history.map((question, index) => (
                     <li className="mb-1" key={index}>
@@ -34,7 +34,7 @@ const DecisionTreeRenderer: React.FC<{
                   ))}
                 </ul>
               </td>
-              <td className="border border-gray-300 p-2">
+              <td className="border border-gray-300 p-2 align-top">
                 <ul>
                   {decisionTree.examinationsActions.map(
                     (examination, index) => (
@@ -69,13 +69,7 @@ const DecisionTreeRenderer: React.FC<{
               className={index % 2 === 0 ? "bg-[#ECFDF3]" : "bg-[#fbffff]"}
             >
               <td className="border border-gray-300 p-2 align-top">
-                <ul>
-                  {ailment.findingsOnExamination.map((itm, i) => (
-                    <li className="mb-1" key={i}>
-                      {i + 1}.{itm}
-                    </li>
-                  ))}
-                </ul>
+                {ailment.findingsOnHistory}
               </td>
               <td className="border border-gray-300 p-2 align-top">
                 <ul>

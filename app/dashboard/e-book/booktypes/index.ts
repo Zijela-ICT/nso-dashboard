@@ -1,13 +1,13 @@
 export interface Chapter {
   chapter: string;
   subChapters: SubChapter[];
-  pages?: Item[];
+  pages?: Page[];
 }
 
 export interface SubChapter {
   subChapterTitle: string; // Ensure this property exists
   subSubChapters?: SubSubChapter[]; // Add this line to include subSubChapters
-  pages?: Item[];
+  pages?: Page[];
 }
 
 export interface SubSubChapter {
@@ -18,6 +18,7 @@ export interface SubSubChapter {
 export interface Page {
   pageTitle: string;
   items: (Item | Linkable | IDecisionTree)[];
+  markVisit?: boolean;
 }
 
 export type iContent = string | { text?: string; linkTo?: string }[];
@@ -31,7 +32,7 @@ export interface IAilment {
 }
 export type IDecisionTree = {
   type: "decision";
-  title: string;
+  name: string;
   history: string[];
   examinationsActions: string[];
   findingsOnExamination: string[];
@@ -47,6 +48,7 @@ export interface UnorderedNestedListItem {
 export interface UnorderedList {
   type: "unorderedList";
   items: (string | Text | Linkable | UnorderedNestedListItem)[];
+  forDecisionTree?: boolean;
 }
 
 export type ItemTypes =
@@ -93,6 +95,7 @@ export interface Item {
   headless?: boolean;
   title?: string;
   tableStyle?: { backgroundColor?: string; borderRadius?: number };
+  forDecisionTree?: boolean;
 }
 
 export interface LinkableContent {
@@ -153,6 +156,7 @@ export interface FlattenedObj {
     | Record<string, string | Item>;
   parentIndex: number[];
   dataPath?: string;
+  fromDecisionTree?: boolean;
 }
 
 export interface FlattenedData {

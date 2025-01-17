@@ -199,6 +199,16 @@ function PageItems({
   };
 
   const renderItems = (items: FlattenedObj[]) => {
+    console.log("itemsitemsitemsitems", items);
+    if (
+      items[0].data &&
+      typeof items[0].data === "object" &&
+      "fromDecisionTree" in items[0].data
+    ) {
+      if (items[0].data.fromDecisionTree) {
+        return null;
+      }
+    }
     return items.map((item, index) => {
       let element;
       if (itemData?.type === "text") {

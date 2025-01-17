@@ -33,7 +33,7 @@ function AddDecisionTreeModal({
   elementIndex,
   decisionTreeData,
 }: {
-  addNewElement?: (e: ItemTypes, f) => void;
+  addNewElement?: (e: ItemTypes, f, g) => void;
   showDecisionTreeModal: boolean;
   onClose: () => void;
   editElement?: (e, f) => void;
@@ -52,14 +52,14 @@ function AddDecisionTreeModal({
       clinicalJudgement: "",
       actions: [""],
       findingsOnExamination: [""],
-      decisionScore: 0,
+      decisionScore: 100,
       decisionDependencies: [""],
     },
   ]);
 
   useEffect(() => {
     if (decisionTreeData) {
-      setTitle(decisionTreeData.title);
+      setTitle(decisionTreeData.name);
       setQuestions(decisionTreeData.history);
       setExaminations(decisionTreeData.examinationsActions);
       setHealthEducation(decisionTreeData.healthEducation);
@@ -71,108 +71,20 @@ function AddDecisionTreeModal({
   const handleSave = () => {
     const decisionTree: IDecisionTree = {
       type: "decision",
-      title,
+      name: title,
       history: questions.filter((e) => e),
       examinationsActions: examinations.filter((e) => e),
       findingsOnExamination: allSymptoms.filter((e) => e),
       cases: ailments,
       healthEducation: healthEducation.filter((e) => e),
     };
-    const { upperTable, lowerTable } =
-      generateTablesFromDecisionTree(decisionTree);
-    console.log({
-      upperTable,
-      lowerTable,
-    });
 
+    setStep(1);
     if (decisionTreeData) {
       editElement(decisionTree, elementIndex);
-      // editElement(upperTable, elementIndex + 1);
-      editElement(lowerTable, elementIndex + 1);
     } else {
-      addNewElement("decision", decisionTree);
-      // addNewElement("table", upperTable);
-      // addNewElement("table", lowerTable);
+      addNewElement("decision", decisionTree, elementIndex);
     }
-  };
-
-  const generateTablesFromDecisionTree = (
-    decisionTree: IDecisionTree
-  ): { upperTable: TableData; lowerTable: TableData } => {
-    const { history, examinationsActions, cases } = decisionTree;
-    console.log("decisionTree", decisionTree);
-
-    // Upper table
-    const upperTable: TableData = {
-      type: "table",
-      headers: [
-        [
-          { content: "HISTORY", type: "text" },
-          { content: "EXAMINATIONS/ACTIONS", type: "text" },
-        ],
-      ],
-      rows: [
-        [
-          {
-            content: history,
-            type: "orderedList",
-          },
-          {
-            content: examinationsActions,
-            type: "orderedList",
-          },
-        ],
-      ],
-      showCellBorders: true,
-      tableStyle: {},
-      columnCount: 2,
-      fromDecisionTree: true,
-    };
-
-    // Lower table
-    const lowerTable: TableData = {
-      type: "table",
-      headers: [
-        [
-          { content: "FINDINGS ON HISTORY", type: "text" },
-          { content: "FINDINGS ON EXAMINATION", type: "text" },
-          { content: "CLINICAL JUDGMENT", type: "text" },
-          { content: "ACTIONS", type: "text" },
-        ],
-      ],
-      rows: cases.map((caseItem) => [
-        {
-          content: caseItem.findingsOnHistory,
-          rowSpan: 1,
-          colSpan: 1,
-          type: "text",
-        },
-        {
-          content: caseItem.findingsOnExamination,
-          rowSpan: 1,
-          colSpan: 1,
-          type: "orderedList",
-        },
-        {
-          content: caseItem.clinicalJudgement,
-          rowSpan: 1,
-          colSpan: 1,
-          type: "text",
-        },
-        {
-          content: caseItem.actions,
-          rowSpan: 1,
-          colSpan: 1,
-          type: "orderedList",
-        },
-      ]),
-      showCellBorders: true,
-      tableStyle: {},
-      columnCount: 4,
-      fromDecisionTree: true,
-    };
-
-    return { upperTable, lowerTable };
   };
 
   const updateAilment = (
@@ -208,7 +120,13 @@ function AddDecisionTreeModal({
 
   return (
     <>
-      <Dialog open={showDecisionTreeModal} onOpenChange={onClose}>
+      <Dialog
+        open={showDecisionTreeModal}
+        onOpenChange={() => {
+          setStep(1);
+          onClose();
+        }}
+      >
         <DialogContent className="sm:max-w-[605px]">
           <DialogHeader>
             <DialogTitle>Add Decision tree</DialogTitle>
@@ -227,7 +145,7 @@ function AddDecisionTreeModal({
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {questions.map((q, index) => (
-                        <div className="flex items-center">
+                        <div key={index} className="flex items-center">
                           <input
                             key={index}
                             value={q}
@@ -284,7 +202,7 @@ function AddDecisionTreeModal({
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {examinations.map((e, index) => (
-                        <div className="flex items-center">
+                        <div key={index} className="flex items-center">
                           <input
                             key={index}
                             value={e}
@@ -538,7 +456,10 @@ function AddDecisionTreeModal({
                           <div className="flex">
                             <div className="flex-1 pr-2">
                               {ailment.actions.map((e, index) => (
-                                <div className="flex items-center justify-between">
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between"
+                                >
                                   <input
                                     key={index}
                                     value={e}
@@ -686,7 +607,7 @@ function AddDecisionTreeModal({
                           clinicalJudgement: "",
                           actions: [""],
                           findingsOnExamination: [""],
-                          decisionScore: 0,
+                          decisionScore: 100,
                           decisionDependencies: [""],
                         },
                       ]);

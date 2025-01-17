@@ -36,7 +36,7 @@ function BookHeader({
   }, [bookInfo, user]);
 
   return (
-    <div className="container mx-auto mt-[20px] md:w-[800px]">
+    <div className="container mx-auto mt-[20px] md:w-[900px]">
       <div className="flex justify-between items-center mb-8">
         <h1
           className={`text-3xl font-bold mb-0 book-title text-[#0CA554] ${groupClass}`}

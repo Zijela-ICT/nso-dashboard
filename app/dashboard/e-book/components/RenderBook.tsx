@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PageItems from "./PageItems";
 import { Book, Data, FlattenedObj } from "../booktypes";
 import SectionHeader from "./SectionHeader";
 import { ChevronDown } from "lucide-react";
 import BookHeader from "./BookHeader";
-import { useBookContext } from "../context/bookContext";
 import { useParams } from "next/navigation";
 import { IChprbnBook } from "../hooks/useEBooks";
+import { useBookContext } from "../context/bookContext";
 
 function RenderBook({
   flattenBookData,
@@ -35,9 +35,16 @@ function RenderBook({
   canEdit?: boolean;
   bookInfo?: IChprbnBook;
 }) {
-  const params = useParams();
   const { isEditting } = useBookContext();
+  const params = useParams();
   const [foldedSection, setFoldedSection] = useState<Array<number[]>>([]);
+
+  useEffect(() => {
+    const indices = flattenBookData.map((b) => b.parentIndex);
+    if (!isEditting) {
+      setFoldedSection(indices);
+    }
+  }, [flattenBookData]);
 
   function containsSubArray(subArray) {
     return foldedSection.some(
@@ -69,6 +76,22 @@ function RenderBook({
     return present;
   };
 
+  const iconText = (length) => {
+    switch (length) {
+      case 1:
+        return "📘";
+      case 2:
+        return "📖";
+      case 3:
+        return "🔖";
+      case 4:
+        return "📄";
+
+      default:
+        return "📄";
+    }
+  };
+
   return (
     <>
       <BookHeader
@@ -85,7 +108,7 @@ function RenderBook({
         bookInfo={bookInfo}
       />
 
-      <div className="w-full md:w-[800px] min-h-[90vh] bg-white py-[40px] px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">
+      <div className="w-full md:w-[900px] min-h-[90vh] bg-white py-[40px] px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">
         {flattenBookData.map((chapter, index) => {
           const isHeader = typeof chapter.data === "string";
           const indices = [...chapter.parentIndex];
@@ -98,10 +121,7 @@ function RenderBook({
               {isHeader ? (
                 <div
                   style={{
-                    marginLeft: chapter.parentIndex.length * 25,
-                    // isEditting
-                    //   ? chapter.parentIndex.length * 20
-                    //   : 0,
+                    marginLeft: chapter.parentIndex.length * 20,
                   }}
                 >
                   <div className="flex items-center mb-2">
@@ -115,6 +135,9 @@ function RenderBook({
                           : "rotate-0"
                       } cursor-pointer`}
                     />
+                    <span className="mr-2 text-[20px]">
+                      {iconText(chapter.parentIndex.length)}
+                    </span>
                     <SectionHeader
                       updateElementAtPath={updateElementAtPath}
                       index={index}
@@ -130,9 +153,6 @@ function RenderBook({
                 <div
                   style={{
                     marginLeft: chapter.parentIndex.length * 20,
-                    // isEditting
-                    //   ? chapter.parentIndex.length * 20
-                    //   : 0,
                   }}
                 >
                   <PageItems
