@@ -102,7 +102,7 @@ const Page = () => {
 
   return (
     <div className="mt-10">
-      <div className="flex flex-row items-center" onClick={() => router.back()}>
+      <div className="flex flex-row items-center cursor-pointer" onClick={() => router.back()}>
         <Icon name="arrow-left" />
         <span className="text-[#0CA554] text-base font-normal">Back</span>
       </div>
