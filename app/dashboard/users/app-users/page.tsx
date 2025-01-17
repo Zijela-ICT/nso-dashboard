@@ -1,5 +1,4 @@
 "use client";
-import {  CreateUser, EditUser, UploadBulkUser } from "@/components/modals/users";
 import {
   Badge,
   DropdownMenu,
@@ -22,15 +21,13 @@ import React, { useState } from "react";
 const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
-  const totalPages = Math.ceil(100 / reportsPerPage);
 
-  const {data, isLoading} = useFetchAppUsers(currentPage, reportsPerPage);
+  const {data} = useFetchAppUsers(currentPage, reportsPerPage);
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const templates = Array(5).fill(null);
   return (
     <div className="bg-white p-4 rounded-2xl">
       <div className="gap-4 flex flex-row items-center w-full mb-3">

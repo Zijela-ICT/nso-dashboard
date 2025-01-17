@@ -42,7 +42,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <button
             type="button"
             onClick={togglePasswordVisibility}
-            className="absolute right-3 bottom-0 top-2">
+            className="absolute right-3 bottom-0 top-7">
             <Icon
               name={showPassword ? "eye-closed" : "eye-closed"}
               className="w-5 h-5"
@@ -50,7 +50,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             />
           </button>
         )}
-        {errorMessage && <p className="text-[#F97066] text-sm">{errorMessage}</p>}
+        {errorMessage && <p className="text-[#F97066] text-xs absolute bottom-[-1rem]">{errorMessage}</p>}
       </div>
     );
   }
