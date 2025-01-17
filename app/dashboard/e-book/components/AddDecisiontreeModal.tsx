@@ -44,14 +44,14 @@ function AddDecisionTreeModal({
       clinicalJudgement: [""],
       actions: [""],
       findingsOnExamination: [""],
-      decisionScore: 0,
+      decisionScore: 100,
       decisionDependencies: [""],
     },
   ]);
 
   useEffect(() => {
     if (decisionTreeData) {
-      setTitle(decisionTreeData.title);
+      setTitle(decisionTreeData.name);
       setQuestions(decisionTreeData.history);
       setExaminations(decisionTreeData.examinationsActions);
       setHealthEducation(decisionTreeData.healthEducation);
@@ -63,7 +63,7 @@ function AddDecisionTreeModal({
   const handleSave = () => {
     const decisionTree = {
       type: "decision",
-      title,
+      name: title,
       history: questions.filter((e) => e),
       examinationsActions: examinations.filter((e) => e),
       findingsOnExamination: allSymptoms.filter((e) => e),
@@ -129,7 +129,7 @@ function AddDecisionTreeModal({
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {questions.map((q, index) => (
-                        <div className="flex items-center">
+                        <div key={index} className="flex items-center">
                           <input
                             key={index}
                             value={q}
@@ -186,7 +186,7 @@ function AddDecisionTreeModal({
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {examinations.map((e, index) => (
-                        <div className="flex items-center">
+                        <div key={index} className="flex items-center">
                           <input
                             key={index}
                             value={e}
@@ -440,7 +440,10 @@ function AddDecisionTreeModal({
                           <div className="flex">
                             <div className="flex-1 pr-2">
                               {ailment.actions.map((e, index) => (
-                                <div className="flex items-center justify-between">
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between"
+                                >
                                   <input
                                     key={index}
                                     value={e}
@@ -593,7 +596,7 @@ function AddDecisionTreeModal({
                           clinicalJudgement: [""],
                           actions: [""],
                           findingsOnExamination: [""],
-                          decisionScore: 0,
+                          decisionScore: 100,
                           decisionDependencies: [""],
                         },
                       ]);

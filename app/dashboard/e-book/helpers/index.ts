@@ -77,9 +77,9 @@ export function flattenArrayOfObjects(
       }
 
       // Add chapter pages
-      if (Array.isArray(typedItem.pages)) {
+      if (Array.isArray(typedItem.pages && typedItem.pages[0].items)) {
         results.push(
-          ...flattenArrayOfObjects(typedItem.pages, currentParentIndex)
+          ...flattenArrayOfObjects(typedItem.pages[0].items, currentParentIndex)
         );
       }
 
@@ -97,7 +97,7 @@ export function flattenArrayOfObjects(
           // Add subChapter pages
           if (Array.isArray(subChapter.pages)) {
             results.push(
-              ...flattenArrayOfObjects(subChapter.pages, [
+              ...flattenArrayOfObjects(subChapter.pages[0].items, [
                 ...currentParentIndex,
                 subIndex,
               ])
@@ -194,6 +194,8 @@ export function unflattenArrayOfObjects(
     switch (parentIndex.length) {
       case 1: // Chapter title
         chapter.chapter = data as string;
+        chapter.pages = [{ items: [], pageTitle: "" }];
+        chapter.subChapters = [];
         break;
 
       case 2: // Chapter pages or SubChapter title
@@ -202,15 +204,14 @@ export function unflattenArrayOfObjects(
           if (!chapter.subChapters[rest[0]]) {
             chapter.subChapters[rest[0]] = {
               subChapterTitle: data,
-              pages: [],
+              pages: [{ items: [], pageTitle: "" }],
               subSubChapters: [],
             };
-          } else {
-            chapter.subChapters[rest[0]].subChapterTitle = data;
           }
+          chapter.subChapters[rest[0]].subChapterTitle = data;
         } else {
           // Chapter page
-          chapter.pages[rest[0]] = data as Item;
+          chapter.pages[0].items[rest[0]] = data as Item;
         }
         break;
 
@@ -219,7 +220,12 @@ export function unflattenArrayOfObjects(
         if (!subChapter) {
           const newSubChapter = {
             subChapterTitle: "",
-            pages: [],
+            pages: [
+              {
+                pageTitle: "",
+                items: [],
+              },
+            ],
             subSubChapters: [],
           };
           chapter.subChapters[rest[0]] = newSubChapter;
@@ -230,13 +236,18 @@ export function unflattenArrayOfObjects(
           if (!subChapter.subSubChapters[rest[1]]) {
             subChapter.subSubChapters[rest[1]] = {
               subSubChapterTitle: data,
-              pages: [],
+              pages: [
+                {
+                  pageTitle: "",
+                  items: [],
+                },
+              ],
             };
           } else {
             subChapter.subSubChapters[rest[1]].subSubChapterTitle = data;
           }
         } else {
-          subChapter.pages[rest[1]] = data as Item;
+          subChapter.pages[0].items[rest[1]] = data as Item;
         }
         break;
 
@@ -375,19 +386,34 @@ export const createNewPageData = (
       newItem = {
         chapter: newItemKeys[0],
         subChapters: [],
-        pages: [],
+        pages: [
+          {
+            pageTitle: "",
+            items: [],
+          },
+        ],
       };
       break;
     case PageItemType.SubChapter:
       newItem = {
         subSubChapters: [],
         subChapterTitle: `${newItemKeys[0]}`,
-        pages: [],
+        pages: [
+          {
+            pageTitle: "",
+            items: [],
+          },
+        ],
       };
       break;
     case PageItemType.SubSubChapter:
       newItem = {
-        pages: [],
+        pages: [
+          {
+            pageTitle: "",
+            items: [],
+          },
+        ],
         subSubChapterTitle: newItemKeys[0],
       };
       break;

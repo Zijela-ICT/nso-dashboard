@@ -8,7 +8,7 @@ const DecisionTreeRenderer: React.FC<{
   return (
     <div
       className="decision-tree-renderer mb-6"
-      data-text_path={decisionTree.title}
+      data-text_path={decisionTree.name}
       onMouseEnter={handleMouseEnter}
     >
       {/* Upper Table: Questions and Examinations */}
