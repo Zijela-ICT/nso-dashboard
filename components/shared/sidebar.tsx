@@ -90,7 +90,7 @@ const routes: RouteItem[] = [
   {
     id: 5,
     icon: "hospital",
-    label: "Nearb Facilities",
+    label: "Nearby Facilities",
     href: "/nearby-facilities",
     permission: SystemPermissions.READ_ADMIN_FACILITIES,
   },
