@@ -5,7 +5,7 @@ import {
   Icon,
   SidebarTrigger
 } from "../ui";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useFetchProfile } from "@/hooks/api/queries/settings";
 
@@ -13,7 +13,9 @@ const Navbar = () => {
   const { data } = useFetchProfile();
   const isMobile = useIsMobile();
 
-  // const router = useRouter();
+
+
+  const router = useRouter();
   return (
     <div className="w-full flex flex-row justify-between md:justify-end px-4 md:px-10 py-4 bg-white border-b border-b-[#EAEDFF]">
       {isMobile && (
@@ -31,7 +33,9 @@ const Navbar = () => {
           <Icon name="bell" className="w-5 h-5" />
         </div>
 
-        <div className="flex flex-row items-center gap-3 justify-start">
+        <div className="flex flex-row items-center gap-3 justify-start cursor-pointer" onClick={() => {
+          router.push("/dashboard/profile");
+        }}>
           <Avatar className="w-6 h-6 rounded-full">
             {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
             <AvatarFallback>
