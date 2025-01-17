@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PageItems from "./PageItems";
 import { Book, Data, FlattenedObj } from "../booktypes";
 import SectionHeader from "./SectionHeader";
 import { ChevronDown } from "lucide-react";
 import BookHeader from "./BookHeader";
-import { useBookContext } from "../context/bookContext";
 import { useParams } from "next/navigation";
 import { IChprbnBook } from "../hooks/useEBooks";
+import { useBookContext } from "../context/bookContext";
 
 function RenderBook({
   flattenBookData,
@@ -35,9 +35,16 @@ function RenderBook({
   canEdit?: boolean;
   bookInfo?: IChprbnBook;
 }) {
-  const params = useParams();
   const { isEditting } = useBookContext();
+  const params = useParams();
   const [foldedSection, setFoldedSection] = useState<Array<number[]>>([]);
+
+  useEffect(() => {
+    const indices = flattenBookData.map((b) => b.parentIndex);
+    if (!isEditting) {
+      setFoldedSection(indices);
+    }
+  }, [flattenBookData]);
 
   function containsSubArray(subArray) {
     return foldedSection.some(
@@ -108,9 +115,6 @@ function RenderBook({
           indices.pop();
           if (parentFolded(indices)) {
             return null;
-          }
-          if (isHeader) {
-            console.log(chapter);
           }
           return (
             <div key={index} className="container mx-auto">

@@ -78,6 +78,58 @@ const useBookMethods = () => {
     useState<boolean>(false);
   const [showLinkableModal, setShowLinkableModal] = useState<boolean>(false);
 
+  useEffect(() => {
+    const a = [
+      {
+        chapter: "chapter title",
+        subChapters: [
+          {
+            subSubChapters: [
+              {
+                pages: [
+                  {
+                    pageTitle: "new page title",
+                    items: [
+                      {
+                        type: "text",
+                        content: "this is the text content in the page page!",
+                      },
+                    ],
+                  },
+                ],
+                subSubChapterTitle: "sub sub title",
+              },
+            ],
+            subChapterTitle: "sub chapter title",
+            pages: [
+              {
+                pageTitle: "",
+                items: [
+                  {
+                    type: "text",
+                    content:
+                      "this is the text content in the sub chapter level",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        pages: [
+          {
+            pageTitle: "new page title",
+            items: [
+              {
+                type: "text",
+                content: "this is the text content in the chapter level",
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    console.log("tester", flattenArrayOfObjects(a));
+  }, []);
   const handleFileUpload = async (file: File | undefined) => {
     if (!file) {
       return;
@@ -197,6 +249,7 @@ const useBookMethods = () => {
     } else if (type === PageItemType.SubSubChapter) {
       keys = ["sub sub title", "new page title"];
       const newElement = createNewPageData(type, keys);
+
       if (
         !updatedData.book.content[chapterIndex].subChapters[subChapterIndex]
           .subSubChapters
@@ -213,20 +266,26 @@ const useBookMethods = () => {
     } else if (type === PageItemType.Page) {
       keys = ["new page title"];
       const newElement = createNewPageData(type, keys);
+      console.log("isPage(newElement)", isPage(newElement));
 
       if (isPage(newElement)) {
+        console.log("subSubIndex", subSubIndex);
+        console.log("pageToBeUpdatedIndices", pageToBeUpdatedIndices);
+        console.log({ chapterIndex, subChapterIndex, subSubIndex });
+
         if (typeof subSubIndex !== "undefined") {
           // Add page to subSubChapter
           updatedData.book.content[chapterIndex]?.subChapters[
             subChapterIndex
           ]?.subSubChapters[subSubIndex]?.pages.splice(
-            pageIndex + 1,
+            pageIndex + 1 || 1,
             0,
             newElement
           );
         }
       }
     }
+    console.log("updatedData", updatedData);
 
     setData(updatedData);
     setShowPageDropdown(false);
@@ -312,9 +371,13 @@ const useBookMethods = () => {
         data: newItem,
         parentIndex: newPath, // Use the new path here
       });
+      console.log("updatedFlattenedArr", updatedFlattenedArr);
 
       // Reconstruct the book content
       unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
+      const reflatten = flattenArrayOfObjects(unflattendContent);
+      console.log("unflattendContent", unflattendContent);
+      console.log("reflatten", reflatten);
     }
 
     updatedData.book.content = unflattendContent;
