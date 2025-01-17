@@ -140,11 +140,7 @@ export interface iPosition {
 }
 
 export interface FlattenedObj {
-  data:
-    | string
-    | {
-        [key: string]: any;
-      };
+  data: any;
   parentIndex: number[];
   dataPath?: string;
 }
