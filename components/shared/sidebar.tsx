@@ -211,7 +211,7 @@ const AppSidebar = () => {
                     >
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
-                          className="hover:!bg-transparent hover:text-title"
+                          className="hover:!bg-transparent hover:text-title data:[active]:bg-transparent"
                           isActive={isParentActive(route)}
                         >
                           <div className="flex items-center gap-3 w-full">
