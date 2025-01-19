@@ -130,7 +130,6 @@ const useBookMethods = () => {
         ],
       },
     ];
-    console.log("tester", flattenArrayOfObjects(a));
   }, []);
   const handleFileUpload = async (file: File | undefined) => {
     if (!file) {
@@ -274,13 +273,8 @@ const useBookMethods = () => {
     } else if (type === PageItemType.Page) {
       keys = ["new page title"];
       const newElement = createNewPageData(type, keys);
-      console.log("isPage(newElement)", isPage(newElement));
 
       if (isPage(newElement)) {
-        console.log("subSubIndex", subSubIndex);
-        console.log("pageToBeUpdatedIndices", pageToBeUpdatedIndices);
-        console.log({ chapterIndex, subChapterIndex, subSubIndex });
-
         if (typeof subSubIndex !== "undefined") {
           // Add page to subSubChapter
           updatedData.book.content[chapterIndex]?.subChapters[
@@ -293,7 +287,6 @@ const useBookMethods = () => {
         }
       }
     }
-    console.log("updatedData", updatedData);
 
     setData(updatedData);
     setShowPageDropdown(false);
@@ -328,8 +321,6 @@ const useBookMethods = () => {
   };
 
   const updateElementAtPath = (payload, elementPosition) => {
-    console.log("payload", payload);
-
     const updatedData = { ...data };
     const flattenedArr = flattenArrayOfObjects(updatedData.book.content);
     const updatedFlattenedArr = [...flattenedArr];
@@ -339,33 +330,35 @@ const useBookMethods = () => {
       data: payload,
     };
     if (typeof payload === "object" && payload?.type === "decision") {
-      console.log("payload", payload);
-
       const { upperTable, lowerTable } = generateTablesFromDecisionTree(
         payload as IDecisionTree
       );
       updatedFlattenedArr[elementPosition + 1] = {
         ...updatedFlattenedArr[elementPosition + 1],
         data: upperTable,
-        fromDecisionTree: true,
+        forDecisionTree: true,
       };
 
       updatedFlattenedArr[elementPosition + 2] = {
         ...updatedFlattenedArr[elementPosition + 2],
         data: lowerTable,
-        fromDecisionTree: true,
+        forDecisionTree: true,
       };
       updatedFlattenedArr[elementPosition + 3] = {
         ...updatedFlattenedArr[elementPosition + 3],
-        data: "Health Education",
-        fromDecisionTree: true,
+        data: {
+          type: "heading2",
+          content: "Health Education",
+          forDecisionTree: true,
+        },
+        forDecisionTree: true,
       };
       updatedFlattenedArr[elementPosition + 4] = {
-        ...updatedFlattenedArr[elementPosition + 3],
+        ...updatedFlattenedArr[elementPosition + 4],
         data: {
           type: "orderedList",
           items: payload?.healthEducation,
-          fromDecisionTree: true,
+          forDecisionTree: true,
         },
       };
     }
@@ -409,8 +402,8 @@ const useBookMethods = () => {
           if (typeof flattenedArr[elementIndex].data === "string") {
             // Remove entire subChapter
             updatedData.book.content[chapterIndex].subChapters[
-              rest[1]
-            ].subSubChapters.splice(rest[2], 1);
+              rest[0]
+            ].subSubChapters.splice(rest[1], 1);
           } else {
             // Remove subChapter page
             // subChapter.pages.splice(rest[2], 1);

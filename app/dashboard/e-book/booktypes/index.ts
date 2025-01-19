@@ -156,7 +156,7 @@ export interface FlattenedObj {
     | Record<string, string | Item>;
   parentIndex: number[];
   dataPath?: string;
-  fromDecisionTree?: boolean;
+  forDecisionTree?: boolean;
 }
 
 export interface FlattenedData {
@@ -187,7 +187,7 @@ export interface TableData {
   itemsPerPage?: number;
   columnCount?: number;
   headerRowCount?: number;
-  fromDecisionTree?: boolean;
+  forDecisionTree?: boolean;
 }
 
 export enum PageItemType {

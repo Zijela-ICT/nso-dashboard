@@ -198,14 +198,17 @@ function PageItems({
   };
 
   const renderItems = (items: FlattenedObj[]) => {
-    console.log("itemsitemsitemsitems", items);
     if (
       items[0].data &&
       typeof items[0].data === "object" &&
-      "fromDecisionTree" in items[0].data
+      "forDecisionTree" in items[0].data
     ) {
-      if (items[0].data.fromDecisionTree) {
-        return null;
+      if (itemData.forDecisionTree) {
+        return (
+          <div className="bg-[#fafafa] rounded-sm p-4 w-full uppercase mb-2">
+            --- HIDDEN ITEM DECISION TREE {itemData.type} ITEM HERE ---
+          </div>
+        );
       }
     }
     return items.map((item, index) => {
@@ -367,7 +370,7 @@ function PageItems({
 
       return (
         <div className="group relative flex" key={index}>
-          {isEditting && (
+          {!itemData.forDecisionTree && isEditting && (
             <button
               className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px]"
               onClick={() => {
@@ -380,7 +383,7 @@ function PageItems({
 
           {element}
 
-          {isEditting && (
+          {!itemData.forDecisionTree && isEditting && (
             <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px]">
               <AddDropdown
                 addNewElement={(e, f) => addNewElement(e, f, elementIndex)}

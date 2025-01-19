@@ -76,7 +76,7 @@ export function flattenArrayOfObjects(
           parentIndex: currentParentIndex,
         });
       }
-      if (typedItem.type === "table" && typedItem.fromDecisionTree) {
+      if (typedItem.type === "table" && typedItem.forDecisionTree) {
         return;
       }
       // Add chapter pages
@@ -300,59 +300,6 @@ export function unflattenArrayOfObjects(
 
   return result;
 }
-
-// export const flattenForExporting = (data: Data) => {
-//   const originalContent = data.book.content;
-//   let flattendData = flattenArrayOfObjects(originalContent);
-//   console.log("flattendData before", flattendData);
-//   flattendData.forEach(async (item, index) => {
-//     console.log(item);
-
-//     if (
-//       typeof item.data === "object" &&
-//       item.data !== null && // Ensure it's not null
-//       "type" in item.data && // Check if 'content' exists in item.data
-//       item.data?.type === "decision"
-//     ) {
-//       console.log("mee");
-
-//       const { upperTable, lowerTable } = generateTablesFromDecisionTree(
-//         item.data as IDecisionTree
-//       );
-//       const firstCreateData = createNewItem("table", "", upperTable);
-//       const secondCreateData = createNewItem("table", "", lowerTable);
-//       const item1 = handleCreateNewElement(
-//         "table",
-//         firstCreateData,
-//         index,
-//         false,
-//         data,
-//         "flat"
-//       ) as FlattenedObj[];
-//       const item2 = handleCreateNewElement(
-//         "table",
-//         secondCreateData,
-//         index,
-//         false,
-//         data,
-//         "flat"
-//       ) as FlattenedObj[];
-//       console.log({
-//         item1: item1[item1.length - 1],
-//         item2: item2[item2.length - 1],
-//       });
-
-//       flattendData = [
-//         ...flattendData,
-//         item1[item1.length - 1],
-//         item2[item2.length - 1],
-//       ];
-//     }
-//   });
-
-//   console.log("flattendData after", flattendData);
-//   return unflattenArrayOfObjects(flattendData);
-// };
 
 export const getLocalizedText = (data: Data, key: string): string => {
   if (!key || typeof key !== "string") {
@@ -646,6 +593,7 @@ export const handleCreateNewElement = (
 
     // Reconstruct the book content
     unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
+    console.log("unflattendContent", unflattendContent);
     console.log("updatedFlattenedArr", updatedFlattenedArr);
 
     return whatType === "flat" ? updatedFlattenedArr : unflattendContent;
@@ -677,12 +625,12 @@ export const generateTablesFromDecisionTree = (
     rows: [
       [
         {
-          content: history,
+          items: history,
           type: "orderedList",
           cellStyle: { backgroundColor: "#FFFAEB", color: "black" },
         },
         {
-          content: examinationsActions,
+          items: examinationsActions,
           type: "orderedList",
           cellStyle: { backgroundColor: "#FFFAEB", color: "black" },
         },
@@ -691,7 +639,7 @@ export const generateTablesFromDecisionTree = (
     showCellBorders: true,
     tableStyle: {},
     columnCount: 2,
-    fromDecisionTree: true,
+    forDecisionTree: true,
   };
   // Lower table
   const lowerTable: TableData = {
@@ -713,7 +661,7 @@ export const generateTablesFromDecisionTree = (
         cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
       },
       {
-        content: caseItem.findingsOnExamination,
+        items: caseItem.findingsOnExamination,
         rowSpan: 1,
         colSpan: 1,
         type: "orderedList",
@@ -727,7 +675,7 @@ export const generateTablesFromDecisionTree = (
         cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
       },
       {
-        content: caseItem.actions,
+        items: caseItem.actions,
         rowSpan: 1,
         colSpan: 1,
         type: "orderedList",
@@ -737,7 +685,7 @@ export const generateTablesFromDecisionTree = (
     showCellBorders: true,
     tableStyle: {},
     columnCount: 4,
-    fromDecisionTree: true,
+    forDecisionTree: true,
   };
 
   return { upperTable, lowerTable };
