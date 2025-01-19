@@ -335,7 +335,7 @@ function PageItems({
               <div className="flex justify-end mb-2">
                 <Button
                   onClick={() => setEdittingDecisionTree(true)}
-                  className="mb-2 border-[#0CA554] text-[#0CA554] hidden group-hover:flex"
+                  className="mb-2 border-[#0CA554] text-[#0CA554]"
                   variant="outline"
                 >
                   Edit decision tree

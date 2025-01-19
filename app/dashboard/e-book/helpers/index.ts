@@ -486,7 +486,7 @@ export const handleCreateNewElement = (
 
   if (element_Index === undefined) return;
 
-  const flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
+  let flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
     updatedData.book.content
   );
   const elementIndex = element_Index;
@@ -544,7 +544,9 @@ export const handleCreateNewElement = (
           ...item,
           parentIndex: [
             ...currentPath.slice(0, -1),
-            currentPath[currentPath.length - 1] + type === "decision" ? 3 : 1, // move 3 places for decision trees else just 1
+            type === "decision"
+              ? currentPath[currentPath.length - 1] + 3
+              : currentPath[currentPath.length - 1] + 1, // move 3 places for decision trees else just 1
           ],
         };
       }
@@ -593,11 +595,9 @@ export const handleCreateNewElement = (
 
     // Reconstruct the book content
     unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
-    console.log("unflattendContent", unflattendContent);
-    console.log("updatedFlattenedArr", updatedFlattenedArr);
-
-    return whatType === "flat" ? updatedFlattenedArr : unflattendContent;
+    flattenedArr = updatedFlattenedArr;
   }
+  return whatType === "flat" ? flattenedArr : unflattendContent;
 };
 
 export const generateTablesFromDecisionTree = (
