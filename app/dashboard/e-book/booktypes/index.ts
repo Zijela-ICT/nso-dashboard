@@ -25,7 +25,7 @@ export type iContent = string | { text?: string; linkTo?: string }[];
 export interface IAilment {
   findingsOnHistory: string;
   findingsOnExamination: string[]; // Related findings on examination
-  clinicalJudgement: string[]; // Clinical judgement for the case
+  clinicalJudgement: string; // Clinical judgement for the case
   actions: string[];
   decisionScore: number;
   decisionDependencies: string[];
@@ -48,24 +48,29 @@ export interface UnorderedNestedListItem {
 export interface UnorderedList {
   type: "unorderedList";
   items: (string | Text | Linkable | UnorderedNestedListItem)[];
+  forDecisionTree?: boolean;
 }
 
+export type ItemTypes =
+  | "unorderedList"
+  | "orderedList"
+  | "text"
+  | "infographic"
+  | "linkable"
+  | "space"
+  | "heading2"
+  | "heading3"
+  | "heading4"
+  | "decision"
+  | "table"
+  | "listitem";
+
 export interface Item {
-  content?: iContent | Linkable | IDecisionTree | string;
+  content?: iContent | Linkable | IDecisionTree | string[] | string;
   alt?: string;
   src?: string;
-  type:
-    | "unorderedList"
-    | "orderedList"
-    | "text"
-    | "infographic"
-    | "linkable"
-    | "space"
-    | "heading2"
-    | "heading3"
-    | "heading4"
-    | "decision"
-    | "table";
+  type: ItemTypes;
+
   // decision_tree?: IDecisionTree;
   items?:
     | string[]
@@ -90,6 +95,7 @@ export interface Item {
   headless?: boolean;
   title?: string;
   tableStyle?: { backgroundColor?: string; borderRadius?: number };
+  forDecisionTree?: boolean;
 }
 
 export interface LinkableContent {
@@ -150,6 +156,7 @@ export interface FlattenedObj {
     | Record<string, string | Item>;
   parentIndex: number[];
   dataPath?: string;
+  forDecisionTree?: boolean;
 }
 
 export interface FlattenedData {
@@ -161,7 +168,7 @@ export interface FlattenedData {
 export interface TableHeader extends Item {
   rowSpan?: number;
   colSpan?: number;
-  cellStyle?: object;
+  cellStyle?: Record<string, string>;
 }
 
 export interface TableRows {
@@ -180,6 +187,7 @@ export interface TableData {
   itemsPerPage?: number;
   columnCount?: number;
   headerRowCount?: number;
+  forDecisionTree?: boolean;
 }
 
 export enum PageItemType {

@@ -15,7 +15,7 @@ import {
   AccordionTrigger,
 } from "../../../../components/ui/accordion";
 import { MultiSelect } from "./MultiSelect";
-import { IDecisionTree } from "../booktypes";
+import { IDecisionTree, ItemTypes } from "../booktypes";
 
 function AddDecisionTreeModal({
   addNewElement,
@@ -25,7 +25,7 @@ function AddDecisionTreeModal({
   elementIndex,
   decisionTreeData,
 }: {
-  addNewElement?: (e, f) => void;
+  addNewElement?: (e: ItemTypes, f, g) => void;
   showDecisionTreeModal: boolean;
   onClose: () => void;
   editElement?: (e, f) => void;
@@ -41,10 +41,10 @@ function AddDecisionTreeModal({
   const [ailments, setAilments] = useState([
     {
       findingsOnHistory: "",
-      clinicalJudgement: [""],
+      clinicalJudgement: "",
       actions: [""],
       findingsOnExamination: [""],
-      decisionScore: 100,
+      decisionScore: 0,
       decisionDependencies: [""],
     },
   ]);
@@ -61,7 +61,7 @@ function AddDecisionTreeModal({
   }, [decisionTreeData]);
 
   const handleSave = () => {
-    const decisionTree = {
+    const decisionTree: IDecisionTree = {
       type: "decision",
       name: title,
       history: questions.filter((e) => e),
@@ -70,10 +70,12 @@ function AddDecisionTreeModal({
       cases: ailments,
       healthEducation: healthEducation.filter((e) => e),
     };
+
+    setStep(1);
     if (decisionTreeData) {
       editElement(decisionTree, elementIndex);
     } else {
-      addNewElement("decision", decisionTree);
+      addNewElement("decision", decisionTree, elementIndex);
     }
   };
 
@@ -110,7 +112,13 @@ function AddDecisionTreeModal({
 
   return (
     <>
-      <Dialog open={showDecisionTreeModal} onOpenChange={onClose}>
+      <Dialog
+        open={showDecisionTreeModal}
+        onOpenChange={() => {
+          setStep(1);
+          onClose();
+        }}
+      >
         <DialogContent className="sm:max-w-[605px]">
           <DialogHeader>
             <DialogTitle>Add Decision tree</DialogTitle>
@@ -540,11 +548,6 @@ function AddDecisionTreeModal({
                           onChange={(e) => {
                             const newHealthEducation = [...healthEducation];
                             newHealthEducation[index] = e.target.value;
-                            console.log(
-                              "newHealthEducation",
-                              newHealthEducation
-                            );
-
                             setHealthEducation(newHealthEducation);
                           }}
                           className="border-[#cccfd3] bg-[#FCFCFD] border px-4 rounded-sm h-[50px] w-full outline-none focus:outline-none"
@@ -569,7 +572,6 @@ function AddDecisionTreeModal({
                                 newHealthEducation.filter((_, n) => n !== index)
                               );
                             }}
-                            disabled={healthEducation.length === 1}
                             className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
                           >
                             <Minus />
@@ -593,10 +595,10 @@ function AddDecisionTreeModal({
                         ...ailments,
                         {
                           findingsOnHistory: "",
-                          clinicalJudgement: [""],
+                          clinicalJudgement: "",
                           actions: [""],
                           findingsOnExamination: [""],
-                          decisionScore: 100,
+                          decisionScore: 0,
                           decisionDependencies: [""],
                         },
                       ]);

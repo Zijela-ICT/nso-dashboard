@@ -69,13 +69,7 @@ const DecisionTreeRenderer: React.FC<{
               className={index % 2 === 0 ? "bg-[#ECFDF3]" : "bg-[#fbffff]"}
             >
               <td className="border border-gray-300 p-2 align-top">
-                <ul>
-                  {ailment.findingsOnExamination.map((itm, i) => (
-                    <li className="mb-1" key={i}>
-                      {i + 1}.{itm}
-                    </li>
-                  ))}
-                </ul>
+                {ailment.findingsOnHistory}
               </td>
               <td className="border border-gray-300 p-2 align-top">
                 <ul>

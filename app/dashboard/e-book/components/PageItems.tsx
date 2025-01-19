@@ -4,7 +4,6 @@ import {
   FlattenedObj,
   IDecisionTree,
   Item,
-  LinkableContent,
   TableData,
 } from "../booktypes";
 import { generateRandomString, getLocalizedText } from "../helpers";
@@ -199,6 +198,19 @@ function PageItems({
   };
 
   const renderItems = (items: FlattenedObj[]) => {
+    if (
+      items[0].data &&
+      typeof items[0].data === "object" &&
+      "forDecisionTree" in items[0].data
+    ) {
+      if (itemData.forDecisionTree) {
+        return (
+          <div className="bg-[#fafafa] rounded-sm p-4 w-full uppercase mb-2">
+            --- HIDDEN ITEM DECISION TREE {itemData.type} ITEM HERE ---
+          </div>
+        );
+      }
+    }
     return items.map((item, index) => {
       let element;
       if (itemData?.type === "text") {
@@ -303,7 +315,7 @@ function PageItems({
         element = (
           <div style={itemData.style} data-text_path={itemPath}>
             {Array.isArray(itemData.content) &&
-              itemData.content.map((link: LinkableContent, index) => (
+              itemData.content.map((link, index) => (
                 <a
                   key={index}
                   href={link.linkTo}
@@ -358,7 +370,7 @@ function PageItems({
 
       return (
         <div className="group relative flex" key={index}>
-          {isEditting && (
+          {!itemData.forDecisionTree && isEditting && (
             <button
               className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px]"
               onClick={() => {
@@ -371,7 +383,7 @@ function PageItems({
 
           {element}
 
-          {isEditting && (
+          {!itemData.forDecisionTree && isEditting && (
             <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px]">
               <AddDropdown
                 addNewElement={(e, f) => addNewElement(e, f, elementIndex)}

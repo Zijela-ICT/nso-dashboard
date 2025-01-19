@@ -3,13 +3,14 @@ import {
   createNewItem,
   createNewPageData,
   flattenArrayOfObjects,
+  generateTablesFromDecisionTree,
+  handleCreateNewElement,
   unflattenArrayOfObjects,
 } from "../helpers";
 import {
   Data,
   iPosition,
   iTargetElements,
-  Item,
   Chapter,
   Page,
   SubChapter,
@@ -20,6 +21,7 @@ import {
   Linkable,
   IDecisionTree,
   Space,
+  ItemTypes,
 } from "../booktypes";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -128,7 +130,6 @@ const useBookMethods = () => {
         ],
       },
     ];
-    console.log("tester", flattenArrayOfObjects(a));
   }, []);
   const handleFileUpload = async (file: File | undefined) => {
     if (!file) {
@@ -251,9 +252,15 @@ const useBookMethods = () => {
       const newElement = createNewPageData(type, keys);
 
       if (
+        !updatedData.book.content[chapterIndex].subChapters[subChapterIndex] &&
         !updatedData.book.content[chapterIndex].subChapters[subChapterIndex]
-          .subSubChapters
+          ?.subSubChapters
       ) {
+        // updatedData.book.content[chapterIndex].subChapters[subChapterIndex] = {
+        //   subChapterTitle: "",
+        //   pages: [],
+        //   subSubChapters: [],
+        // };
         updatedData.book.content[chapterIndex].subChapters[
           subChapterIndex
         ].subSubChapters = [];
@@ -266,13 +273,8 @@ const useBookMethods = () => {
     } else if (type === PageItemType.Page) {
       keys = ["new page title"];
       const newElement = createNewPageData(type, keys);
-      console.log("isPage(newElement)", isPage(newElement));
 
       if (isPage(newElement)) {
-        console.log("subSubIndex", subSubIndex);
-        console.log("pageToBeUpdatedIndices", pageToBeUpdatedIndices);
-        console.log({ chapterIndex, subChapterIndex, subSubIndex });
-
         if (typeof subSubIndex !== "undefined") {
           // Add page to subSubChapter
           updatedData.book.content[chapterIndex]?.subChapters[
@@ -285,102 +287,31 @@ const useBookMethods = () => {
         }
       }
     }
-    console.log("updatedData", updatedData);
 
     setData(updatedData);
     setShowPageDropdown(false);
   };
 
   const addNewElement = (
-    type: string,
+    type: ItemTypes,
     createData?: InfographicData | TableData | Linkable | IDecisionTree | Space,
     element_Index?: number,
-    isHeader?: boolean
+    isHeader?: boolean,
+    returnData?: boolean
   ) => {
-    if ((!data || !hoverElement) && element_Index === undefined) return;
     const updatedData = { ...data };
-
-    if (element_Index === undefined) return;
-
-    const flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
-      updatedData.book.content
+    const unflattendContent = handleCreateNewElement(
+      type,
+      createData,
+      element_Index,
+      isHeader,
+      updatedData,
+      "un_flat"
     );
-    const elementIndex = element_Index;
-    if (elementIndex < 0) return;
-
-    const itemAtIndex = flattenedArr[elementIndex];
-    const path = isHeader
-      ? [...itemAtIndex.parentIndex, -1]
-      : itemAtIndex.parentIndex;
-    const newItemKey = `here is some new text content`;
-    let unflattendContent: Chapter[] = null;
-    if (
-      type === "listitem" &&
-      typeof flattenedArr[elementIndex].data === "object" &&
-      "items" in flattenedArr[elementIndex].data &&
-      Array.isArray(flattenedArr[elementIndex].data.items)
-    ) {
-      const newElementData = {
-        ...flattenedArr[elementIndex],
-        data: {
-          ...flattenedArr[elementIndex].data,
-          items: [...flattenedArr[elementIndex].data.items, "New list item"],
-        },
-      };
-      flattenedArr[elementIndex] = newElementData;
-      unflattendContent = unflattenArrayOfObjects([...flattenedArr]);
-    } else {
-      let newItem: Item | null;
-      if (
-        type === "table" ||
-        type === "linkable" ||
-        type === "decision" ||
-        type === "infographic" ||
-        type === "space"
-      ) {
-        newItem = createNewItem(type, newItemKey, createData);
-      } else {
-        newItem = createNewItem(type, newItemKey);
-      }
-      // Create the new path for insertion
-      const newPath = [...path.slice(0, -1), path[path.length - 1] + 1];
-
-      // Increment indices of all existing elements at or after the insertion point
-      const updatedFlattenedArr = flattenedArr.map((item) => {
-        const currentPath = item.parentIndex;
-        // Only adjust elements at the same level and after the insertion point
-        if (
-          currentPath.length === path.length &&
-          currentPath.slice(0, -1).every((val, i) => val === path[i]) &&
-          currentPath[currentPath.length - 1] > path[path.length - 1] &&
-          typeof item.data !== "string"
-        ) {
-          return {
-            ...item,
-            parentIndex: [
-              ...currentPath.slice(0, -1),
-              currentPath[currentPath.length - 1] + 1,
-            ],
-          };
-        }
-        return item;
-      });
-
-      // Insert the new element
-      updatedFlattenedArr.splice(elementIndex + 1, 0, {
-        data: newItem,
-        parentIndex: newPath, // Use the new path here
-      });
-      console.log("updatedFlattenedArr", updatedFlattenedArr);
-
-      // Reconstruct the book content
-      unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
-      const reflatten = flattenArrayOfObjects(unflattendContent);
-      console.log("unflattendContent", unflattendContent);
-      console.log("reflatten", reflatten);
+    if (returnData) {
+      return unflattendContent;
     }
-
-    updatedData.book.content = unflattendContent;
+    updatedData.book.content = unflattendContent as Chapter[];
     setData(updatedData);
     setShowDropdown(false);
     setShowInfographicModal(false);
@@ -390,15 +321,47 @@ const useBookMethods = () => {
   };
 
   const updateElementAtPath = (payload, elementPosition) => {
-    console.log({ payload, elementPosition });
-
     const updatedData = { ...data };
     const flattenedArr = flattenArrayOfObjects(updatedData.book.content);
     const updatedFlattenedArr = [...flattenedArr];
+
     updatedFlattenedArr[elementPosition] = {
       ...updatedFlattenedArr[elementPosition],
       data: payload,
     };
+    if (typeof payload === "object" && payload?.type === "decision") {
+      const { upperTable, lowerTable } = generateTablesFromDecisionTree(
+        payload as IDecisionTree
+      );
+      updatedFlattenedArr[elementPosition + 1] = {
+        ...updatedFlattenedArr[elementPosition + 1],
+        data: upperTable,
+        forDecisionTree: true,
+      };
+
+      updatedFlattenedArr[elementPosition + 2] = {
+        ...updatedFlattenedArr[elementPosition + 2],
+        data: lowerTable,
+        forDecisionTree: true,
+      };
+      updatedFlattenedArr[elementPosition + 3] = {
+        ...updatedFlattenedArr[elementPosition + 3],
+        data: {
+          type: "heading2",
+          content: "Health Education",
+          forDecisionTree: true,
+        },
+        forDecisionTree: true,
+      };
+      updatedFlattenedArr[elementPosition + 4] = {
+        ...updatedFlattenedArr[elementPosition + 4],
+        data: {
+          type: "orderedList",
+          items: payload?.healthEducation,
+          forDecisionTree: true,
+        },
+      };
+    }
     const unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
     updatedData.book.content = unflattendContent;
     setData(updatedData);
@@ -434,13 +397,13 @@ const useBookMethods = () => {
       case 3:
         {
           // Remove subChapter or its page
-          const subChapter =
-            updatedData.book.content[chapterIndex].subChapters[rest[0]];
+          // const subChapter =
+          //   updatedData.book.content[chapterIndex].subChapters[rest[0]];
           if (typeof flattenedArr[elementIndex].data === "string") {
             // Remove entire subChapter
             updatedData.book.content[chapterIndex].subChapters[
-              rest[1]
-            ].subSubChapters.splice(rest[2], 1);
+              rest[0]
+            ].subSubChapters.splice(rest[1], 1);
           } else {
             // Remove subChapter page
             // subChapter.pages.splice(rest[2], 1);
@@ -519,7 +482,9 @@ const useBookMethods = () => {
     try {
       const url = await getUploadFileUrl(file);
       handleUpdate({ newFileUrl: url }, id);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleUpdate = async (data, id) => {
@@ -527,7 +492,9 @@ const useBookMethods = () => {
       await updateEbooks(data, id);
       getEbooks();
       showToast("book updated successfully");
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   async function createNewBook() {
@@ -597,6 +564,7 @@ const useBookMethods = () => {
           ].version.toString()
       );
     } catch (error) {
+      console.log(error);
     } finally {
       setFetchingVersion(false);
     }
@@ -606,7 +574,9 @@ const useBookMethods = () => {
     try {
       const bookData = (await getFile(url)) as Data;
       setData(bookData);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {

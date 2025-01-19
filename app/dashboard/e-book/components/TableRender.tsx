@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Item, TableData, TableHeader } from "../booktypes";
+import { Item, TableData, TableHeader, TableRows } from "../booktypes";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,11 @@ const TableRenderer = ({
   onSave?: (e: TableData) => void;
 }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const renderCell = (cell: TableHeader & Item, isHeader = false) => {
+
+  const renderCell = (
+    cell: (TableHeader & Item) | (TableRows & Item),
+    isHeader = false
+  ) => {
     const CellComponent = isHeader ? "th" : "td";
     const cellProps = {
       style: {
@@ -34,7 +38,18 @@ const TableRenderer = ({
     };
 
     return (
-      <CellComponent {...cellProps}>{cell.content as string}</CellComponent>
+      <CellComponent {...cellProps}>
+        {cell.type === "text" && <span>{cell.content as string}</span>}
+        {cell.type === "orderedList" && Array.isArray(cell.content) && (
+          <ul className="list-decimal pl-2">
+            {(cell.content as string[]).map((text, i) => (
+              <li className="pl-2" key={i}>
+                {text}
+              </li>
+            ))}
+          </ul>
+        )}
+      </CellComponent>
     );
   };
 
@@ -44,7 +59,11 @@ const TableRenderer = ({
         {tableData.title && (
           <h3 className="text-xl font-semibold mb-4">{tableData.title}</h3>
         )}
-        {edit && <Button onClick={() => setOpenModal(true)}>Edit table</Button>}
+        {edit && (
+          <Button className="!w-[120px]" onClick={() => setOpenModal(true)}>
+            Edit table
+          </Button>
+        )}
       </div>
 
       <table

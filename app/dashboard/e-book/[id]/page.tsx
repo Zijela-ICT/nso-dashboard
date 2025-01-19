@@ -31,7 +31,6 @@ import { getEbookVersion } from "@/utils/book.services";
 
 function Ebook() {
   const {
-    handleMouseEnter,
     setBookTitle,
     addNewPageElement,
     removeElement,
@@ -61,6 +60,7 @@ function Ebook() {
   const hasEditAccess = useMemo(() => {
     return !!currentBook?.editors.find((u) => u.id === user?.data?.id);
   }, [currentBook, user]);
+  console.log("flattenBookData", flattenBookData);
 
   useEffect(() => {
     if (!isEditting) {

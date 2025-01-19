@@ -5,6 +5,7 @@ import {
   FlattenedObj,
   IDecisionTree,
   Item,
+  ItemTypes,
   Linkable,
   Page,
   PageItemType,
@@ -75,7 +76,9 @@ export function flattenArrayOfObjects(
           parentIndex: currentParentIndex,
         });
       }
-
+      if (typedItem.type === "table" && typedItem.forDecisionTree) {
+        return;
+      }
       // Add chapter pages
       if (Array.isArray(typedItem.pages && typedItem.pages[0].items)) {
         results.push(
@@ -309,9 +312,16 @@ export const getLocalizedText = (data: Data, key: string): string => {
 };
 
 export const createNewItem = (
-  type: string,
+  type: ItemTypes,
   newItemKey: string,
-  createData?: TableData | IDecisionTree | Linkable | InfographicData | Space
+  createData?:
+    | TableData
+    | IDecisionTree
+    | Linkable
+    | InfographicData
+    | Space
+    | string[],
+  forDecisionTree?: boolean
 ): Item | null => {
   let newItem: Item | null;
   switch (type) {
@@ -322,15 +332,20 @@ export const createNewItem = (
       };
       break;
     case "unorderedList": {
-      const items = Array.from({ length: 1 }, (_, i) => `list Item ${i + 1}`);
+      const items =
+        (createData as string[]) ||
+        Array.from({ length: 1 }, (_, i) => `list Item ${i + 1}`);
       newItem = {
         type,
         items,
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     }
     case "orderedList": {
-      const items = Array.from({ length: 1 }, (_, i) => `list Item ${i + 1}`);
+      const items =
+        (createData as string[]) ||
+        Array.from({ length: 1 }, (_, i) => `list Item ${i + 1}`);
       newItem = {
         type,
         items,
@@ -456,4 +471,222 @@ export const debounce = <T extends (...args: any[]) => void>(
       func(...args);
     }, delay);
   };
+};
+
+export const handleCreateNewElement = (
+  type: ItemTypes,
+  createData,
+  element_Index,
+  isHeader,
+  data,
+  whatType
+) => {
+  if (!data && element_Index === undefined) return;
+  const updatedData = { ...data };
+
+  if (element_Index === undefined) return;
+
+  const flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
+    updatedData.book.content
+  );
+  const elementIndex = element_Index;
+  if (elementIndex < 0) return;
+
+  const itemAtIndex = flattenedArr[elementIndex];
+  const path = isHeader
+    ? [...itemAtIndex.parentIndex, -1]
+    : itemAtIndex.parentIndex;
+  const newItemKey = `here is some new text content`;
+  let unflattendContent: Chapter[] = null;
+  if (
+    type === "listitem" &&
+    typeof flattenedArr[elementIndex].data === "object" &&
+    "items" in flattenedArr[elementIndex].data &&
+    Array.isArray(flattenedArr[elementIndex].data.items)
+  ) {
+    const newElementData = {
+      ...flattenedArr[elementIndex],
+      data: {
+        ...flattenedArr[elementIndex].data,
+        items: [...flattenedArr[elementIndex].data.items, "New list item"],
+      },
+    };
+    flattenedArr[elementIndex] = newElementData;
+    unflattendContent = unflattenArrayOfObjects([...flattenedArr]);
+  } else {
+    let newItem: Item | null;
+    if (
+      type === "table" ||
+      type === "linkable" ||
+      type === "decision" ||
+      type === "infographic" ||
+      type === "space"
+    ) {
+      newItem = createNewItem(type, newItemKey, createData);
+    } else {
+      newItem = createNewItem(type, newItemKey);
+    }
+
+    // Create the new path for insertion
+    const newPath = [...path.slice(0, -1), path[path.length - 1] + 1];
+
+    // Increment indices of all existing elements at or after the insertion point
+    const updatedFlattenedArr = flattenedArr.map((item) => {
+      const currentPath = item.parentIndex;
+      // Only adjust elements at the same level and after the insertion point
+      if (
+        currentPath.length === path.length &&
+        currentPath.slice(0, -1).every((val, i) => val === path[i]) &&
+        currentPath[currentPath.length - 1] > path[path.length - 1] &&
+        typeof item.data !== "string"
+      ) {
+        return {
+          ...item,
+          parentIndex: [
+            ...currentPath.slice(0, -1),
+            currentPath[currentPath.length - 1] + type === "decision" ? 3 : 1, // move 3 places for decision trees else just 1
+          ],
+        };
+      }
+      return item;
+    });
+
+    // Insert the new element
+    updatedFlattenedArr.splice(elementIndex + 1, 0, {
+      data: newItem,
+      parentIndex: newPath, // Use the new path here
+    });
+
+    // add a table to every decision tree
+    if (type === "decision") {
+      const newPath2 = [...path.slice(0, -1), path[path.length - 1] + 2];
+      const newPath3 = [...path.slice(0, -1), path[path.length - 1] + 3];
+      const newPath4 = [...path.slice(0, -1), path[path.length - 1] + 4];
+      const { upperTable, lowerTable } = generateTablesFromDecisionTree(
+        createData as IDecisionTree
+      );
+      updatedFlattenedArr.splice(elementIndex + 2, 0, {
+        data: createNewItem("table", newItemKey, upperTable),
+        parentIndex: newPath2,
+      });
+      updatedFlattenedArr.splice(elementIndex + 3, 0, {
+        data: createNewItem("table", newItemKey, lowerTable),
+        parentIndex: newPath3,
+      });
+      updatedFlattenedArr.splice(elementIndex + 4, 0, {
+        data: {
+          type: "heading2",
+          content: "Health Education",
+        },
+        parentIndex: newPath3,
+      });
+      updatedFlattenedArr.splice(elementIndex + 5, 0, {
+        data: createNewItem(
+          "orderedList",
+          newItemKey,
+          createData.healthEducation,
+          true
+        ),
+        parentIndex: newPath4,
+      });
+    }
+
+    // Reconstruct the book content
+    unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
+    console.log("unflattendContent", unflattendContent);
+    console.log("updatedFlattenedArr", updatedFlattenedArr);
+
+    return whatType === "flat" ? updatedFlattenedArr : unflattendContent;
+  }
+};
+
+export const generateTablesFromDecisionTree = (
+  decisionTree: IDecisionTree
+): { upperTable: TableData; lowerTable: TableData } => {
+  const { history, examinationsActions, cases } = decisionTree;
+
+  // Upper table
+  const upperTable: TableData = {
+    type: "table",
+    headers: [
+      [
+        {
+          content: "HISTORY",
+          type: "text",
+          cellStyle: { backgroundColor: "#0CA554", color: "white" },
+        },
+        {
+          content: "EXAMINATIONS/ACTIONS",
+          type: "text",
+          cellStyle: { backgroundColor: "#0CA554", color: "white" },
+        },
+      ],
+    ],
+    rows: [
+      [
+        {
+          items: history,
+          type: "orderedList",
+          cellStyle: { backgroundColor: "#FFFAEB", color: "black" },
+        },
+        {
+          items: examinationsActions,
+          type: "orderedList",
+          cellStyle: { backgroundColor: "#FFFAEB", color: "black" },
+        },
+      ],
+    ],
+    showCellBorders: true,
+    tableStyle: {},
+    columnCount: 2,
+    forDecisionTree: true,
+  };
+  // Lower table
+  const lowerTable: TableData = {
+    type: "table",
+    headers: [
+      [
+        { content: "FINDINGS ON HISTORY", type: "text" },
+        { content: "FINDINGS ON EXAMINATION", type: "text" },
+        { content: "CLINICAL JUDGMENT", type: "text" },
+        { content: "ACTIONS", type: "text" },
+      ],
+    ],
+    rows: cases.map((caseItem) => [
+      {
+        content: caseItem.findingsOnHistory,
+        rowSpan: 1,
+        colSpan: 1,
+        type: "text",
+        cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
+      },
+      {
+        items: caseItem.findingsOnExamination,
+        rowSpan: 1,
+        colSpan: 1,
+        type: "orderedList",
+        cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
+      },
+      {
+        content: caseItem.clinicalJudgement,
+        rowSpan: 1,
+        colSpan: 1,
+        type: "text",
+        cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
+      },
+      {
+        items: caseItem.actions,
+        rowSpan: 1,
+        colSpan: 1,
+        type: "orderedList",
+        cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
+      },
+    ]),
+    showCellBorders: true,
+    tableStyle: {},
+    columnCount: 4,
+    forDecisionTree: true,
+  };
+
+  return { upperTable, lowerTable };
 };

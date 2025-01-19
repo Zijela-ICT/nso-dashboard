@@ -151,7 +151,6 @@ function RenderBook({
                 </div>
               ) : (
                 <div
-                  className=""
                   style={{
                     marginLeft: chapter.parentIndex.length * 20,
                   }}

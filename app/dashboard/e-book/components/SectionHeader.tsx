@@ -50,7 +50,7 @@ function SectionHeader({
   ) => {
     const newText = event.currentTarget.textContent || "";
     if (newText !== flattenBookData[elementIndex].data) {
-      updateElementAtPath(newText || "---", elementIndex);
+      updateElementAtPath(newText || "", elementIndex);
     }
   };
 
