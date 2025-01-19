@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "react-query";
 import { QUERYKEYS } from "@/utils/query-keys";
 
 import request from "@/utils/api";
-import { permission } from "process";
 
 type ResponseType = {
   success: boolean;

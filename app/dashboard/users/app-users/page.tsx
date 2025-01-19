@@ -29,7 +29,7 @@ const Page = () => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-2xl">
+    <div className="bg-white p-4 rounded-2xl mt-20">
       <div className="gap-4 flex flex-row items-center w-full mb-3">
         <div className="relative w-full">
           <input
