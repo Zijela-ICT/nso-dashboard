@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Item, TableData, TableHeader } from "../booktypes";
+import { Item, TableData, TableHeader, TableRows } from "../booktypes";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,10 @@ const TableRenderer = ({
 }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
 
-  const renderCell = (cell: TableHeader & Item, isHeader = false) => {
+  const renderCell = (
+    cell: (TableHeader & Item) | (TableRows & Item),
+    isHeader = false
+  ) => {
     const CellComponent = isHeader ? "th" : "td";
     const cellProps = {
       style: {
@@ -33,17 +36,16 @@ const TableRenderer = ({
       rowSpan: cell.rowSpan,
       colSpan: cell.colSpan,
     };
-    if (tableData.fromDecisionTree) {
-      console.log("cell", cell);
-    }
 
     return (
       <CellComponent {...cellProps}>
         {cell.type === "text" && <span>{cell.content as string}</span>}
         {cell.type === "orderedList" && Array.isArray(cell.content) && (
           <ul className="list-decimal pl-2">
-            {(cell.content as string[]).map((text) => (
-              <li className="pl-2">{text}</li>
+            {(cell.content as string[]).map((text, i) => (
+              <li className="pl-2" key={i}>
+                {text}
+              </li>
             ))}
           </ul>
         )}
