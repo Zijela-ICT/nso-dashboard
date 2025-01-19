@@ -15,15 +15,7 @@ import {
   AccordionTrigger,
 } from "../../../../components/ui/accordion";
 import { MultiSelect } from "./MultiSelect";
-import {
-  IAilment,
-  IDecisionTree,
-  Item,
-  ItemTypes,
-  TableData,
-  TableHeader,
-  TableRows,
-} from "../booktypes";
+import { IDecisionTree, ItemTypes } from "../booktypes";
 
 function AddDecisionTreeModal({
   addNewElement,
@@ -580,7 +572,6 @@ function AddDecisionTreeModal({
                                 newHealthEducation.filter((_, n) => n !== index)
                               );
                             }}
-                            disabled={healthEducation.length === 1}
                             className="border border-[#F04438] text-[#F04438] bg-[#FFFBFA] w-[24px] h-[24px] rounded-full flex items-center justify-center"
                           >
                             <Minus />

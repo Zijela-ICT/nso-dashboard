@@ -11,7 +11,6 @@ import {
   Data,
   iPosition,
   iTargetElements,
-  Item,
   Chapter,
   Page,
   SubChapter,
@@ -348,14 +347,20 @@ const useBookMethods = () => {
       updatedFlattenedArr[elementPosition + 1] = {
         ...updatedFlattenedArr[elementPosition + 1],
         data: upperTable,
+        fromDecisionTree: true,
       };
 
       updatedFlattenedArr[elementPosition + 2] = {
         ...updatedFlattenedArr[elementPosition + 2],
         data: lowerTable,
+        fromDecisionTree: true,
       };
-
       updatedFlattenedArr[elementPosition + 3] = {
+        ...updatedFlattenedArr[elementPosition + 3],
+        data: "Health Education",
+        fromDecisionTree: true,
+      };
+      updatedFlattenedArr[elementPosition + 4] = {
         ...updatedFlattenedArr[elementPosition + 3],
         data: {
           type: "orderedList",
@@ -399,8 +404,8 @@ const useBookMethods = () => {
       case 3:
         {
           // Remove subChapter or its page
-          const subChapter =
-            updatedData.book.content[chapterIndex].subChapters[rest[0]];
+          // const subChapter =
+          //   updatedData.book.content[chapterIndex].subChapters[rest[0]];
           if (typeof flattenedArr[elementIndex].data === "string") {
             // Remove entire subChapter
             updatedData.book.content[chapterIndex].subChapters[
@@ -484,7 +489,9 @@ const useBookMethods = () => {
     try {
       const url = await getUploadFileUrl(file);
       handleUpdate({ newFileUrl: url }, id);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleUpdate = async (data, id) => {
@@ -492,7 +499,9 @@ const useBookMethods = () => {
       await updateEbooks(data, id);
       getEbooks();
       showToast("book updated successfully");
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   async function createNewBook() {
@@ -562,6 +571,7 @@ const useBookMethods = () => {
           ].version.toString()
       );
     } catch (error) {
+      console.log(error);
     } finally {
       setFetchingVersion(false);
     }
@@ -571,7 +581,9 @@ const useBookMethods = () => {
     try {
       const bookData = (await getFile(url)) as Data;
       setData(bookData);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {

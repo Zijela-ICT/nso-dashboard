@@ -4,7 +4,6 @@ import {
   FlattenedObj,
   IDecisionTree,
   Item,
-  LinkableContent,
   TableData,
 } from "../booktypes";
 import { generateRandomString, getLocalizedText } from "../helpers";

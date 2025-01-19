@@ -627,6 +627,13 @@ export const handleCreateNewElement = (
         parentIndex: newPath3,
       });
       updatedFlattenedArr.splice(elementIndex + 4, 0, {
+        data: {
+          type: "heading2",
+          content: "Health Education",
+        },
+        parentIndex: newPath3,
+      });
+      updatedFlattenedArr.splice(elementIndex + 5, 0, {
         data: createNewItem(
           "orderedList",
           newItemKey,
@@ -655,8 +662,16 @@ export const generateTablesFromDecisionTree = (
     type: "table",
     headers: [
       [
-        { content: "HISTORY", type: "text" },
-        { content: "EXAMINATIONS/ACTIONS", type: "text" },
+        {
+          content: "HISTORY",
+          type: "text",
+          cellStyle: { backgroundColor: "#0CA554", color: "white" },
+        },
+        {
+          content: "EXAMINATIONS/ACTIONS",
+          type: "text",
+          cellStyle: { backgroundColor: "#0CA554", color: "white" },
+        },
       ],
     ],
     rows: [
@@ -664,10 +679,12 @@ export const generateTablesFromDecisionTree = (
         {
           content: history,
           type: "orderedList",
+          cellStyle: { backgroundColor: "#FFFAEB", color: "black" },
         },
         {
           content: examinationsActions,
           type: "orderedList",
+          cellStyle: { backgroundColor: "#FFFAEB", color: "black" },
         },
       ],
     ],
@@ -693,24 +710,28 @@ export const generateTablesFromDecisionTree = (
         rowSpan: 1,
         colSpan: 1,
         type: "text",
+        cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
       },
       {
         content: caseItem.findingsOnExamination,
         rowSpan: 1,
         colSpan: 1,
         type: "orderedList",
+        cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
       },
       {
         content: caseItem.clinicalJudgement,
         rowSpan: 1,
         colSpan: 1,
         type: "text",
+        cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
       },
       {
         content: caseItem.actions,
         rowSpan: 1,
         colSpan: 1,
         type: "orderedList",
+        cellStyle: { backgroundColor: "#ECFDF3", color: "black" },
       },
     ]),
     showCellBorders: true,

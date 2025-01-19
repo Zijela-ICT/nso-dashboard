@@ -168,7 +168,7 @@ export interface FlattenedData {
 export interface TableHeader extends Item {
   rowSpan?: number;
   colSpan?: number;
-  cellStyle?: object;
+  cellStyle?: Record<string, string>;
 }
 
 export interface TableRows {
