@@ -50,7 +50,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             />
           </button>
         )}
-        {errorMessage && <p className="text-[#F97066] text-xs absolute bottom-[-1rem]">{errorMessage}</p>}
+        {errorMessage && <p className="text-[#F97066] text-xs bottom-[-1rem]">{errorMessage}</p>}
       </div>
     );
   }
