@@ -45,7 +45,7 @@ const Page = () => {
         </div>
         <div className="flex flex-row items-center gap-4 mt-4">
           {hasPermission(SystemPermissions.DELETE_ADMIN_FACILITIES) && (
-            <Button className="bg-[#FEF3F2] border border-[#F04438] w-fit text-[#912018]" onClick={() => setDeleteModal(true)}>
+            <Button className="bg-[#FEF3F2] border border-[#F04438] w-fit text-[#912018] hover:bg-[#FEF3F2]" onClick={() => setDeleteModal(true)}>
               Delete facility
               <Icon
                 name="trash-2"
@@ -109,7 +109,7 @@ const Page = () => {
         openModal={deleteModal}
         setOpenModal={setDeleteModal}
         header="Delete Facility"
-        subText={`Are you sure you want to delete this ${facility?.name}?`}
+        subText={`Are you sure you want to delete ${facility?.name}?`}
         loading={isLoadingDelete}
         handleConfirm={() => {
           mutateDelete(
