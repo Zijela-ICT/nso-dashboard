@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     AlertDialog,
     AlertDialogContent,
@@ -28,8 +29,8 @@ import {
       status: string | null;
       location: string;
       contact: string;
-      longitude: string;
-      latitude: string;
+      longitude: any;
+      latitude: any;
       address: string;
     };
   }
@@ -62,7 +63,17 @@ import {
   }: EditFacilityModalProps) => {
     const { mutate, isLoading } = useUpdateFacility();
   
-    const formik = useFormik({
+    const formik = useFormik<{
+      name: string;
+      facilityType: "public" | "private" | string;
+      status: "active" | "inactive" | string;
+      careLevel: "primary" | "secondary" | "tertiary" | string;
+      location: "rural" | "urban" | string;
+      address: string;
+      longitude: number;
+      latitude: number;
+      contact: string;
+    }>({
       initialValues: {
         name: "",
         facilityType: "",
