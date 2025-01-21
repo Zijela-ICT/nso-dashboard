@@ -27,7 +27,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui";
-import { getEbookVersion } from "@/utils/book.services";
 
 function Ebook() {
   const {
@@ -39,7 +38,6 @@ function Ebook() {
     updateElementAtPath,
     data,
     setShowDropdown,
-    book,
     handleFileUpload,
     exportToJson,
     createNewItem,
@@ -60,7 +58,6 @@ function Ebook() {
   const hasEditAccess = useMemo(() => {
     return !!currentBook?.editors.find((u) => u.id === user?.data?.id);
   }, [currentBook, user]);
-  console.log("flattenBookData", flattenBookData);
 
   useEffect(() => {
     if (!isEditting) {

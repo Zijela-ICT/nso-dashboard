@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Data,
   FlattenedObj,
@@ -16,6 +16,8 @@ import AddDecisionTreeModal from "./AddDecisiontreeModal";
 import { useBookContext } from "../context/bookContext";
 import ImageRenderer from "./ImageRenderer";
 import { groupClass } from "@/constants";
+import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
 
 interface NestedListItem {
   content: string | NestedContent[];
@@ -51,10 +53,15 @@ function PageItems({
   createNewItem: (type: string, newItemKey: string) => void;
 }) {
   const { isEditting } = useBookContext();
+  const searchParams = useSearchParams();
+  const hashId = searchParams.get("hashId");
   const itemData = items[0].data as Item;
   const itemPath = items[0].dataPath;
   const contentRef = useRef<HTMLParagraphElement | null>(null);
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
+  const myRef = useRef<HTMLDivElement>(null);
+
+  const itemID = `item-${items[0].parentIndex.join("-")}`;
 
   const handleInputChange = (
     event: React.FormEvent<HTMLDivElement>,
@@ -83,6 +90,15 @@ function PageItems({
     listItems.splice(e, 1);
     handleInputChange(null, listItems);
   };
+
+  useEffect(() => {
+    if (hashId === itemID) {
+      const element = document.getElementById(hashId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [hashId, itemID]);
 
   if (!items[0] || !itemData) return <></>;
 
@@ -213,12 +229,23 @@ function PageItems({
     }
     return items.map((item, index) => {
       let element;
-      if (itemData?.type === "text") {
+      if (
+        itemData?.type === "text" ||
+        itemData.type === "heading2" ||
+        itemData.type === "heading3" ||
+        itemData.type === "heading4"
+      ) {
+        const classses = `w-[100%] ${groupClass}`;
         element = (
           <p
             ref={contentRef}
             key={index}
-            className={`text-[14px] w-[100%] ${groupClass}`}
+            className={clsx(classses, {
+              "text-[14px]": itemData.type === "text",
+              "text-[18px]": itemData.type === "heading4",
+              "text-[20px]": itemData.type === "heading3",
+              "text-[24px]": itemData.type === "heading2",
+            })}
             contentEditable={isEditting}
             suppressContentEditableWarning={true}
             style={{ lineHeight: "160%" }}
@@ -335,7 +362,7 @@ function PageItems({
               <div className="flex justify-end mb-2">
                 <Button
                   onClick={() => setEdittingDecisionTree(true)}
-                  className="mb-2 border-[#0CA554] text-[#0CA554] hidden group-hover:flex"
+                  className="mb-2 border-[#0CA554] text-[#0CA554]"
                   variant="outline"
                 >
                   Edit decision tree
@@ -398,7 +425,17 @@ function PageItems({
     });
   };
 
-  return <div className="text-[#344054] font-light">{renderItems(items)}</div>;
+  return (
+    <div
+      className={clsx("text-[#344054] font-light p-1", {
+        "bg-[#afe9c5] animate-pulse": hashId === itemID,
+      })}
+      id={itemID}
+      ref={myRef}
+    >
+      {renderItems(items)}
+    </div>
+  );
 }
 
 export default PageItems;

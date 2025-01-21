@@ -47,7 +47,7 @@ export function flattenArrayOfObjects(
   arr: (object | string | number | boolean | null)[],
   parentIndex: number[] = []
 ): FlattenedObj[] {
-  return arr.flatMap((item, index) => {
+  return arr?.flatMap((item, index) => {
     const currentParentIndex = [...parentIndex, index];
 
     if (Array.isArray(item)) {
@@ -90,17 +90,17 @@ export function flattenArrayOfObjects(
       if (Array.isArray(typedItem.subChapters)) {
         typedItem.subChapters.forEach((subChapter, subIndex) => {
           // Add subChapter title
-          if (subChapter.subChapterTitle !== undefined) {
+          if (subChapter?.subChapterTitle !== undefined) {
             results.push({
-              data: subChapter.subChapterTitle as string,
+              data: subChapter?.subChapterTitle as string,
               parentIndex: [...currentParentIndex, subIndex],
             });
           }
 
           // Add subChapter pages
-          if (Array.isArray(subChapter.pages)) {
+          if (Array.isArray(subChapter?.pages)) {
             results.push(
-              ...flattenArrayOfObjects(subChapter.pages[0].items, [
+              ...flattenArrayOfObjects(subChapter?.pages[0].items, [
                 ...currentParentIndex,
                 subIndex,
               ])
@@ -108,8 +108,8 @@ export function flattenArrayOfObjects(
           }
 
           // Handle subSubChapters
-          if (Array.isArray(subChapter.subSubChapters)) {
-            subChapter.subSubChapters.forEach((subSubChapter, subSubIndex) => {
+          if (Array.isArray(subChapter?.subSubChapters)) {
+            subChapter?.subSubChapters.forEach((subSubChapter, subSubIndex) => {
               // Add subSubChapter title if it exists
               if (subSubChapter?.subSubChapterTitle !== undefined) {
                 results.push({
@@ -236,7 +236,7 @@ export function unflattenArrayOfObjects(
         }
 
         if (typeof data === "string") {
-          if (!subChapter.subSubChapters[rest[1]]) {
+          if (!subChapter?.subSubChapters[rest[1]]) {
             subChapter.subSubChapters[rest[1]] = {
               subSubChapterTitle: data,
               pages: [
@@ -329,6 +329,7 @@ export const createNewItem = (
       newItem = {
         type,
         content: newItemKey || "New text item",
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     case "unorderedList": {
@@ -349,6 +350,7 @@ export const createNewItem = (
       newItem = {
         type,
         items,
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     }
@@ -358,6 +360,7 @@ export const createNewItem = (
         type,
         src: data.image as string,
         alt: `${newItemKey}_alt`,
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     }
@@ -367,6 +370,7 @@ export const createNewItem = (
       newItem = {
         type: type,
         content: newItemKey,
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     case "table": {
@@ -486,7 +490,7 @@ export const handleCreateNewElement = (
 
   if (element_Index === undefined) return;
 
-  const flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
+  let flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
     updatedData.book.content
   );
   const elementIndex = element_Index;
@@ -544,7 +548,9 @@ export const handleCreateNewElement = (
           ...item,
           parentIndex: [
             ...currentPath.slice(0, -1),
-            currentPath[currentPath.length - 1] + type === "decision" ? 3 : 1, // move 3 places for decision trees else just 1
+            type === "decision"
+              ? currentPath[currentPath.length - 1] + 4
+              : currentPath[currentPath.length - 1] + 1, // move 3 places for decision trees else just 1
           ],
         };
       }
@@ -562,6 +568,7 @@ export const handleCreateNewElement = (
       const newPath2 = [...path.slice(0, -1), path[path.length - 1] + 2];
       const newPath3 = [...path.slice(0, -1), path[path.length - 1] + 3];
       const newPath4 = [...path.slice(0, -1), path[path.length - 1] + 4];
+      const newPath5 = [...path.slice(0, -1), path[path.length - 1] + 5];
       const { upperTable, lowerTable } = generateTablesFromDecisionTree(
         createData as IDecisionTree
       );
@@ -577,8 +584,9 @@ export const handleCreateNewElement = (
         data: {
           type: "heading2",
           content: "Health Education",
+          forDecisionTree: true,
         },
-        parentIndex: newPath3,
+        parentIndex: newPath4,
       });
       updatedFlattenedArr.splice(elementIndex + 5, 0, {
         data: createNewItem(
@@ -587,17 +595,15 @@ export const handleCreateNewElement = (
           createData.healthEducation,
           true
         ),
-        parentIndex: newPath4,
+        parentIndex: newPath5,
       });
     }
 
     // Reconstruct the book content
     unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
-    console.log("unflattendContent", unflattendContent);
-    console.log("updatedFlattenedArr", updatedFlattenedArr);
-
-    return whatType === "flat" ? updatedFlattenedArr : unflattendContent;
+    flattenedArr = updatedFlattenedArr;
   }
+  return whatType === "flat" ? flattenedArr : unflattendContent;
 };
 
 export const generateTablesFromDecisionTree = (

@@ -80,57 +80,6 @@ const useBookMethods = () => {
     useState<boolean>(false);
   const [showLinkableModal, setShowLinkableModal] = useState<boolean>(false);
 
-  useEffect(() => {
-    const a = [
-      {
-        chapter: "chapter title",
-        subChapters: [
-          {
-            subSubChapters: [
-              {
-                pages: [
-                  {
-                    pageTitle: "new page title",
-                    items: [
-                      {
-                        type: "text",
-                        content: "this is the text content in the page page!",
-                      },
-                    ],
-                  },
-                ],
-                subSubChapterTitle: "sub sub title",
-              },
-            ],
-            subChapterTitle: "sub chapter title",
-            pages: [
-              {
-                pageTitle: "",
-                items: [
-                  {
-                    type: "text",
-                    content:
-                      "this is the text content in the sub chapter level",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-        pages: [
-          {
-            pageTitle: "new page title",
-            items: [
-              {
-                type: "text",
-                content: "this is the text content in the chapter level",
-              },
-            ],
-          },
-        ],
-      },
-    ];
-  }, []);
   const handleFileUpload = async (file: File | undefined) => {
     if (!file) {
       return;
@@ -308,6 +257,8 @@ const useBookMethods = () => {
       updatedData,
       "un_flat"
     );
+    console.log("unflattendContent", unflattendContent);
+
     if (returnData) {
       return unflattendContent;
     }
