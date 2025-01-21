@@ -8,70 +8,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  approveEbook,
-  getEbookVersion,
-  getFile,
-  unApproveEbook,
-} from "@/utils/book.services";
-import {
-  Data,
-  FlattenedObj,
-  iContent,
-  IDecisionTree,
-  Linkable,
-} from "../booktypes";
+import { getEbookVersion, getFile } from "@/utils/book.services";
+import { Data, FlattenedObj } from "../booktypes";
 import RenderBook from "../components/RenderBook";
 import { flattenArrayOfObjects } from "../helpers";
-import { Badge, Button } from "@/components/ui";
 import { Loader2 } from "lucide-react";
-import { showToast } from "@/utils/toast";
-import { useFetchProfile } from "@/hooks/api/queries/settings";
+import { VersionData } from "../approval/page";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Badge, Button } from "@/components/ui";
+// import PageItems from "../components/PageItems";
 import Link from "next/link";
 
-export interface VersionData {
-  id: number;
-  version: number;
-  status: "PUBLISHED" | "DRAFT";
-  fileUrl: string;
-  difference: {
-    index: number;
-    item: {
-      kind: string;
-      lhs: iContent | Linkable | IDecisionTree | string[] | string;
-    };
-    rhs: string;
-    kind: string;
-    path: string[];
-  }[];
-  approvedAt: string;
-  createdAt: string;
-}
-function ApprovalPage() {
+function DifferencesPage() {
   const { data: ebooks } = useEBooks();
-  const { data: user } = useFetchProfile();
   const [currentBookID, setCurrentBookID] = useState<string | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
   const [currentVersionDetails, setCurrentVersionDetails] =
     useState<VersionData | null>(null);
   const [loadingBook, setLoadingBook] = useState(false);
-  const [approving, setApproving] = useState(false);
-  const [unApproving, setUnApproving] = useState(false);
   const [data, setData] = useState<Data | null>(null);
+  const [count, setCount] = useState<number>(0);
 
   const currentBook: IChprbnBook | undefined = useMemo(() => {
     return ebooks?.find((b) => b.id.toString() === currentBookID) || undefined;
-  }, [currentBookID]);
-
-  const hasApprovalAccess = useMemo(() => {
-    return !!currentBook?.approvers.find((u) => u.id === user?.data?.id);
-  }, [currentBook, user]);
+  }, [currentBookID, ebooks]);
 
   const getCurrentBookVersion = async (id: string, version: string | null) => {
     if (id) {
@@ -82,6 +47,7 @@ function ApprovalPage() {
         downloadBook(res.data.fileUrl);
       } catch (error) {
         console.log(error);
+
         setLoadingBook(false);
       }
     }
@@ -101,39 +67,6 @@ function ApprovalPage() {
   const flattenBookData: FlattenedObj[] = useMemo(() => {
     return flattenArrayOfObjects(data ? data?.book?.content : []);
   }, [data?.book]);
-
-  const currentVersionID: number | null = useMemo(() => {
-    const whichBook = ebooks?.find((b) => b.id === Number(currentBookID));
-    const whichID = whichBook
-      ? whichBook?.versions.find((v) => v.version === Number(currentVersion))
-          ?.id
-      : null;
-    return whichID;
-  }, [ebooks, currentBookID, currentVersion]);
-
-  const approveVersion = async () => {
-    setApproving(true);
-    try {
-      await approveEbook(currentVersionID);
-      showToast("Approval successful");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setApproving(false);
-    }
-  };
-
-  const unApproveVersion = async () => {
-    setUnApproving(true);
-    try {
-      await unApproveEbook(currentVersionID);
-      showToast("Un approval successful");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setUnApproving(false);
-    }
-  };
 
   function generatePathString(pathArray) {
     const pathMap = {
@@ -219,7 +152,7 @@ function ApprovalPage() {
         </div>
       ) : (
         <div className="flex relative">
-          <div className="mr-[20px]">
+          <div className="mr-[20px]" key={count}>
             <RenderBook
               flattenBookData={flattenBookData}
               data={data}
@@ -228,40 +161,8 @@ function ApprovalPage() {
               foldBook={false}
             />
           </div>
-          <div className="w-[280px] mt-[40px] fixed right-4 top-8 overflow-hidden h-[80vh]">
-            {currentBookID && (
-              <div className="flex justify-end gap-2">
-                {currentVersionDetails?.status === "PUBLISHED" ? (
-                  <Button
-                    className="w-fit h-[40px]"
-                    onClick={unApproveVersion}
-                    disabled={
-                      !currentVersion || !hasApprovalAccess || approving
-                    }
-                    isLoading={unApproving}
-                    variant="outline"
-                  >
-                    {hasApprovalAccess
-                      ? "Un-approve"
-                      : "You do not have access to approve this book"}
-                  </Button>
-                ) : (
-                  <Button
-                    className="w-fit h-[40px]"
-                    onClick={approveVersion}
-                    disabled={
-                      !currentVersion || !hasApprovalAccess || unApproving
-                    }
-                    isLoading={approving}
-                  >
-                    {hasApprovalAccess
-                      ? "Approve"
-                      : "You do not have access to approve this book"}
-                  </Button>
-                )}
-              </div>
-            )}
-            <div className="absolute top-12 left-0 w-full bg-white p-4">
+          <div className="w-[280px] mt-[110px] fixed right-4 top-3 overflow-hidden h-[80vh]">
+            <div className="absolute top-0 left-0 w-full bg-white p-4">
               Changes
             </div>
             <div className="h-full overflow-y-auto w-full mt-[50px]">
@@ -324,7 +225,12 @@ function ApprovalPage() {
                           <Link
                             href={`?hashId=item-${path.join("-")}${pathEnding}`}
                           >
-                            <Button size="sm">Visit element</Button>
+                            <Button
+                              size="sm"
+                              onClick={() => setCount(count + 1)}
+                            >
+                              Visit element
+                            </Button>
                           </Link>
                         </div>
                       </AccordionContent>
@@ -340,4 +246,4 @@ function ApprovalPage() {
   );
 }
 
-export default ApprovalPage;
+export default DifferencesPage;

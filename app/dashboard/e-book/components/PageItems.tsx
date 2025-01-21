@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Data,
   FlattenedObj,
@@ -16,6 +16,8 @@ import AddDecisionTreeModal from "./AddDecisiontreeModal";
 import { useBookContext } from "../context/bookContext";
 import ImageRenderer from "./ImageRenderer";
 import { groupClass } from "@/constants";
+import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
 
 interface NestedListItem {
   content: string | NestedContent[];
@@ -51,10 +53,15 @@ function PageItems({
   createNewItem: (type: string, newItemKey: string) => void;
 }) {
   const { isEditting } = useBookContext();
+  const searchParams = useSearchParams();
+  const hashId = searchParams.get("hashId");
   const itemData = items[0].data as Item;
   const itemPath = items[0].dataPath;
   const contentRef = useRef<HTMLParagraphElement | null>(null);
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
+  const myRef = useRef<HTMLDivElement>(null);
+
+  const itemID = `item-${items[0].parentIndex.join("-")}`;
 
   const handleInputChange = (
     event: React.FormEvent<HTMLDivElement>,
@@ -83,6 +90,15 @@ function PageItems({
     listItems.splice(e, 1);
     handleInputChange(null, listItems);
   };
+
+  useEffect(() => {
+    if (hashId === itemID) {
+      const element = document.getElementById(hashId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [hashId, itemID]);
 
   if (!items[0] || !itemData) return <></>;
 
@@ -398,7 +414,17 @@ function PageItems({
     });
   };
 
-  return <div className="text-[#344054] font-light">{renderItems(items)}</div>;
+  return (
+    <div
+      className={clsx("text-[#344054] font-light p-1", {
+        "bg-[#afe9c5] animate-pulse": hashId === itemID,
+      })}
+      id={itemID}
+      ref={myRef}
+    >
+      {renderItems(items)}
+    </div>
+  );
 }
 
 export default PageItems;

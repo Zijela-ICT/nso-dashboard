@@ -21,6 +21,7 @@ function RenderBook({
   currentBook,
   canEdit = true,
   bookInfo,
+  foldBook = true,
 }: {
   flattenBookData: FlattenedObj[];
   data: Data;
@@ -34,12 +35,16 @@ function RenderBook({
   saveBookUpdates?: (e, f) => void;
   canEdit?: boolean;
   bookInfo?: IChprbnBook;
+  foldBook?: boolean;
 }) {
   const { isEditting } = useBookContext();
   const params = useParams();
   const [foldedSection, setFoldedSection] = useState<Array<number[]>>([]);
 
   useEffect(() => {
+    if (!foldBook) {
+      return;
+    }
     const indices = flattenBookData.map((b) => b.parentIndex);
     if (!isEditting) {
       setFoldedSection(indices);
@@ -112,6 +117,7 @@ function RenderBook({
         {flattenBookData.map((chapter, index) => {
           const isHeader = typeof chapter.data === "string";
           const indices = [...chapter.parentIndex];
+          const itemID = `item-${chapter.parentIndex.join("-")}`;
           indices.pop();
           if (parentFolded(indices)) {
             return null;
@@ -120,6 +126,7 @@ function RenderBook({
             <div key={index} className="container mx-auto">
               {isHeader ? (
                 <div
+                  id={itemID}
                   style={{
                     marginLeft: chapter.parentIndex.length * 20,
                   }}

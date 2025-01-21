@@ -58,7 +58,6 @@ function Ebook() {
   const hasEditAccess = useMemo(() => {
     return !!currentBook?.editors.find((u) => u.id === user?.data?.id);
   }, [currentBook, user]);
-  console.log("flattenBookData", flattenBookData);
 
   useEffect(() => {
     if (!isEditting) {

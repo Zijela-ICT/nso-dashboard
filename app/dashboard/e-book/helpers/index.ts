@@ -47,7 +47,7 @@ export function flattenArrayOfObjects(
   arr: (object | string | number | boolean | null)[],
   parentIndex: number[] = []
 ): FlattenedObj[] {
-  return arr.flatMap((item, index) => {
+  return arr?.flatMap((item, index) => {
     const currentParentIndex = [...parentIndex, index];
 
     if (Array.isArray(item)) {
@@ -90,17 +90,17 @@ export function flattenArrayOfObjects(
       if (Array.isArray(typedItem.subChapters)) {
         typedItem.subChapters.forEach((subChapter, subIndex) => {
           // Add subChapter title
-          if (subChapter.subChapterTitle !== undefined) {
+          if (subChapter?.subChapterTitle !== undefined) {
             results.push({
-              data: subChapter.subChapterTitle as string,
+              data: subChapter?.subChapterTitle as string,
               parentIndex: [...currentParentIndex, subIndex],
             });
           }
 
           // Add subChapter pages
-          if (Array.isArray(subChapter.pages)) {
+          if (Array.isArray(subChapter?.pages)) {
             results.push(
-              ...flattenArrayOfObjects(subChapter.pages[0].items, [
+              ...flattenArrayOfObjects(subChapter?.pages[0].items, [
                 ...currentParentIndex,
                 subIndex,
               ])
@@ -108,8 +108,8 @@ export function flattenArrayOfObjects(
           }
 
           // Handle subSubChapters
-          if (Array.isArray(subChapter.subSubChapters)) {
-            subChapter.subSubChapters.forEach((subSubChapter, subSubIndex) => {
+          if (Array.isArray(subChapter?.subSubChapters)) {
+            subChapter?.subSubChapters.forEach((subSubChapter, subSubIndex) => {
               // Add subSubChapter title if it exists
               if (subSubChapter?.subSubChapterTitle !== undefined) {
                 results.push({
@@ -236,7 +236,7 @@ export function unflattenArrayOfObjects(
         }
 
         if (typeof data === "string") {
-          if (!subChapter.subSubChapters[rest[1]]) {
+          if (!subChapter?.subSubChapters[rest[1]]) {
             subChapter.subSubChapters[rest[1]] = {
               subSubChapterTitle: data,
               pages: [

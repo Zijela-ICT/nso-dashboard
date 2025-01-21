@@ -1,10 +1,6 @@
 "use client";
 import {
   Badge,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Icon,
   Table,
   TableBody,
@@ -24,9 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useFetchDecisions } from "@/hooks/api/queries/users/useFetchDecisions";
-import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
-import { Filter, SortAsc } from "lucide-react";
 import React, { useState } from "react";
 import FilterIcon from "@/assets/icons/filter.svg";
 import SortIcon from "@/assets/icons/sort.svg";
@@ -104,7 +98,7 @@ function Decisions() {
                         </DialogHeader>
                         <div className="border-t border-[#EAECF0] pt-8 mt-2">
                           {user.decisionDetails.diagnosis
-                            .filter((n) => typeof n === "string")
+                            ?.filter((n) => typeof n === "string")
                             .map((item, i) => (
                               <div className="mb-4" key={i}>
                                 <p className="text-[#101828] text-[16px] mb-2 font-medium">
@@ -122,7 +116,7 @@ function Decisions() {
                                 Patient ID
                               </p>
                               <div className="p-4 border border-[#F2F4F7] bg-[#FCFCFD] rounded-[8px]">
-                                {user.patientDetails.id || "---"}
+                                {user?.patientDetails?.id || "---"}
                               </div>
                             </div>
                             <div className="w-full">
@@ -130,7 +124,7 @@ function Decisions() {
                                 Patient Age
                               </p>
                               <div className="p-4 border border-[#F2F4F7] bg-[#FCFCFD] rounded-[8px]">
-                                {user.patientDetails.age} years
+                                {user?.patientDetails?.age} years
                               </div>
                             </div>
                           </div>
