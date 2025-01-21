@@ -329,6 +329,7 @@ export const createNewItem = (
       newItem = {
         type,
         content: newItemKey || "New text item",
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     case "unorderedList": {
@@ -349,6 +350,7 @@ export const createNewItem = (
       newItem = {
         type,
         items,
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     }
@@ -358,6 +360,7 @@ export const createNewItem = (
         type,
         src: data.image as string,
         alt: `${newItemKey}_alt`,
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     }
@@ -367,6 +370,7 @@ export const createNewItem = (
       newItem = {
         type: type,
         content: newItemKey,
+        forDecisionTree: forDecisionTree || false,
       };
       break;
     case "table": {
@@ -545,7 +549,7 @@ export const handleCreateNewElement = (
           parentIndex: [
             ...currentPath.slice(0, -1),
             type === "decision"
-              ? currentPath[currentPath.length - 1] + 3
+              ? currentPath[currentPath.length - 1] + 4
               : currentPath[currentPath.length - 1] + 1, // move 3 places for decision trees else just 1
           ],
         };
@@ -564,6 +568,7 @@ export const handleCreateNewElement = (
       const newPath2 = [...path.slice(0, -1), path[path.length - 1] + 2];
       const newPath3 = [...path.slice(0, -1), path[path.length - 1] + 3];
       const newPath4 = [...path.slice(0, -1), path[path.length - 1] + 4];
+      const newPath5 = [...path.slice(0, -1), path[path.length - 1] + 5];
       const { upperTable, lowerTable } = generateTablesFromDecisionTree(
         createData as IDecisionTree
       );
@@ -579,8 +584,9 @@ export const handleCreateNewElement = (
         data: {
           type: "heading2",
           content: "Health Education",
+          forDecisionTree: true,
         },
-        parentIndex: newPath3,
+        parentIndex: newPath4,
       });
       updatedFlattenedArr.splice(elementIndex + 5, 0, {
         data: createNewItem(
@@ -589,7 +595,7 @@ export const handleCreateNewElement = (
           createData.healthEducation,
           true
         ),
-        parentIndex: newPath4,
+        parentIndex: newPath5,
       });
     }
 

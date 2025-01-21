@@ -229,12 +229,23 @@ function PageItems({
     }
     return items.map((item, index) => {
       let element;
-      if (itemData?.type === "text") {
+      if (
+        itemData?.type === "text" ||
+        itemData.type === "heading2" ||
+        itemData.type === "heading3" ||
+        itemData.type === "heading4"
+      ) {
+        const classses = `w-[100%] ${groupClass}`;
         element = (
           <p
             ref={contentRef}
             key={index}
-            className={`text-[14px] w-[100%] ${groupClass}`}
+            className={clsx(classses, {
+              "text-[14px]": itemData.type === "text",
+              "text-[18px]": itemData.type === "heading4",
+              "text-[20px]": itemData.type === "heading3",
+              "text-[24px]": itemData.type === "heading2",
+            })}
             contentEditable={isEditting}
             suppressContentEditableWarning={true}
             style={{ lineHeight: "160%" }}
