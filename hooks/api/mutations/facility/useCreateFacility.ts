@@ -34,7 +34,7 @@ const CreateFacility = (
       careLevel: input.careLevel,
       status: input.status,
       location: input.location,
-      //   contact: input.contact,
+      contact: input.contact,
       longitude: input.longitude,
       latitude: input.latitude,
       address: input.address
