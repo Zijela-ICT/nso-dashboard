@@ -47,7 +47,7 @@ export function flattenArrayOfObjects(
   arr: (object | string | number | boolean | null)[],
   parentIndex: number[] = []
 ): FlattenedObj[] {
-  return arr?.flatMap((item, index) => {
+  const result = arr?.flatMap((item, index) => {
     const currentParentIndex = [...parentIndex, index];
 
     if (Array.isArray(item)) {
@@ -173,6 +173,31 @@ export function flattenArrayOfObjects(
       ];
     }
   });
+  return result.map((res, i) => {
+    if (
+      res.data &&
+      typeof res?.data === "object" &&
+      "type" in res.data &&
+      res?.data?.type === "decision"
+    ) {
+      const next1 = result[i + 1]?.data as unknown as Item;
+      const next2 = result[i + 2]?.data as unknown as Item;
+      const next3 = result[i + 3]?.data as unknown as Item;
+      const next4 = result[i + 4]?.data as unknown as Item;
+      if (
+        !next1?.forDecisionTree ||
+        !next2?.forDecisionTree ||
+        !next3?.forDecisionTree ||
+        !next4?.forDecisionTree
+      ) {
+        return {
+          ...res,
+          needsFixing: true,
+        };
+      }
+    }
+    return res;
+  });
 }
 
 export function unflattenArrayOfObjects(
@@ -257,6 +282,8 @@ export function unflattenArrayOfObjects(
       case 4:
         {
           const targetSubChapter = chapter.subChapters[rest[0]];
+          console.log("targetSubChapter", targetSubChapter);
+
           if (
             !targetSubChapter.subSubChapters[rest[1]] ||
             !targetSubChapter.subSubChapters[rest[1]].pages
@@ -489,6 +516,7 @@ export const handleCreateNewElement = (
   const updatedData = { ...data };
 
   if (element_Index === undefined) return;
+  console.log("updatedData.book.content", updatedData.book.content);
 
   let flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
     updatedData.book.content
@@ -502,6 +530,8 @@ export const handleCreateNewElement = (
     : itemAtIndex.parentIndex;
   const newItemKey = `here is some new text content`;
   let unflattendContent: Chapter[] = null;
+  console.log("flattenedArr", flattenedArr);
+
   if (
     type === "listitem" &&
     typeof flattenedArr[elementIndex].data === "object" &&

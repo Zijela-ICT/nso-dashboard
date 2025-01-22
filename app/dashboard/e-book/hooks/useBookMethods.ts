@@ -27,11 +27,11 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
 import { useEffect, useMemo, useState } from "react";
-import { useUpload } from "@/hooks/upload";
 import { getEbookVersion, getFile, updateEbooks } from "@/utils/book.services";
 import useEBooks from "./useEBooks";
 import { useParams } from "next/navigation";
 import { showToast } from "@/utils/toast";
+import { useBookContext } from "../context/bookContext";
 
 function isChapter(
   item: Chapter | Page | SubChapter | SubSubChapter
@@ -58,9 +58,9 @@ function isPage(
 }
 
 const useBookMethods = () => {
+  const { setSavingBook } = useBookContext();
   const { data: ebooks, mutation, refetch: getEbooks, isLoading } = useEBooks();
   const params = useParams<{ id: string }>();
-  const getUploadFileUrl = useUpload();
   const filename = "/sample-book.json";
   const [bookVersion, setBookVersion] = useState<string>("");
   const [data, setData] = useState<Data | null>(null);
@@ -318,6 +318,67 @@ const useBookMethods = () => {
     setData(updatedData);
   };
 
+  const fixDecisionTree = (createData: IDecisionTree, elementIndex: number) => {
+    const updatedData = { ...data };
+    let updatedFlattenedArr: FlattenedObj[] = flattenArrayOfObjects(
+      updatedData.book.content
+    );
+    const itemAtIndex = updatedFlattenedArr[elementIndex];
+    const path = itemAtIndex.parentIndex;
+
+    updatedFlattenedArr = updatedFlattenedArr.map((item) => {
+      const currentPath = item.parentIndex;
+      if (
+        currentPath.length === path.length &&
+        currentPath.slice(0, -1).every((val, i) => val === path[i]) &&
+        currentPath[currentPath.length - 1] > path[path.length - 1] &&
+        typeof item.data !== "string"
+      ) {
+        return {
+          ...item,
+          parentIndex: [
+            ...currentPath.slice(0, -1),
+            currentPath[currentPath.length - 1] + 4,
+          ],
+        };
+      }
+      return item;
+    });
+
+    const newPath2 = [...path.slice(0, -1), path[path.length - 1] + 2];
+    const newPath3 = [...path.slice(0, -1), path[path.length - 1] + 3];
+    const newPath4 = [...path.slice(0, -1), path[path.length - 1] + 4];
+    const newPath5 = [...path.slice(0, -1), path[path.length - 1] + 5];
+    const { upperTable, lowerTable } = generateTablesFromDecisionTree(
+      createData as IDecisionTree
+    );
+
+    updatedFlattenedArr.splice(elementIndex + 2, 0, {
+      data: createNewItem("table", "new table", upperTable),
+      parentIndex: newPath2,
+    });
+    updatedFlattenedArr.splice(elementIndex + 3, 0, {
+      data: createNewItem("table", "new table", lowerTable),
+      parentIndex: newPath3,
+    });
+    updatedFlattenedArr.splice(elementIndex + 4, 0, {
+      data: {
+        type: "heading2",
+        content: "Health Education",
+        forDecisionTree: true,
+      },
+      parentIndex: newPath4,
+    });
+    updatedFlattenedArr.splice(elementIndex + 5, 0, {
+      data: createNewItem("orderedList", "", createData.healthEducation, true),
+      parentIndex: newPath5,
+    });
+
+    const unflattenArray = unflattenArrayOfObjects(updatedFlattenedArr);
+    updatedData.book.content = unflattenArray;
+    setData(updatedData);
+  };
+
   const removeElement = (element_index?: number) => {
     const updatedData = { ...data };
     const flattenedArr = flattenArrayOfObjects(updatedData.book.content);
@@ -403,7 +464,9 @@ const useBookMethods = () => {
   const { book, locales } = useMemo(() => data, [data]) || {};
 
   const flattenBookData: FlattenedObj[] = useMemo(() => {
-    return flattenArrayOfObjects(data ? book?.content : []);
+    return flattenArrayOfObjects(data ? book?.content : []).filter(
+      (n) => n.data
+    );
   }, [book?.content, data]);
 
   const exportToJson = () => {
@@ -427,24 +490,20 @@ const useBookMethods = () => {
   }
 
   const saveBookUpdates = async (fileName, id) => {
+    setSavingBook(true);
     const json = JSON.stringify(data, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const file = convertBlobToFile(blob, fileName);
+    const form = new FormData();
+    form.append("file", file);
     try {
-      const url = await getUploadFileUrl(file);
-      handleUpdate({ newFileUrl: url }, id);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleUpdate = async (data, id) => {
-    try {
-      await updateEbooks(data, id);
+      await updateEbooks(form, id);
       getEbooks();
       showToast("book updated successfully");
     } catch (error) {
       console.log(error);
+    } finally {
+      setSavingBook(false);
     }
   };
 
@@ -459,7 +518,7 @@ const useBookMethods = () => {
 
       const jsonData = await response.json();
       const jsonFile = createJsonFile(jsonData);
-      uploadBlankBook(jsonFile as File);
+      completeCreation(jsonFile as File);
     } catch (error) {
       console.error("Error fetching file:", error.message);
     }
@@ -472,29 +531,15 @@ const useBookMethods = () => {
     return file;
   }
 
-  const uploadBlankBook = async (file: File) => {
+  const completeCreation = async (file: File) => {
     const form = new FormData();
+    form.append("bookType", params.id.toUpperCase());
     form.append("file", file);
-    try {
-      const fileUrl = await getUploadFileUrl(file);
-      completeCreation(fileUrl);
-    } catch (error) {
-      console.log(error.response);
-    }
-  };
-
-  const completeCreation = async (fileUrl: string) => {
-    mutation.mutate(
-      {
-        bookType: params.id.toUpperCase(),
-        fileUrl,
+    mutation.mutate(form, {
+      onSuccess: () => {
+        showToast("Book created successfully", "success");
       },
-      {
-        onSuccess: () => {
-          showToast("Book created successfully", "success");
-        },
-      }
-    );
+    });
   };
 
   const currentBook = useMemo(() => {
@@ -577,13 +622,13 @@ const useBookMethods = () => {
     saveBookUpdates,
     createNewBook,
     createJsonFile,
-    uploadBlankBook,
     completeCreation,
     currentBook,
     loadingBook: isLoading || fetchingVersion,
     getCurrentBookVersion,
     ebooks,
     bookVersion,
+    fixDecisionTree,
   };
 };
 

@@ -157,6 +157,7 @@ export interface FlattenedObj {
   parentIndex: number[];
   dataPath?: string;
   forDecisionTree?: boolean;
+  needsFixing?: boolean; // ignore. this was added to fix broken decision trees without their corresponding hidden items
 }
 
 export interface FlattenedData {

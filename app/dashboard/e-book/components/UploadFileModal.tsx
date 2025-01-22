@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -42,14 +43,15 @@ export function UploadFileModal({
             name="file"
           />
         </div>
-
-        <Button
-          onClick={() => {
-            onChange(file);
-          }}
-        >
-          Upload
-        </Button>
+        <DialogClose asChild>
+          <Button
+            onClick={() => {
+              onChange(file);
+            }}
+          >
+            Upload
+          </Button>
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );

@@ -39,6 +39,7 @@ function PageItems({
   elementIndex,
   updateElementAtPath,
   createNewItem,
+  fixDecisionTree,
 }: {
   items: FlattenedObj[];
   data: Data;
@@ -51,6 +52,7 @@ function PageItems({
   elementIndex: number;
   updateElementAtPath: (e, f) => void;
   createNewItem: (type: string, newItemKey: string) => void;
+  fixDecisionTree: (e, f) => void;
 }) {
   const { isEditting } = useBookContext();
   const searchParams = useSearchParams();
@@ -60,6 +62,7 @@ function PageItems({
   const contentRef = useRef<HTMLParagraphElement | null>(null);
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
   const myRef = useRef<HTMLDivElement>(null);
+  console.log("items", items);
 
   const itemID = `item-${items[0].parentIndex.join("-")}`;
 
@@ -357,9 +360,16 @@ function PageItems({
         );
       } else if (itemData.type === "decision") {
         element = (
-          <div className="mt-4 group" key={index}>
+          <div className="mt-4 group" key={elementIndex}>
             {isEditting && (
               <div className="flex justify-end mb-2">
+                {items[0].needsFixing && (
+                  <Button
+                    onClick={() => fixDecisionTree(itemData, elementIndex)}
+                  >
+                    Fix decision tree
+                  </Button>
+                )}
                 <Button
                   onClick={() => setEdittingDecisionTree(true)}
                   className="mb-2 border-[#0CA554] text-[#0CA554]"
@@ -395,9 +405,12 @@ function PageItems({
         element = <></>;
       }
 
+      const showDeleteAndAdd =
+        !itemData.forDecisionTree && itemData.type !== "decision" && isEditting;
+
       return (
         <div className="group relative flex" key={index}>
-          {!itemData.forDecisionTree && isEditting && (
+          {showDeleteAndAdd && (
             <button
               className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px]"
               onClick={() => {
@@ -410,7 +423,7 @@ function PageItems({
 
           {element}
 
-          {!itemData.forDecisionTree && isEditting && (
+          {showDeleteAndAdd && (
             <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px]">
               <AddDropdown
                 addNewElement={(e, f) => addNewElement(e, f, elementIndex)}

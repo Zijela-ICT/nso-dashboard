@@ -47,6 +47,7 @@ function Ebook() {
     loadingBook,
     getCurrentBookVersion,
     bookVersion,
+    fixDecisionTree,
   } = useBookMethods();
 
   const { data: user } = useFetchProfile();
@@ -171,6 +172,7 @@ function Ebook() {
             currentBook={data?.book}
             bookInfo={currentBook}
             canEdit={true}
+            fixDecisionTree={fixDecisionTree}
           />
 
           {hasEditAccess && (

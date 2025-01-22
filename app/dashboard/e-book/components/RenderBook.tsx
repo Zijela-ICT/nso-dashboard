@@ -22,6 +22,7 @@ function RenderBook({
   canEdit = true,
   bookInfo,
   foldBook = true,
+  fixDecisionTree,
 }: {
   flattenBookData: FlattenedObj[];
   data: Data;
@@ -36,6 +37,7 @@ function RenderBook({
   canEdit?: boolean;
   bookInfo?: IChprbnBook;
   foldBook?: boolean;
+  fixDecisionTree?: (e, f) => void;
 }) {
   const { isEditting } = useBookContext();
   const params = useParams();
@@ -171,6 +173,7 @@ function RenderBook({
                     addNewElement={addNewElement}
                     removeElement={removeElement}
                     createNewItem={createNewItem}
+                    fixDecisionTree={fixDecisionTree}
                   />
                 </div>
               )}
