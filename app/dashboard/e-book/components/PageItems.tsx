@@ -96,7 +96,7 @@ function PageItems({
     if (hashId === itemID) {
       const element = document.getElementById(hashId);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
   }, [hashId, itemID]);
@@ -396,8 +396,8 @@ function PageItems({
         element = <></>;
       }
 
-      const showDeleteAndAdd = true;
-      // !itemData.forDecisionTree && itemData.type !== "decision" && isEditting;
+      const showDeleteAndAdd =
+        !itemData.forDecisionTree && itemData.type !== "decision" && isEditting;
 
       return (
         <div className="group relative flex" key={index}>

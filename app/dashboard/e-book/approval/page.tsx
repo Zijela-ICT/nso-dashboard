@@ -158,10 +158,10 @@ function ApprovalPage() {
         pathString += `${next + 1}, `;
       }
     }
-    console.log(
-      'pathString.trim().replace(/,$/, "")',
-      pathString.trim().replace(/,$/, "")
-    );
+    // console.log(
+    //   'pathString.trim().replace(/,$/, "")',
+    //   pathString.trim().replace(/,$/, "")
+    // );
 
     // Remove trailing comma and space
     return pathString.trim().replace(/,$/, "");
@@ -261,10 +261,10 @@ function ApprovalPage() {
                 )}
               </div>
             )}
-            <div className="absolute top-12 left-0 w-full bg-white p-4">
+            <div className="absolute top-12 left-0 w-full bg-white p-4 text-[20px] font-semibold">
               Changes
             </div>
-            <div className="h-full overflow-y-auto w-full mt-[50px]">
+            <div className="h-full overflow-y-auto w-full mt-[70px]">
               <Accordion type="single" collapsible className="w-full">
                 {currentVersionDetails?.difference.map((diff, i) => {
                   let pathEnding = "";
