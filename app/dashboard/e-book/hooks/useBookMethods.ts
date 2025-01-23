@@ -22,6 +22,7 @@ import {
   IDecisionTree,
   Space,
   ItemTypes,
+  Item,
 } from "../booktypes";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -345,23 +346,23 @@ const useBookMethods = () => {
       return item;
     });
 
-    const newPath2 = [...path.slice(0, -1), path[path.length - 1] + 2];
-    const newPath3 = [...path.slice(0, -1), path[path.length - 1] + 3];
-    const newPath4 = [...path.slice(0, -1), path[path.length - 1] + 4];
-    const newPath5 = [...path.slice(0, -1), path[path.length - 1] + 5];
+    const newPath2 = [...path.slice(0, -1), path[path.length - 1] + 1];
+    const newPath3 = [...path.slice(0, -1), path[path.length - 1] + 2];
+    const newPath4 = [...path.slice(0, -1), path[path.length - 1] + 3];
+    const newPath5 = [...path.slice(0, -1), path[path.length - 1] + 4];
     const { upperTable, lowerTable } = generateTablesFromDecisionTree(
       createData as IDecisionTree
     );
 
-    updatedFlattenedArr.splice(elementIndex + 2, 0, {
+    updatedFlattenedArr.splice(elementIndex + 1, 0, {
       data: createNewItem("table", "new table", upperTable),
       parentIndex: newPath2,
     });
-    updatedFlattenedArr.splice(elementIndex + 3, 0, {
+    updatedFlattenedArr.splice(elementIndex + 2, 0, {
       data: createNewItem("table", "new table", lowerTable),
       parentIndex: newPath3,
     });
-    updatedFlattenedArr.splice(elementIndex + 4, 0, {
+    updatedFlattenedArr.splice(elementIndex + 3, 0, {
       data: {
         type: "heading2",
         content: "Health Education",
@@ -369,7 +370,7 @@ const useBookMethods = () => {
       },
       parentIndex: newPath4,
     });
-    updatedFlattenedArr.splice(elementIndex + 5, 0, {
+    updatedFlattenedArr.splice(elementIndex + 4, 0, {
       data: createNewItem("orderedList", "", createData.healthEducation, true),
       parentIndex: newPath5,
     });
@@ -383,14 +384,21 @@ const useBookMethods = () => {
     const updatedData = { ...data };
     const flattenedArr = flattenArrayOfObjects(updatedData.book.content);
     const elementIndex = element_index;
-
+    const elementAtIndex = flattenedArr[element_index].data as Item;
     if (elementIndex < 0) return;
 
-    const path = flattenedArr[elementIndex].parentIndex;
+    const path =
+      elementAtIndex.type === "decision"
+        ? []
+        : flattenedArr[elementIndex].parentIndex;
 
     const [chapterIndex, ...rest] = path;
 
     switch (path.length) {
+      case 0:
+        flattenedArr.splice(elementIndex, 5);
+        updatedData.book.content = unflattenArrayOfObjects(flattenedArr);
+        break;
       case 1:
         updatedData.book.content.splice(chapterIndex, 1);
         break;

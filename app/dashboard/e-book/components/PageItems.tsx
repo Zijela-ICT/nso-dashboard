@@ -62,8 +62,6 @@ function PageItems({
   const contentRef = useRef<HTMLParagraphElement | null>(null);
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
   const myRef = useRef<HTMLDivElement>(null);
-  console.log("items", items);
-
   const itemID = `item-${items[0].parentIndex.join("-")}`;
 
   const handleInputChange = (
@@ -217,22 +215,15 @@ function PageItems({
   };
 
   const renderItems = (items: FlattenedObj[]) => {
-    if (
-      items[0].data &&
-      typeof items[0].data === "object" &&
-      "forDecisionTree" in items[0].data
-    ) {
+    return items.map((item, index) => {
+      let element;
       if (itemData.forDecisionTree) {
-        return (
+        element = (
           <div className="bg-[#fafafa] rounded-sm p-4 w-full uppercase mb-2">
             --- HIDDEN ITEM DECISION TREE {itemData.type} ITEM HERE ---
           </div>
         );
-      }
-    }
-    return items.map((item, index) => {
-      let element;
-      if (
+      } else if (
         itemData?.type === "text" ||
         itemData.type === "heading2" ||
         itemData.type === "heading3" ||
@@ -405,12 +396,12 @@ function PageItems({
         element = <></>;
       }
 
-      const showDeleteAndAdd =
-        !itemData.forDecisionTree && itemData.type !== "decision" && isEditting;
+      const showDeleteAndAdd = true;
+      // !itemData.forDecisionTree && itemData.type !== "decision" && isEditting;
 
       return (
         <div className="group relative flex" key={index}>
-          {showDeleteAndAdd && (
+          {(showDeleteAndAdd || itemData.type === "decision") && (
             <button
               className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px]"
               onClick={() => {
@@ -423,7 +414,7 @@ function PageItems({
 
           {element}
 
-          {showDeleteAndAdd && (
+          {(showDeleteAndAdd || items[0].canAddNewItem) && (
             <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px]">
               <AddDropdown
                 addNewElement={(e, f) => addNewElement(e, f, elementIndex)}

@@ -196,6 +196,18 @@ export function flattenArrayOfObjects(
         };
       }
     }
+    if (
+      res.data &&
+      typeof res?.data === "object" &&
+      "forDecisionTree" in res.data &&
+      res.data.forDecisionTree &&
+      res.data.type === "orderedList"
+    ) {
+      return {
+        ...res,
+        canAddNewItem: true,
+      };
+    }
     return res;
   });
 }
@@ -204,10 +216,11 @@ export function unflattenArrayOfObjects(
   flattenedArray: FlattenedObj[]
 ): Chapter[] {
   const result: Chapter[] = [];
-
   flattenedArray.forEach(({ data, parentIndex }) => {
     const [chapterIndex, ...rest] = parentIndex;
-
+    if (!data) {
+      return;
+    }
     // Initialize chapter if needed
     if (!result[chapterIndex]) {
       result[chapterIndex] = {
@@ -240,6 +253,7 @@ export function unflattenArrayOfObjects(
         } else {
           // Chapter page
           chapter.pages[0].items[rest[0]] = data as Item;
+          chapter.pages[0].items = chapter.pages[0].items.filter((n) => n); // used to filter out empty items
         }
         break;
 
@@ -276,14 +290,15 @@ export function unflattenArrayOfObjects(
           }
         } else {
           subChapter.pages[0].items[rest[1]] = data as Item;
+          subChapter.pages[0].items = subChapter.pages[0].items.filter(
+            (n) => n
+          ); // used to filter out empty items
         }
         break;
 
       case 4:
         {
           const targetSubChapter = chapter.subChapters[rest[0]];
-          console.log("targetSubChapter", targetSubChapter);
-
           if (
             !targetSubChapter.subSubChapters[rest[1]] ||
             !targetSubChapter.subSubChapters[rest[1]].pages
@@ -320,6 +335,9 @@ export function unflattenArrayOfObjects(
             };
           }
           targetSubSubChapter.pages[rest[2]].items[rest[3]] = data as Item;
+          targetSubSubChapter.pages[rest[2]].items = targetSubSubChapter.pages[
+            rest[2]
+          ].items.filter((n) => n); //filter out null items
         }
         break;
     }
@@ -516,7 +534,6 @@ export const handleCreateNewElement = (
   const updatedData = { ...data };
 
   if (element_Index === undefined) return;
-  console.log("updatedData.book.content", updatedData.book.content);
 
   let flattenedArr: FlattenedObj[] = flattenArrayOfObjects(
     updatedData.book.content
@@ -530,7 +547,6 @@ export const handleCreateNewElement = (
     : itemAtIndex.parentIndex;
   const newItemKey = `here is some new text content`;
   let unflattendContent: Chapter[] = null;
-  console.log("flattenedArr", flattenedArr);
 
   if (
     type === "listitem" &&
