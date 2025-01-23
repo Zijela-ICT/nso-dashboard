@@ -102,7 +102,7 @@ const CreateFacility = ({
 
   return (
     <AlertDialog open={openModal} onOpenChange={handleClose}>
-      <AlertDialogContent className="max-w-md w-full md:max-w-[600px]">
+      <AlertDialogContent className="max-w-md w-full md:max-w-[600px] ">
         <AlertDialogHeader className="space-y-3 relative">
           <div className="flex items-start justify-between !mt-0">
             <div className="flex-1">
@@ -135,7 +135,7 @@ const CreateFacility = ({
         </AlertDialogHeader>
 
         <form
-          className="w-full flex flex-col gap-4"
+          className="w-full flex flex-col gap-4 max-h-[500px] overflow-y-scroll"
           onSubmit={formik.handleSubmit}>
           <Input
             label="Facility Name"
