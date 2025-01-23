@@ -401,7 +401,8 @@ function PageItems({
 
       return (
         <div className="group relative flex" key={index}>
-          {(showDeleteAndAdd || itemData.type === "decision") && (
+          {(showDeleteAndAdd ||
+            (itemData.type === "decision" && isEditting)) && (
             <button
               className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px]"
               onClick={() => {
@@ -414,7 +415,7 @@ function PageItems({
 
           {element}
 
-          {(showDeleteAndAdd || items[0].canAddNewItem) && (
+          {(showDeleteAndAdd || (items[0].canAddNewItem && isEditting)) && (
             <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px]">
               <AddDropdown
                 addNewElement={(e, f) => addNewElement(e, f, elementIndex)}

@@ -59,7 +59,7 @@ function isPage(
 }
 
 const useBookMethods = () => {
-  const { setSavingBook } = useBookContext();
+  const { setSavingBook, setIsEditting } = useBookContext();
   const { data: ebooks, mutation, refetch: getEbooks, isLoading } = useEBooks();
   const params = useParams<{ id: string }>();
   const filename = "/sample-book.json";
@@ -508,6 +508,7 @@ const useBookMethods = () => {
       await updateEbooks(form, id);
       getEbooks();
       showToast("book updated successfully");
+      setIsEditting(false);
     } catch (error) {
       console.log(error);
     } finally {
