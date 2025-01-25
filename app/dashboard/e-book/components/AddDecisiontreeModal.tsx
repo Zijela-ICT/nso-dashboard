@@ -42,10 +42,10 @@ function AddDecisionTreeModal({
     {
       findingsOnHistory: "",
       clinicalJudgement: "",
-      actions: [""],
-      findingsOnExamination: [""],
+      actions: [],
+      findingsOnExamination: [],
       decisionScore: 0,
-      decisionDependencies: [""],
+      decisionDependencies: [],
     },
   ]);
 
