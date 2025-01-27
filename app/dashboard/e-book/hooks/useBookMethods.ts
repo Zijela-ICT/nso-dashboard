@@ -485,7 +485,7 @@ const useBookMethods = () => {
     a.href = url;
     a.download = `${data.book.bookTitle} - ${dayjs().format(
       "DD MMM YYYY: mm:a h"
-    )}`;
+    )}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
