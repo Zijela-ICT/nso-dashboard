@@ -1,1 +1,2 @@
-export * from "./useFetchQuestions"
+export * from "./useFetchQuestions";
+export * from "./useFetchQuizzes";
