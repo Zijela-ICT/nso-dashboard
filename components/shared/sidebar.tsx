@@ -95,7 +95,7 @@ const routes: RouteItem[] = [
     permission: SystemPermissions.READ_ADMIN_FACILITIES,
   },
   {
-    id: 8,
+    id: 6,
     icon: "message-question",
     label: "Quiz",
     href: "/quiz",
@@ -118,7 +118,7 @@ const routes: RouteItem[] = [
     ]
   },
   {
-    id: 6,
+    id: 7,
     icon: "users",
     label: "Users",
     href: "/users",
@@ -140,7 +140,7 @@ const routes: RouteItem[] = [
     ],
   },
   {
-    id: 7,
+    id: 8,
     icon: "setting",
     label: "Settings",
     href: "/settings",
