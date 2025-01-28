@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import React, { useMemo, useRef } from 'react';
+import React, { SetStateAction, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { Props } from 'react-select';
 import { cn } from '@/lib/utils';
@@ -9,7 +9,7 @@ const ReactSelect = dynamic(() => import('react-select'), { ssr: false });
 
 export type SelectProps = Omit<Props, 'onChange'> & {
   error?: boolean;
-  onChange?: (v: string | string[] | null) => void;
+  onChange?: (v: string | string[] | null | SetStateAction<string | string[]> | any) => void;
   usePortal?: boolean;
 };
 

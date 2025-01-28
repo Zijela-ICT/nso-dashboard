@@ -11,24 +11,10 @@ import {
   Icon,
   Pagination,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   DatePicker,
   MultiSelect
 } from "@/components/ui";
 import { useFetchQuizzes } from "@/hooks/api/queries/quiz";
-
-interface Assessment {
-  title: string;
-  quiz: string;
-  startDate: string;
-  endDate: string;
-  audience: string;
-  duration: number;
-}
 
 const Page = () => {
   const { data: quizData } = useFetchQuizzes();
@@ -39,7 +25,9 @@ const Page = () => {
   const [endDate, setEndDate] = useState<Date>();
   const [duration, setDuration] = useState("40");
 
-  const [selectedDays, setSelectedDays] = useState<{ value: string; name: string }[]>([]);
+  const [selectedDays, setSelectedDays] = useState<
+    { value: string; name: string }[]
+  >([]);
 
   const quizOptions = React.useMemo(() => {
     if (!quizData?.data) return [];
@@ -52,10 +40,9 @@ const Page = () => {
   const notificationDays = React.useMemo(() => {
     return Array.from({ length: 30 }, (_, i) => ({
       value: String(i + 1),
-      label: `${i + 1} ${i + 1 === 1 ? 'day' : 'days'}`
+      label: `${i + 1} ${i + 1 === 1 ? "day" : "days"}`
     }));
   }, []);
-
 
   // Mock data for the assessment list
   const assessments = [
@@ -129,23 +116,23 @@ const Page = () => {
           <div className="flex flex-row justify-between w-full items-center space-x-4">
             <div className="w-full">
               <MultiSelect
-               isMulti
-               usePortal
-               options={quizOptions}
-               value={selectedQuiz}
-               onChange={setSelectedQuiz}
-               placeholder="Select quiz type"
+                isMulti
+                usePortal
+                options={quizOptions}
+                value={selectedQuiz}
+                onChange={(value) => setSelectedQuiz(value)}
+                placeholder="Select quiz type"
               />
             </div>
 
             <div className="w-full">
               <MultiSelect
-               isMulti
-               usePortal
-               options={notificationDays}
-               value={selectedDays}
-               onChange={(value) => setSelectedDays(value)}
-               placeholder="notification before assessment"
+                isMulti
+                usePortal
+                options={notificationDays}
+                value={selectedDays}
+                onChange={(value) => setSelectedDays(value)}
+                placeholder="notification before assessment"
               />
             </div>
 
@@ -167,6 +154,7 @@ const Page = () => {
 
             <div className="flex items-center space-x-1">
               <Input
+                name="duration"
                 type="number"
                 className="w-16 text-center"
                 value={duration}
