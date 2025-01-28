@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import dynamic from 'next/dynamic';
 import {
   Table,
   TableBody,
@@ -12,13 +13,22 @@ import {
   Pagination,
   Input,
   DatePicker,
-  MultiSelect
 } from "@/components/ui";
 import { useFetchQuizzes } from "@/hooks/api/queries/quiz";
+
+
+const MultiSelect = dynamic(
+  () => import('@/components/ui').then((mod) => mod.MultiSelect),
+  { 
+    ssr: false,
+    loading: () => <div className="w-full h-10 bg-gray-100 animate-pulse rounded-lg" />
+  }
+);
 
 const Page = () => {
   const { data: quizData } = useFetchQuizzes();
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMounted, setIsMounted] = useState(false);
   const [assessmentTitle, setAssessmentTitle] = useState("");
   const [selectedQuiz, setSelectedQuiz] = useState("");
   const [startDate, setStartDate] = useState<Date>();
@@ -28,6 +38,8 @@ const Page = () => {
   const [selectedDays, setSelectedDays] = useState<
     { value: string; name: string }[]
   >([]);
+
+
 
   const quizOptions = React.useMemo(() => {
     if (!quizData?.data) return [];
@@ -44,7 +56,10 @@ const Page = () => {
     }));
   }, []);
 
-  // Mock data for the assessment list
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const assessments = [
     {
       title: "JCEW Assessment",
@@ -100,6 +115,11 @@ const Page = () => {
     setCurrentPage(page);
   };
 
+  if (!isMounted) {
+    return null;
+  }
+
+  
   return (
     <div className="w-full">
       {/* Assessment Header */}

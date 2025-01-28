@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import * as React from "react"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -15,12 +13,19 @@ import {
 } from "@/components/ui/popover"
 
 interface DatePickerProps {
-  value?: Date
+  value?: Date | undefined
   onChange?: (date: Date | undefined) => void
   placeholder?: string
 }
 
-export function DatePicker({ value, onChange, placeholder = "Pick a date" }: DatePickerProps) {
+export function DatePicker({ 
+  value, 
+  onChange, 
+  placeholder = "Pick a date" 
+}: DatePickerProps) {
+  // Ensure value is a valid Date object or undefined
+  const dateValue = value instanceof Date ? value : undefined
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -28,17 +33,17 @@ export function DatePicker({ value, onChange, placeholder = "Pick a date" }: Dat
           variant={"outline"}
           className={cn(
             "w-full justify-start text-left font-normal",
-            !value && "text-muted-foreground"
+            !dateValue && "text-muted-foreground"
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, "PPP") : <span>{placeholder}</span>}
+          {dateValue ? format(dateValue, "PPP") : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
-          selected={value}
+          selected={dateValue}
           onSelect={onChange}
           initialFocus
         />
