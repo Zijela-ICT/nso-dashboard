@@ -95,7 +95,7 @@ const routes: RouteItem[] = [
     permission: SystemPermissions.READ_ADMIN_FACILITIES,
   },
   {
-    id: 7,
+    id: 8,
     icon: "message-question",
     label: "Quiz",
     href: "/quiz",

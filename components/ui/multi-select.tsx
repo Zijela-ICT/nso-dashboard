@@ -53,9 +53,9 @@ export const MultiSelect = (props: SelectProps) => {
       classNames={{
         control: (state) =>
           cn({
-            'border h-10 !border-input bg-transparent text-sm shadow-sm !outline-none !ring-1 !ring-ring':
+            'border h-12 !border-input bg-transparent text-sm shadow-sm !outline-none !ring-1 !ring-ring rounded-[8px]':
               state.isFocused,
-            'border h-10 !border-input bg-transparent text-sm shadow-sm':
+            'border h-12 !border-input bg-transparent text-sm shadow-sm':
               !state.isFocused,
             '!border-error-500 !focus-visible:ring-error-500': props.error,
           }),
