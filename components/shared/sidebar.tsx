@@ -95,6 +95,29 @@ const routes: RouteItem[] = [
     permission: SystemPermissions.READ_ADMIN_FACILITIES,
   },
   {
+    id: 7,
+    icon: "message-question",
+    label: "Quiz",
+    href: "/quiz",
+    permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+    subItems: [
+      {
+        label: "Quiz",
+        href: "/quiz/quiz",
+        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+      }, {
+        label: "Assessments",
+        href: "/quiz/assessments",
+        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+      },
+      {
+        label: "Submissions",
+        href: "/quiz/submissions",
+        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+      }
+    ]
+  },
+  {
     id: 6,
     icon: "users",
     label: "Users",
