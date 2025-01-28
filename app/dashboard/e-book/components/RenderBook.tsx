@@ -22,6 +22,7 @@ function RenderBook({
   canEdit = true,
   bookInfo,
   foldBook = true,
+  fixDecisionTree,
 }: {
   flattenBookData: FlattenedObj[];
   data: Data;
@@ -36,6 +37,7 @@ function RenderBook({
   canEdit?: boolean;
   bookInfo?: IChprbnBook;
   foldBook?: boolean;
+  fixDecisionTree?: (e, f) => void;
 }) {
   const { isEditting } = useBookContext();
   const params = useParams();
@@ -113,7 +115,7 @@ function RenderBook({
         bookInfo={bookInfo}
       />
 
-      <div className="w-full md:w-[900px] min-h-[90vh] bg-white py-[40px] px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">
+      <div className="parent-wrapper w-full md:w-[900px] min-h-[90vh] bg-white py-[40px] px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">
         {flattenBookData.map((chapter, index) => {
           const isHeader = typeof chapter.data === "string";
           const indices = [...chapter.parentIndex];
@@ -171,6 +173,7 @@ function RenderBook({
                     addNewElement={addNewElement}
                     removeElement={removeElement}
                     createNewItem={createNewItem}
+                    fixDecisionTree={fixDecisionTree}
                   />
                 </div>
               )}

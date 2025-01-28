@@ -99,6 +99,10 @@ function DifferencesPage() {
     // Remove trailing comma and space
     return pathString.trim().replace(/,$/, "");
   }
+  console.log(
+    "currentVersionDetails?.difference",
+    currentVersionDetails?.difference
+  );
 
   return (
     <div className="py-6">
@@ -161,54 +165,58 @@ function DifferencesPage() {
               foldBook={false}
             />
           </div>
-          <div className="w-[280px] mt-[110px] fixed right-4 top-3 overflow-hidden h-[80vh]">
-            <div className="absolute top-0 left-0 w-full bg-white p-4">
-              Changes
-            </div>
-            <div className="h-full overflow-y-auto w-full mt-[50px]">
-              <Accordion type="single" collapsible className="w-full">
-                {currentVersionDetails?.difference.map((diff, i) => {
-                  let pathEnding = "";
-                  if (diff.kind === "A") {
-                    pathEnding += `-${diff.index}`;
-                  }
-                  const path = [];
-                  for (let index = 0; index < diff.path.length; index++) {
-                    if (typeof diff.path[index] === "number") {
-                      path.push(diff.path[index]);
+
+          {!currentVersionDetails?.difference?.length ? (
+            <p>No difference to show</p>
+          ) : (
+            <div className="w-[280px] mt-[110px] fixed right-4 top-3 overflow-hidden h-[80vh]">
+              <div className="absolute top-0 left-0 w-full bg-white p-4">
+                Changes
+              </div>
+              <div className="h-full overflow-y-auto w-full mt-[50px]">
+                <Accordion type="single" collapsible className="w-full">
+                  {currentVersionDetails?.difference?.map((diff, i) => {
+                    let pathEnding = "";
+                    if (diff.kind === "A") {
+                      pathEnding += `-${diff.index}`;
                     }
-                  }
+                    const path = [];
+                    for (let index = 0; index < diff.path.length; index++) {
+                      if (typeof diff.path[index] === "number") {
+                        path.push(diff.path[index]);
+                      }
+                    }
 
-                  return (
-                    <AccordionItem key={i} value={`item-${i}`}>
-                      <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
-                        <div className="flex justify-between w-full">
-                          <div key={i} className="text-left">
-                            {generatePathString(diff.path)}
-                          </div>
+                    return (
+                      <AccordionItem key={i} value={`item-${i}`}>
+                        <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
+                          <div className="flex justify-between w-full">
+                            <div key={i} className="text-left">
+                              {generatePathString(diff.path)}
+                            </div>
 
-                          <div>
-                            <Badge
-                              variant={
-                                diff.kind === "A"
-                                  ? "success"
+                            <div>
+                              <Badge
+                                variant={
+                                  diff.kind === "A"
+                                    ? "success"
+                                    : diff.kind === "E"
+                                    ? "pending"
+                                    : "failed"
+                                }
+                              >
+                                {diff.kind === "A"
+                                  ? "Add"
                                   : diff.kind === "E"
-                                  ? "pending"
-                                  : "failed"
-                              }
-                            >
-                              {diff.kind === "A"
-                                ? "Add"
-                                : diff.kind === "E"
-                                ? "Edit"
-                                : "Delete"}
-                            </Badge>
+                                  ? "Edit"
+                                  : "Delete"}
+                              </Badge>
+                            </div>
                           </div>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="p-2 bg-[#ffffff]">
-                        <div>
-                          {/* <PageItems
+                        </AccordionTrigger>
+                        <AccordionContent className="p-2 bg-[#ffffff]">
+                          <div>
+                            {/* <PageItems
                             items={[
                               {
                                 data: diff?.item?.lhs,
@@ -222,24 +230,27 @@ function DifferencesPage() {
                             removeElement={null}
                             createNewItem={null}
                           /> */}
-                          <Link
-                            href={`?hashId=item-${path.join("-")}${pathEnding}`}
-                          >
-                            <Button
-                              size="sm"
-                              onClick={() => setCount(count + 1)}
+                            <Link
+                              href={`?hashId=item-${path.join(
+                                "-"
+                              )}${pathEnding}`}
                             >
-                              Visit element
-                            </Button>
-                          </Link>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
+                              <Button
+                                size="sm"
+                                onClick={() => setCount(count + 1)}
+                              >
+                                Visit element
+                              </Button>
+                            </Link>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>

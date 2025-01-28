@@ -6,7 +6,7 @@ import storageUtil from "./browser-storage";
 import CONFIG from "./config";
 
 const api = axios.create({
-  baseURL: CONFIG.API_BASE_URL
+  baseURL: CONFIG.API_BASE_URL,
 });
 
 api.interceptors.request.use(async (config) => {
@@ -48,7 +48,7 @@ const handleApiError = (
   let errorMessage: { message: any; status: any; statusCode: any } = {
     message: "An error occurred. Please try again later.",
     status: false,
-    statusCode: null
+    statusCode: null,
   };
   if (error.response) {
     const { data, statusCode, status }: any = error.response;
@@ -58,7 +58,7 @@ const handleApiError = (
           ? "Something went wrong on our end. Please try again later."
           : showError && formatErrorDetail(data.detail || data.message),
       status: status,
-      statusCode: statusCode
+      statusCode: statusCode,
     };
 
     if (
@@ -72,7 +72,7 @@ const handleApiError = (
     errorMessage = {
       message: "Something went wrong on our end. Please try again later.",
       status: false,
-      statusCode: null
+      statusCode: null,
     };
   }
   if (
@@ -134,7 +134,7 @@ const request = async <T>(
       data: requestData,
       headers,
       cancelToken: source.token,
-      transformRequest: isFormData ? [(data) => data] : undefined
+      transformRequest: isFormData ? [(data) => data] : undefined,
     };
 
     if (isFileDownload) {

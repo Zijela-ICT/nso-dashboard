@@ -29,7 +29,7 @@ function BookHeader({
   bookInfo: IChprbnBook;
 }) {
   const { data: user } = useFetchProfile();
-  const { isEditting, setIsEditting } = useBookContext();
+  const { isEditting, setIsEditting, savingBook } = useBookContext();
 
   const hasEditAccess = useMemo(() => {
     return !!bookInfo?.editors.find((u) => u.id === user?.data?.id);
@@ -62,9 +62,10 @@ function BookHeader({
               <Button
                 onClick={() => {
                   saveBookUpdates();
-                  setIsEditting(false);
+                  // setIsEditting(false);
                 }}
                 className="h-8 text-[14px]"
+                isLoading={savingBook}
               >
                 Save
               </Button>

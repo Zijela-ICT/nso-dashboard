@@ -47,142 +47,201 @@ export function flattenArrayOfObjects(
   arr: (object | string | number | boolean | null)[],
   parentIndex: number[] = []
 ): FlattenedObj[] {
-  return arr?.flatMap((item, index) => {
-    const currentParentIndex = [...parentIndex, index];
+  try {
+    const result = arr?.flatMap((item, index) => {
+      const currentParentIndex = [...parentIndex, index];
 
-    if (Array.isArray(item)) {
-      return flattenArrayOfObjects(item, currentParentIndex);
-    } else if (
-      typeof item === "object" &&
-      item !== null &&
-      !isItem(item) &&
-      !Array.isArray(item)
-    ) {
-      const typedItem = item as Record<
-        string,
-        | string
-        | number
-        | boolean
-        | null
-        | Record<string, unknown>[]
-        | Record<string, unknown>
-      >;
+      if (Array.isArray(item)) {
+        return flattenArrayOfObjects(item, currentParentIndex);
+      } else if (
+        typeof item === "object" &&
+        item !== null &&
+        !isItem(item) &&
+        !Array.isArray(item)
+      ) {
+        const typedItem = item as Record<
+          string,
+          | string
+          | number
+          | boolean
+          | null
+          | Record<string, unknown>[]
+          | Record<string, unknown>
+        >;
 
-      // Add the chapter title
-      const results: FlattenedObj[] = [];
-      if (typedItem.chapter) {
-        results.push({
-          data: typedItem.chapter as string,
-          parentIndex: currentParentIndex,
-        });
-      }
-      if (typedItem.type === "table" && typedItem.forDecisionTree) {
-        return;
-      }
-      // Add chapter pages
-      if (Array.isArray(typedItem.pages && typedItem.pages[0].items)) {
-        results.push(
-          ...flattenArrayOfObjects(typedItem.pages[0].items, currentParentIndex)
+        // Add the chapter title
+        const results: FlattenedObj[] = [];
+        if (typedItem.chapter) {
+          results.push({
+            data: typedItem.chapter as string,
+            parentIndex: currentParentIndex,
+          });
+        }
+        if (typedItem.type === "table" && typedItem.forDecisionTree) {
+          return;
+        }
+        // Add chapter pages
+        if (Array.isArray(typedItem.pages && typedItem.pages[0]?.items)) {
+          results.push(
+            ...flattenArrayOfObjects(
+              typedItem.pages[0].items,
+              currentParentIndex
+            )
+          );
+        }
+        console.log(
+          "Array.isArray(typedItem.subChapters)",
+          Array.isArray(typedItem?.subChapters)
         );
-      }
+        console.log("typedItem.subChapters", typedItem.subChapters);
 
-      // Handle subChapters
-      if (Array.isArray(typedItem.subChapters)) {
-        typedItem.subChapters.forEach((subChapter, subIndex) => {
-          // Add subChapter title
-          if (subChapter?.subChapterTitle !== undefined) {
-            results.push({
-              data: subChapter?.subChapterTitle as string,
-              parentIndex: [...currentParentIndex, subIndex],
-            });
-          }
+        // Handle subChapters
+        if (Array.isArray(typedItem?.subChapters)) {
+          typedItem?.subChapters?.forEach((subChapter, subIndex) => {
+            // Add subChapter title
+            if (subChapter?.subChapterTitle !== undefined) {
+              results?.push({
+                data: subChapter?.subChapterTitle as string,
+                parentIndex: [...currentParentIndex, subIndex],
+              });
+            }
 
-          // Add subChapter pages
-          if (Array.isArray(subChapter?.pages)) {
-            results.push(
-              ...flattenArrayOfObjects(subChapter?.pages[0].items, [
-                ...currentParentIndex,
-                subIndex,
-              ])
-            );
-          }
+            // Add subChapter pages
+            if (
+              Array.isArray(subChapter?.pages) &&
+              subChapter?.pages[0]?.items
+            ) {
+              results?.push(
+                ...flattenArrayOfObjects(subChapter?.pages[0]?.items, [
+                  ...currentParentIndex,
+                  subIndex,
+                ])
+              );
+            }
 
-          // Handle subSubChapters
-          if (Array.isArray(subChapter?.subSubChapters)) {
-            subChapter?.subSubChapters.forEach((subSubChapter, subSubIndex) => {
-              // Add subSubChapter title if it exists
-              if (subSubChapter?.subSubChapterTitle !== undefined) {
-                results.push({
-                  data: subSubChapter?.subSubChapterTitle,
-                  parentIndex: [...currentParentIndex, subIndex, subSubIndex],
-                });
-              }
-
-              // Handle pages with pageTitle and items array
-              if (Array.isArray(subSubChapter?.pages)) {
-                subSubChapter.pages.forEach((page, pageIndex) => {
-                  // Add page title
-                  if (page.pageTitle) {
-                    results.push({
-                      data: page.pageTitle,
+            // Handle subSubChapters
+            if (Array.isArray(subChapter?.subSubChapters)) {
+              subChapter?.subSubChapters.forEach(
+                (subSubChapter, subSubIndex) => {
+                  // Add subSubChapter title if it exists
+                  if (subSubChapter?.subSubChapterTitle !== undefined) {
+                    results?.push({
+                      data: subSubChapter?.subSubChapterTitle,
                       parentIndex: [
                         ...currentParentIndex,
                         subIndex,
                         subSubIndex,
-                        pageIndex,
                       ],
                     });
                   }
 
-                  // Add page items
-                  if (Array.isArray(page.items)) {
-                    page.items.forEach((item, itemIndex) => {
-                      const path =
-                        (item?.data as string) ||
-                        (item?.content as string) ||
-                        (item?.data?.content as string) ||
-                        (item?.src as string) ||
-                        (item?.title as string);
-                      results.push({
-                        data: item,
-                        dataPath: path,
-                        parentIndex: [
-                          ...currentParentIndex,
-                          subIndex,
-                          subSubIndex,
-                          pageIndex,
-                          itemIndex,
-                        ],
-                      });
+                  // Handle pages with pageTitle and items array
+                  if (Array.isArray(subSubChapter?.pages)) {
+                    subSubChapter.pages.forEach((page, pageIndex) => {
+                      // Add page title
+                      if (page.pageTitle) {
+                        results?.push({
+                          data: page.pageTitle,
+                          parentIndex: [
+                            ...currentParentIndex,
+                            subIndex,
+                            subSubIndex,
+                            pageIndex,
+                          ],
+                        });
+                      }
+
+                      // Add page items
+                      if (Array.isArray(page.items)) {
+                        page.items.forEach((item, itemIndex) => {
+                          const path =
+                            (item?.data as string) ||
+                            (item?.content as string) ||
+                            (item?.data?.content as string) ||
+                            (item?.src as string) ||
+                            (item?.title as string);
+                          results.push({
+                            data: item,
+                            dataPath: path,
+                            parentIndex: [
+                              ...currentParentIndex,
+                              subIndex,
+                              subSubIndex,
+                              pageIndex,
+                              itemIndex,
+                            ],
+                          });
+                        });
+                      }
                     });
                   }
-                });
-              }
-            });
-          }
-        });
-      }
+                }
+              );
+            }
+          });
+        }
 
-      return results;
-    } else {
-      return [
-        {
-          data: item as string | number | boolean | null | Item,
-          parentIndex: currentParentIndex,
-        },
-      ];
-    }
-  });
+        return results;
+      } else {
+        return [
+          {
+            data: item as string | number | boolean | null | Item,
+            parentIndex: currentParentIndex,
+          },
+        ];
+      }
+    });
+    return result?.map((res, i) => {
+      if (
+        res.data &&
+        typeof res?.data === "object" &&
+        "type" in res.data &&
+        res?.data?.type === "decision"
+      ) {
+        const next1 = result[i + 1]?.data as unknown as Item;
+        const next2 = result[i + 2]?.data as unknown as Item;
+        const next3 = result[i + 3]?.data as unknown as Item;
+        const next4 = result[i + 4]?.data as unknown as Item;
+        if (
+          !next1?.forDecisionTree ||
+          !next2?.forDecisionTree ||
+          !next3?.forDecisionTree ||
+          !next4?.forDecisionTree
+        ) {
+          return {
+            ...res,
+            needsFixing: true,
+          };
+        }
+      }
+      if (
+        res.data &&
+        typeof res?.data === "object" &&
+        "forDecisionTree" in res.data &&
+        res.data.forDecisionTree &&
+        res.data.type === "orderedList"
+      ) {
+        return {
+          ...res,
+          canAddNewItem: true,
+        };
+      }
+      return res;
+    });
+  } catch (error) {
+    console.log("error", error);
+  }
 }
 
 export function unflattenArrayOfObjects(
   flattenedArray: FlattenedObj[]
 ): Chapter[] {
   const result: Chapter[] = [];
-
   flattenedArray.forEach(({ data, parentIndex }) => {
     const [chapterIndex, ...rest] = parentIndex;
-
+    if (!data) {
+      return;
+    }
     // Initialize chapter if needed
     if (!result[chapterIndex]) {
       result[chapterIndex] = {
@@ -215,6 +274,7 @@ export function unflattenArrayOfObjects(
         } else {
           // Chapter page
           chapter.pages[0].items[rest[0]] = data as Item;
+          chapter.pages[0].items = chapter.pages[0].items.filter((n) => n); // used to filter out empty items
         }
         break;
 
@@ -251,6 +311,9 @@ export function unflattenArrayOfObjects(
           }
         } else {
           subChapter.pages[0].items[rest[1]] = data as Item;
+          subChapter.pages[0].items = subChapter.pages[0].items.filter(
+            (n) => n
+          ); // used to filter out empty items
         }
         break;
 
@@ -293,6 +356,9 @@ export function unflattenArrayOfObjects(
             };
           }
           targetSubSubChapter.pages[rest[2]].items[rest[3]] = data as Item;
+          targetSubSubChapter.pages[rest[2]].items = targetSubSubChapter.pages[
+            rest[2]
+          ].items.filter((n) => n); //filter out null items
         }
         break;
     }
@@ -502,6 +568,7 @@ export const handleCreateNewElement = (
     : itemAtIndex.parentIndex;
   const newItemKey = `here is some new text content`;
   let unflattendContent: Chapter[] = null;
+
   if (
     type === "listitem" &&
     typeof flattenedArr[elementIndex].data === "object" &&

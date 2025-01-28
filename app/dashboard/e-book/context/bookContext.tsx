@@ -10,7 +10,12 @@ import React, {
 
 // Create a Context with a default value
 const MyContext = createContext<
-  | { isEditting: boolean; setIsEditting: Dispatch<SetStateAction<boolean>> }
+  | {
+      isEditting: boolean;
+      setIsEditting: Dispatch<SetStateAction<boolean>>;
+      savingBook: boolean;
+      setSavingBook: Dispatch<SetStateAction<boolean>>;
+    }
   | undefined
 >(undefined);
 
@@ -19,9 +24,12 @@ export const BookProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [isEditting, setIsEditting] = useState<boolean>(false);
+  const [savingBook, setSavingBook] = useState<boolean>(false);
 
   return (
-    <MyContext.Provider value={{ isEditting, setIsEditting }}>
+    <MyContext.Provider
+      value={{ isEditting, setIsEditting, savingBook, setSavingBook }}
+    >
       {children}
     </MyContext.Provider>
   );

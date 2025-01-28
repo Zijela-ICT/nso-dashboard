@@ -158,10 +158,10 @@ function ApprovalPage() {
         pathString += `${next + 1}, `;
       }
     }
-    console.log(
-      'pathString.trim().replace(/,$/, "")',
-      pathString.trim().replace(/,$/, "")
-    );
+    // console.log(
+    //   'pathString.trim().replace(/,$/, "")',
+    //   pathString.trim().replace(/,$/, "")
+    // );
 
     // Remove trailing comma and space
     return pathString.trim().replace(/,$/, "");
@@ -261,53 +261,60 @@ function ApprovalPage() {
                 )}
               </div>
             )}
-            <div className="absolute top-12 left-0 w-full bg-white p-4">
-              Changes
-            </div>
-            <div className="h-full overflow-y-auto w-full mt-[50px]">
-              <Accordion type="single" collapsible className="w-full">
-                {currentVersionDetails?.difference.map((diff, i) => {
-                  let pathEnding = "";
-                  if (diff.kind === "A") {
-                    pathEnding += `-${diff.index}`;
-                  }
-                  const path = [];
-                  for (let index = 0; index < diff.path.length; index++) {
-                    if (typeof diff.path[index] === "number") {
-                      path.push(diff.path[index]);
-                    }
-                  }
 
-                  return (
-                    <AccordionItem key={i} value={`item-${i}`}>
-                      <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
-                        <div className="flex justify-between w-full">
-                          <div key={i} className="text-left">
-                            {generatePathString(diff.path)}
-                          </div>
+            {!currentVersionDetails?.difference?.length ? (
+              <div className="bg-white p-4 shadow-md rounded-sm">
+                <p>No difference to show</p>
+              </div>
+            ) : (
+              <>
+                <div className="shadow-md rounded-sm absolute top-12 left-0 w-full bg-white p-4 text-[20px] font-semibold">
+                  Changes
+                </div>
+                <div className="h-full overflow-y-auto w-full mt-[70px]">
+                  <Accordion type="single" collapsible className="w-full">
+                    {currentVersionDetails?.difference?.map((diff, i) => {
+                      let pathEnding = "";
+                      if (diff.kind === "A") {
+                        pathEnding += `-${diff.index}`;
+                      }
+                      const path = [];
+                      for (let index = 0; index < diff.path.length; index++) {
+                        if (typeof diff.path[index] === "number") {
+                          path.push(diff.path[index]);
+                        }
+                      }
 
-                          <div>
-                            <Badge
-                              variant={
-                                diff.kind === "A"
-                                  ? "success"
-                                  : diff.kind === "E"
-                                  ? "pending"
-                                  : "failed"
-                              }
-                            >
-                              {diff.kind === "A"
-                                ? "Add"
-                                : diff.kind === "E"
-                                ? "Edit"
-                                : "Delete"}
-                            </Badge>
-                          </div>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="p-2 bg-[#ffffff]">
-                        <div>
-                          {/* <PageItems
+                      return (
+                        <AccordionItem key={i} value={`item-${i}`}>
+                          <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
+                            <div className="flex justify-between w-full">
+                              <div key={i} className="text-left">
+                                {generatePathString(diff.path)}
+                              </div>
+
+                              <div>
+                                <Badge
+                                  variant={
+                                    diff.kind === "A"
+                                      ? "success"
+                                      : diff.kind === "E"
+                                      ? "pending"
+                                      : "failed"
+                                  }
+                                >
+                                  {diff.kind === "A"
+                                    ? "Add"
+                                    : diff.kind === "E"
+                                    ? "Edit"
+                                    : "Delete"}
+                                </Badge>
+                              </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="p-2 bg-[#ffffff]">
+                            <div>
+                              {/* <PageItems
                             items={[
                               {
                                 data: diff?.item?.lhs,
@@ -321,18 +328,22 @@ function ApprovalPage() {
                             removeElement={null}
                             createNewItem={null}
                           /> */}
-                          <Link
-                            href={`?hashId=item-${path.join("-")}${pathEnding}`}
-                          >
-                            <Button size="sm">Visit element</Button>
-                          </Link>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
-            </div>
+                              <Link
+                                href={`?hashId=item-${path.join(
+                                  "-"
+                                )}${pathEnding}`}
+                              >
+                                <Button size="sm">Visit element</Button>
+                              </Link>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
