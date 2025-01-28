@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ interface Question {
   id?: number;
 }
 
-const Page = () => {
+const QuizContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const {data: fetchedQuestions, isLoading} = useFetchQuestions();
@@ -322,6 +322,23 @@ const Page = () => {
 
       {selectedTab === "New Quiz" ? renderNewQuiz() : renderQuestionBank()}
     </div>
+  );
+};
+
+const QuizLoadingFallback = () => {
+  return (
+    <div className="w-full mt-8 space-y-4">
+      <div className="w-full h-16 bg-gray-100 animate-pulse rounded-2xl"></div>
+      <div className="w-full h-[600px] bg-gray-100 animate-pulse rounded-lg"></div>
+    </div>
+  );
+};
+
+const Page = () => {
+  return (
+    <Suspense fallback={<QuizLoadingFallback />}>
+      <QuizContent />
+    </Suspense>
   );
 };
 
