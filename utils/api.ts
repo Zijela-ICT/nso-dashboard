@@ -139,7 +139,7 @@ const request = async <T>(
   isFileDownload: boolean = false, // New parameter
   fileName?: string,
   show404Error: boolean = false // New parameter
-): Promise<T> => {
+): Promise<T | void> => {
   try {
     let requestData = data;
     const headers: any = {};
