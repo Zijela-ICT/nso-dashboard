@@ -123,6 +123,13 @@ const routes: RouteItem[] = [
     href: "/settings",
     permission: SystemPermissions.READ_APP_SETTINGS,
   },
+  {
+    id: 8,
+    icon: "audit",
+    label: "Audit logs",
+    href: "/audit-logs",
+    permission: SystemPermissions.READ_APP_SETTINGS,
+  },
 ];
 
 const AppSidebar = () => {
