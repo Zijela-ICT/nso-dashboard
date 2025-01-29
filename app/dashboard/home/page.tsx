@@ -10,7 +10,7 @@ import { useFetchAppUsers } from "@/hooks/api/queries/users";
 const Page = () => {
   const data = useFetchProfile();
   const { data: metrics } = useDashboardMetrics();
-  const { data: users } = useFetchAppUsers(1, 100000000);
+  const { data: users } = useFetchAppUsers(1, 10000000);
 
   const headings = [
     {
