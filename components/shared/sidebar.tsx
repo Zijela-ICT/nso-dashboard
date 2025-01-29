@@ -105,7 +105,8 @@ const routes: RouteItem[] = [
         label: "Quiz",
         href: "/quiz/quiz",
         permission: [SystemPermissions.READ_ADMIN_USERS_APP],
-      }, {
+      },
+      {
         label: "Assessments",
         href: "/quiz/assessments",
         permission: [SystemPermissions.READ_ADMIN_USERS_APP],
@@ -114,8 +115,8 @@ const routes: RouteItem[] = [
         label: "Submissions",
         href: "/quiz/submissions",
         permission: [SystemPermissions.READ_ADMIN_USERS_APP],
-      }
-    ]
+      },
+    ],
   },
   {
     id: 7,
@@ -147,7 +148,7 @@ const routes: RouteItem[] = [
     permission: SystemPermissions.READ_APP_SETTINGS,
   },
   {
-    id: 8,
+    id: 9,
     icon: "audit",
     label: "Audit logs",
     href: "/audit-logs",
