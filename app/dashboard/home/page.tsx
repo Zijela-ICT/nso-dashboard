@@ -6,10 +6,11 @@ import { PieChartComponent } from "./components/Pie";
 import { Card } from "@/components/ui/card";
 import { useDashboardMetrics } from "@/hooks/api/queries/users/useDashboardMetrics";
 import { useFetchAppUsers } from "@/hooks/api/queries/users";
+import { Spinner } from "@/components/ui";
 
 const Page = () => {
   const data = useFetchProfile();
-  const { data: metrics } = useDashboardMetrics();
+  const { data: metrics, isLoading } = useDashboardMetrics();
   const { data: users } = useFetchAppUsers(1, 10000000);
 
   const headings = [
@@ -31,7 +32,11 @@ const Page = () => {
     },
   ];
 
-  return (
+  return isLoading ? (
+    <div className="w-full py-[100px] flex items-center justify-center">
+      <Spinner className="animate-spin" />
+    </div>
+  ) : (
     <div className="px-6 py-20">
       <div className="grid grid-cols-4 gap-4">
         {headings.map((heading, i) => (
