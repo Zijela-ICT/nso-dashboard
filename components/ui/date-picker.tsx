@@ -15,17 +15,27 @@ import {
 interface DatePickerProps {
   value?: Date | undefined
   onChange?: (date: Date | undefined) => void
+  fromDate?: Date;
   placeholder?: string
+  disabled?: boolean
 }
 
 export function DatePicker({ 
   value, 
   onChange, 
-  placeholder = "Pick a date" 
+  placeholder = "Pick a date" ,
+  fromDate,
+  disabled = false
 }: DatePickerProps) {
   // Ensure value is a valid Date object or undefined
   const dateValue = value instanceof Date ? value : undefined
 
+  const minDate = React.useMemo(() => {
+    if (fromDate) return fromDate;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }, [fromDate]);
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -46,6 +56,8 @@ export function DatePicker({
           selected={dateValue}
           onSelect={onChange}
           initialFocus
+          fromDate={minDate}
+          disabled={(date) => date < minDate || disabled}
         />
       </PopoverContent>
     </Popover>

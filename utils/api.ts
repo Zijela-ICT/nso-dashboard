@@ -6,7 +6,7 @@ import storageUtil from "./browser-storage";
 import CONFIG from "./config";
 
 const api = axios.create({
-  baseURL: CONFIG.API_BASE_URL,
+  baseURL: CONFIG.API_BASE_URL
 });
 
 api.interceptors.request.use(async (config) => {
@@ -26,72 +26,96 @@ interface ValidationError {
   type: string;
 }
 
+interface ApiErrorResponse {
+  statusCode: number;
+  message: string | string[] | ValidationError[];
+  error: string | null;
+  timestamp?: string;
+  path?: string;
+  detail?: string | ValidationError[];
+}
+
 const formatErrorDetail = (
-  detail: string | ValidationError[] | undefined
+  detail: string | string[] | ValidationError[] | undefined
 ): string => {
   if (!detail) return "Request failed, Try again later.";
 
-  if (Array.isArray(detail)) {
-    // Extract messages from the validation error objects
-    return detail.map((error) => error.msg).join("\n");
+  // Handle array of validation errors
+  if (Array.isArray(detail) && detail.length > 0) {
+    // Check if it's an array of ValidationError objects
+    if (typeof detail[0] === "object" && "msg" in detail[0]) {
+      return (detail as ValidationError[]).map((error) => error.msg).join("\n");
+    }
+    // If it's an array of strings
+    return (detail as string[]).join("\n");
   }
 
   // If it's a string, return as is
-  return detail;
+  return detail.toString();
 };
 
 const handleApiError = (
-  error: AxiosError,
+  error: AxiosError<ApiErrorResponse>,
   showError: boolean,
   show404Error: boolean = true
 ) => {
   let errorMessage: { message: any; status: any; statusCode: any } = {
     message: "An error occurred. Please try again later.",
     status: false,
-    statusCode: null,
+    statusCode: null
   };
+
   if (error.response) {
-    const { data, statusCode, status }: any = error.response;
+    const { data, status }: any = error.response;
+    const statusCode = data.statusCode || status;
+
+    // Handle the message formatting
+    let formattedMessage: string;
+    if (statusCode >= 500) {
+      formattedMessage =
+        "Something went wrong on our end. Please try again later.";
+    } else if (showError) {
+      // Try to get message from different possible locations
+      const messageContent = data.detail || data.message;
+      formattedMessage = formatErrorDetail(messageContent);
+    } else {
+      formattedMessage = "An error occurred.";
+    }
+
     errorMessage = {
-      message:
-        statusCode >= 500 || status >= 500
-          ? "Something went wrong on our end. Please try again later."
-          : showError && formatErrorDetail(data.detail || data.message),
+      message: formattedMessage,
       status: status,
-      statusCode: statusCode,
+      statusCode: statusCode
     };
 
+    // Handle session expiration
     if (
       status === 401 &&
-      (data.detail?.toString().toLowerCase().includes("expired") || false)
+      (data.detail?.toString().toLowerCase().includes("expired") ||
+        data.message?.toString().toLowerCase().includes("expired"))
     ) {
       showToast("Session expired. Please login again.", "error");
       window.location.href = "/";
+      return;
     }
   } else if (error.request) {
     errorMessage = {
-      message: "Something went wrong on our end. Please try again later.",
+      message: "Network error. Please check your connection and try again.",
       status: false,
-      statusCode: null,
+      statusCode: null
     };
   }
+
+  // Show appropriate toast messages based on status
   if (
     errorMessage.status === 401 &&
-    (errorMessage.message?.toString().toLowerCase().includes("expired") ||
-      false)
+    errorMessage.message?.toString().toLowerCase().includes("expired")
   ) {
     showToast("Session expired. Please login again.", "error");
     window.location.href = "/";
-  } else if (
-    ((errorMessage.statusCode && errorMessage.statusCode >= 404) ||
-      errorMessage.status >= 404) &&
-    show404Error
-  ) {
+  } else if (errorMessage.status >= 404 && show404Error) {
     showError && showToast("Resource not found", "error");
-  } else if (
-    (errorMessage.statusCode && errorMessage.statusCode >= 500) ||
-    errorMessage.status >= 500
-  ) {
+  } else if (errorMessage.status >= 500) {
     showToast(errorMessage.message, "error");
   } else if (showError) {
     showToast(errorMessage.message, "error");
@@ -134,7 +158,7 @@ const request = async <T>(
       data: requestData,
       headers,
       cancelToken: source.token,
-      transformRequest: isFormData ? [(data) => data] : undefined,
+      transformRequest: isFormData ? [(data) => data] : undefined
     };
 
     if (isFileDownload) {

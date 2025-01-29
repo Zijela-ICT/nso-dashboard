@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 import {
   Table,
   TableBody,
@@ -11,35 +11,57 @@ import {
   Button,
   Icon,
   Pagination,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Input,
-  DatePicker,
+  DatePicker
 } from "@/components/ui";
-import { useFetchQuizzes } from "@/hooks/api/queries/quiz";
-
+import { useFetchAssessments, useFetchQuizzes } from "@/hooks/api/queries/quiz";
+import { useFetchAppUsers } from "@/hooks/api/queries/users";
+import { useCreateAssessment } from "@/hooks/api/mutations/quiz";
+import { ViewAudience } from "@/components/modals/quiz/view-audience";
 
 const MultiSelect = dynamic(
-  () => import('@/components/ui').then((mod) => mod.MultiSelect),
-  { 
+  () => import("@/components/ui").then((mod) => mod.MultiSelect),
+  {
     ssr: false,
-    loading: () => <div className="w-full h-10 bg-gray-100 animate-pulse rounded-lg" />
+    loading: () => (
+      <div className="w-full h-10 bg-gray-100 animate-pulse rounded-lg" />
+    )
   }
 );
 
 const Page = () => {
-  const { data: quizData } = useFetchQuizzes();
+  const reportsUserPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
+  const reportsPerPage = 20; // Adjust as needed
+
+  const createAssessment = useCreateAssessment();
+  const { data: assessmentData } = useFetchAssessments(
+    currentPage,
+    reportsPerPage
+  );
+  const { data: usersData } = useFetchAppUsers(1, reportsUserPerPage);
+  const { data: quizData } = useFetchQuizzes();
+
+  // Existing state
   const [isMounted, setIsMounted] = useState(false);
   const [assessmentTitle, setAssessmentTitle] = useState("");
-  const [selectedQuiz, setSelectedQuiz] = useState("");
+  const [selectedQuiz, setSelectedQuiz] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedCadre, setSelectedCadre] = useState("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [duration, setDuration] = useState("40");
+  const [selectedDays, setSelectedDays] = useState([]);
 
-  const [selectedDays, setSelectedDays] = useState<
-    { value: string; name: string }[]
-  >([]);
-
-
+  const [openModal, setOpenModal] = useState(false);
+  const [assessmentId, setAssessmentId] = useState(null);
+  // New state for assignment type
+  const [assignmentType, setAssignmentType] = useState(null); // 'user' or 'cadre'
 
   const quizOptions = React.useMemo(() => {
     if (!quizData?.data) return [];
@@ -49,9 +71,23 @@ const Page = () => {
     }));
   }, [quizData?.data]);
 
+  const cadreOptions = [
+    { label: "CHO", value: "CHO" },
+    { label: "CHEW", value: "CHEW" },
+    { label: "JCHEW", value: "JCHEW" }
+  ];
+
+  const userList = React.useMemo(() => {
+    if (!usersData?.data) return [];
+    return usersData?.data?.data?.map((user) => ({
+      label: `${user.firstName} ${user.lastName}`,
+      value: user.id
+    }));
+  }, [usersData?.data]);
+
   const notificationDays = React.useMemo(() => {
     return Array.from({ length: 30 }, (_, i) => ({
-      value: String(i + 1),
+      value: Number(i + 1),
       label: `${i + 1} ${i + 1 === 1 ? "day" : "days"}`
     }));
   }, []);
@@ -60,66 +96,140 @@ const Page = () => {
     setIsMounted(true);
   }, []);
 
-  const assessments = [
-    {
-      title: "JCEW Assessment",
-      quiz: "Malaria Assessment",
-      startDate: "12/12/2024",
-      endDate: "31/12/2024",
-      audience: "View audience",
-      duration: 40
-    },
-    {
-      title: "Ruth",
-      quiz: "Bamidele",
-      startDate: "123456789",
-      endDate: "123456789",
-      audience: "View audience",
-      duration: 40
-    },
-    {
-      title: "Jacob",
-      quiz: "Jacobs",
-      startDate: "123456789",
-      endDate: "123456789",
-      audience: "View audience",
-      duration: 40
-    },
-    {
-      title: "Olusegun",
-      quiz: "Sylvester",
-      startDate: "123456789",
-      endDate: "123456789",
-      audience: "View audience",
-      duration: 40
-    },
-    {
-      title: "Amaka",
-      quiz: "Egwuda",
-      startDate: "123456789",
-      endDate: "123456789",
-      audience: "View audience",
-      duration: 40
-    },
-    {
-      title: "Garuba",
-      quiz: "Adamu",
-      startDate: "123456789",
-      endDate: "123456789",
-      audience: "View audience",
-      duration: 40
+  const handleAssignmentTypeSelect = (type) => {
+    setAssignmentType(type);
+    // Reset the other selection when switching types
+    if (type === "user") {
+      setSelectedCadre("");
+    } else {
+      setSelectedUsers([]);
     }
-  ];
+  };
+
+  const useAssessmentValidation = (
+    assessmentTitle: string,
+    selectedQuiz: Array<{ value: number }>,
+    startDate: Date | undefined,
+    endDate: Date | undefined,
+    duration: string,
+    selectedDays: Array<{ value: number }>,
+    assignmentType: string | null,
+    selectedUsers: Array<{ value: number }>,
+    selectedCadre: string
+  ) => {
+    const isValid = React.useMemo(() => {
+      // Basic field validation
+      const hasTitle = assessmentTitle.trim() !== "";
+      const hasQuizzes = selectedQuiz.length > 0;
+      const hasDates = startDate && endDate;
+      const hasDuration = duration !== "" && Number(duration) > 0;
+      const hasReminders = selectedDays.length > 0;
+
+      // Assignment type validation
+      const hasValidAssignment =
+        assignmentType === "user"
+          ? selectedUsers.length > 0
+          : assignmentType === "cadre"
+          ? selectedCadre !== ""
+          : false;
+
+      return (
+        hasTitle &&
+        hasQuizzes &&
+        hasDates &&
+        hasDuration &&
+        hasReminders &&
+        hasValidAssignment
+      );
+    }, [
+      assessmentTitle,
+      selectedQuiz,
+      startDate,
+      endDate,
+      duration,
+      selectedDays,
+      assignmentType,
+      selectedUsers,
+      selectedCadre
+    ]);
+
+    return isValid;
+  };
+
+  const handleCreateAssessment = async () => {
+    if (!startDate || !endDate) {
+      return;
+    }
+
+    // Create a new Date object to avoid mutating the state
+    const startDateCopy = new Date(startDate);
+    const endDateCopy = new Date(endDate);
+
+    const formattedStartDate = new Date(
+      startDateCopy.setHours(10, 0, 0, 0)
+    ).toISOString();
+    const formattedEndDate = new Date(
+      endDateCopy.setHours(23, 59, 59, 999)
+    ).toISOString();
+
+    const payload = {
+      name: assessmentTitle,
+      quizIds: selectedQuiz,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      duration: Number(duration),
+      dayReminderSchedule: selectedDays
+    };
+
+    try {
+      if (assignmentType === "cadre") {
+        await createAssessment.mutateAsync({
+          ...payload,
+          cadre: selectedCadre as "JCHEW" | "CHEW" | "CHO"
+        });
+      } else {
+        await createAssessment.mutateAsync({
+          ...payload,
+          audience: selectedUsers
+        });
+      }
+
+      // Clear all input fields after successful creation
+      setAssessmentTitle("");
+      setSelectedQuiz([]);
+      setSelectedUsers([]);
+      setSelectedCadre("");
+      setStartDate(undefined);
+      setEndDate(undefined);
+      setDuration("40");
+      setSelectedDays([]);
+      setAssignmentType(null);
+    } catch (error) {
+      // Error handling is already managed by the mutation
+      console.error("Failed to create assessment:", error);
+    }
+  };
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
 
+  const isFormValid = useAssessmentValidation(
+    assessmentTitle,
+    selectedQuiz,
+    startDate,
+    endDate,
+    duration,
+    selectedDays,
+    assignmentType,
+    selectedUsers,
+    selectedCadre
+  );
+
   if (!isMounted) {
     return null;
   }
 
-  
   return (
     <div className="w-full">
       {/* Assessment Header */}
@@ -144,7 +254,6 @@ const Page = () => {
                 placeholder="Select quiz type"
               />
             </div>
-
             <div className="w-full">
               <MultiSelect
                 isMulti
@@ -167,6 +276,7 @@ const Page = () => {
             <div className="w-full">
               <DatePicker
                 value={endDate}
+                fromDate={startDate || undefined}
                 onChange={setEndDate}
                 placeholder="Select end date"
               />
@@ -184,43 +294,121 @@ const Page = () => {
             </div>
           </div>
 
+          <div className="flex flex-row justify-between w-full items-center space-x-4">
+            {/* Conditional rendering for user/cadre selection */}
+            <div className="w-full">
+              {assignmentType === "cadre" ? (
+                <Select value={selectedCadre} onValueChange={setSelectedCadre}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select cadre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cadreOptions?.map((cadre) => (
+                      <SelectItem key={cadre.value} value={cadre.value}>
+                        {cadre.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : assignmentType === "user" ? (
+                <MultiSelect
+                  isMulti
+                  usePortal
+                  options={userList}
+                  value={selectedUsers}
+                  onChange={(value) => setSelectedUsers(value)}
+                  placeholder="Select users"
+                />
+              ) : null}
+            </div>
+          </div>
+
+          {/* Updated button section */}
           <div className="flex justify-end space-x-4">
-            <Button variant="outline" className="w-40">
-              Add to Individuals
-            </Button>
-            <Button className="w-40 bg-green-600 hover:bg-green-700 text-white">
-              Assign to Cadre
-            </Button>
+            {assignmentType === "cadre" ? (
+              <>
+                <Button
+                  variant="outline"
+                  className="w-40"
+                  onClick={() => handleAssignmentTypeSelect("user")}>
+                  Add to Individuals
+                </Button>
+
+                <Button
+                  className="w-40"
+                  disabled={!isFormValid || createAssessment.isLoading}
+                  onClick={handleCreateAssessment}>
+                  Create Assessment
+                </Button>
+              </>
+            ) : assignmentType === "user" ? (
+              <>
+                <Button
+                  variant="outline"
+                  className="w-40"
+                  onClick={() => handleAssignmentTypeSelect("cadre")}>
+                  Assign to Cadre
+                </Button>
+                <Button
+                  className="w-40"
+                  onClick={handleCreateAssessment}
+                  isLoading={createAssessment.isLoading}>
+                  Create Assessment
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="w-40"
+                  onClick={() => handleAssignmentTypeSelect("user")}>
+                  Add to Individuals
+                </Button>
+                <Button
+                  className="w-40"
+                  onClick={() => handleAssignmentTypeSelect("cadre")}>
+                  Assign to Cadre
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
-
       {/* Assessment Table */}
       <div className="bg-white p-6 rounded-2xl">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Assessment title</TableHead>
-              <TableHead>Quiz</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>CADRE</TableHead>
               <TableHead>Start date</TableHead>
               <TableHead>End date</TableHead>
-              <TableHead>Audience</TableHead>
+              <TableHead>Audiences</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {assessments.map((assessment, index) => (
+            {assessmentData?.data?.data?.map((assessment, index) => (
               <TableRow key={index}>
-                <TableCell>{assessment.title}</TableCell>
-                <TableCell>{assessment.quiz}</TableCell>
+                <TableCell>{assessment.name}</TableCell>
+                <TableCell>{assessment.duration}</TableCell>
+                <TableCell>{assessment.cadre || "N/a"}</TableCell>
                 <TableCell>{assessment.startDate}</TableCell>
                 <TableCell>{assessment.endDate}</TableCell>
                 <TableCell>
-                  <button
-                    className="flex items-center text-gray-600"
-                    onClick={() => {}}>
-                    {assessment.audience}
-                    <Icon name="chevron-down" className="h-4 w-4 ml-1" />
-                  </button>
+                  {!assessment.cadre ? (
+                    <button
+                      className="flex items-center text-gray-600"
+                      onClick={() => {
+                        setOpenModal(true);
+                        setAssessmentId(assessment.id);
+                      }}>
+                      <span>View audiences</span>
+                      <Icon name="chevron-down" className="h-4 w-4 ml-1" />
+                    </button>
+                  ) : (
+                    <span>N/a</span>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -230,10 +418,17 @@ const Page = () => {
         <div className="mt-4">
           <Pagination
             currentPage={currentPage}
-            totalPages={5}
+            totalPages={assessmentData?.data?.totalPages}
             onPageChange={onPageChange}
           />
         </div>
+        {!!assessmentId && (
+          <ViewAudience
+            openModal={openModal}
+            setOpenModal={setOpenModal}
+            assessmentId={assessmentId}
+          />
+        )}
       </div>
     </div>
   );
