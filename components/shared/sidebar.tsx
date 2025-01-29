@@ -96,6 +96,29 @@ const routes: RouteItem[] = [
   },
   {
     id: 6,
+    icon: "message-question",
+    label: "Quiz",
+    href: "/quiz",
+    permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+    subItems: [
+      {
+        label: "Quiz",
+        href: "/quiz/quiz",
+        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+      }, {
+        label: "Assessments",
+        href: "/quiz/assessments",
+        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+      },
+      {
+        label: "Submissions",
+        href: "/quiz/submissions",
+        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+      }
+    ]
+  },
+  {
+    id: 7,
     icon: "users",
     label: "Users",
     href: "/users",
@@ -117,7 +140,7 @@ const routes: RouteItem[] = [
     ],
   },
   {
-    id: 7,
+    id: 8,
     icon: "setting",
     label: "Settings",
     href: "/settings",

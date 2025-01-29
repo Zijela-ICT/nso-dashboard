@@ -15,4 +15,5 @@ export * from "./input-otp";
 export * from "./checkbox";
 export * from "./tabs";
 export * from "./multi-select";
-export * from "./switch"
+export * from "./switch";
+export * from "./date-picker";
