@@ -3,10 +3,10 @@ import { QUERYKEYS } from "@/utils/query-keys";
 import { useQuery } from "react-query";
 
 export interface iAuditLog {
-  id: number;
+  id: 1276;
   createdAt: string;
-  userId: number;
   action: string;
+  isSuccess: boolean;
   resource: string;
   resourceType: string | null;
   resourceId: string | null;
@@ -14,6 +14,31 @@ export interface iAuditLog {
   metadata: {
     ipAddress: string;
     userAgent: string;
+    error: string | null;
+  };
+  user: {
+    id: number;
+    regNumber: string | null;
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    mobile: string | null;
+    cadre: string;
+    regExpiration: string | null;
+    isChprbnBlocked: boolean;
+    isDeactivated: boolean;
+    avatar: string | null;
+    isEmailConfirmed: boolean;
+    twoFASecret: string | null;
+    isFirstLogin: boolean;
+    twoFaMethod: string | null;
+    isTwoFAEnabled: boolean;
+    createdAt: string;
+    updatedAt: string;
+    fcmTokens: string | null;
+    deletedAt: string | null;
   };
 }
 
