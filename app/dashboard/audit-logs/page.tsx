@@ -53,7 +53,7 @@ const Page = () => {
         <TableBody>
           {auditLogs?.map((user, index) => (
             <TableRow className="cursor-pointer" key={index}>
-              <TableCell>{user.userId}</TableCell>
+              <TableCell>{user.user.email}</TableCell>
               <TableCell>{user.resource}</TableCell>
               <TableCell>{user.metadata.ipAddress}</TableCell>
               <TableCell>
