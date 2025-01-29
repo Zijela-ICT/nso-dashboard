@@ -1,7 +1,7 @@
-import {AxiosError} from 'axios';
-import {useMutation} from 'react-query';
+import { AxiosError } from "axios";
+import { useMutation } from "react-query";
 
-import request from '@/utils/api';
+import request from "@/utils/api";
 
 type ResponseType = {
   status: string;
@@ -18,24 +18,24 @@ type InputType = {
   newPassword: string;
 };
 
-type ErrorType = {error: string; success: boolean};
+type ErrorType = { error: string; success: boolean };
 
 const ChangePassword = (input: InputType): Promise<ResponseType> => {
   return request(
-    'PATCH',
+    "PATCH",
     `/users/password-change`,
     {
       oldPassword: input.oldPassword,
-      newPassword: input.newPassword,
+      newPassword: input.newPassword
     },
-    false,
+    false
   );
 };
 
 const useChangePassword = () => {
   return useMutation<ResponseType, AxiosError<ErrorType>, InputType>(
-    (input: InputType) => ChangePassword(input),
+    (input: InputType) => ChangePassword(input)
   );
 };
 
-export {useChangePassword};
+export { useChangePassword };
