@@ -23,7 +23,7 @@ export type PermissionResp = {
 
 export const FetchPermissions = async (
   page: number = 1,
-  perPage: number = 100
+  perPage: number = 150
 ): Promise<PermissionResp> => {
   return request(
     "GET",
@@ -33,7 +33,7 @@ export const FetchPermissions = async (
 
 export const useFetchPermissions = (
   page: number = 1,
-  perPage: number = 100
+  perPage: number = 150
 ) => {
   const queryKey = [QUERYKEYS.FETCHPERMISSIONS, page, perPage];
   return useQuery(queryKey, () => FetchPermissions(page, perPage), {
