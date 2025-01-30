@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const BinaryImageRenderer = ({ url }: { url: string }) => {
+const VideoRenderer = ({ url }: { url: string }) => {
   const [fileBlob, setFileBlob] = useState<Blob | null>(null);
 
   useEffect(() => {
@@ -25,15 +25,15 @@ const BinaryImageRenderer = ({ url }: { url: string }) => {
   }, [url]);
 
   if (!fileBlob) {
-    return <div>Loading...</div>;
+    return <div>Loading video...</div>;
   }
 
   const fileUrl = URL.createObjectURL(fileBlob);
   return (
     <div>
-      <img src={fileUrl} alt="" className="w-[200px]" />
+      <video src={fileUrl} controls />
     </div>
   );
 };
 
-export default BinaryImageRenderer;
+export default VideoRenderer;

@@ -11,6 +11,7 @@ import AddDecisionTreeModal from "./AddDecisiontreeModal";
 import AddLinkableModal from "./AddLinkableModal";
 import AddTableModal from "./AddTableModal";
 import AddSpacerModal from "./AddSpacer";
+import AddVideoModal from "./AddVideoModal";
 
 function AddDropdown({
   addNewElement,
@@ -22,6 +23,7 @@ function AddDropdown({
   const [showDecisionTreeModal, setShowDecisionTreeModal] = useState(false);
   const [showInfographicModal, setShowInfographicModal] =
     useState<boolean>(false);
+  const [showVideoModal, setShowVideoModal] = useState<boolean>(false);
   const [showLinkableModal, setShowLinkableModal] = useState<boolean>(false);
   const [showSpacerModal, setSpacerModal] = useState<boolean>(false);
   const [showTableModal, setShowTableModal] = useState<boolean>(false);
@@ -99,6 +101,22 @@ function AddDropdown({
             <AddInfographicModal
               onClose={() => setShowInfographicModal(false)}
               showInfographicModal={showInfographicModal}
+              addNewElement={(e, f) => {
+                addNewElement(e, f);
+                closeModals();
+              }}
+            />
+          </div>
+          <div className="px-4 py-2 hover:bg-[#f2f2f2] cursor-pointer w-full">
+            <button
+              className="text-sm w-full h-full text-left"
+              onClick={() => setShowVideoModal(true)}
+            >
+              Video
+            </button>
+            <AddVideoModal
+              onClose={() => setShowVideoModal(false)}
+              showVideoModal={showVideoModal}
               addNewElement={(e, f) => {
                 addNewElement(e, f);
                 closeModals();
