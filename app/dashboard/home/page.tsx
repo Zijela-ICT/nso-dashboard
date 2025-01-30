@@ -1,23 +1,15 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import BarChartComponent from "./components/Bar";
 import { PieChartComponent } from "./components/Pie";
 import { Card } from "@/components/ui/card";
 import { useDashboardMetrics } from "@/hooks/api/queries/users/useDashboardMetrics";
 import { useFetchAppUsers } from "@/hooks/api/queries/users";
+import { Spinner } from "@/components/ui";
 
 const Page = () => {
-  // Add loading states
-  const [isLoading, setIsLoading] = useState(true);
-  const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
-  const { data: users, isLoading: usersLoading } = useFetchAppUsers(1, 10000000);
-
-  // Wait for data to be available before rendering
-  useEffect(() => {
-    if (!metricsLoading && !usersLoading) {
-      setIsLoading(false);
-    }
-  }, [metricsLoading, usersLoading]);
+  const { data: metrics, isLoading } = useDashboardMetrics();
+  const { data: users } = useFetchAppUsers(1, 10000000);
 
   const headings = [
     {
@@ -38,11 +30,11 @@ const Page = () => {
     },
   ];
 
-  if (isLoading) {
-    return <div className="px-6 py-20">Loading...</div>;
-  }
-
-  return (
+  return isLoading ? (
+    <div className="w-full py-[100px] flex items-center justify-center">
+      <Spinner className="animate-spin" />
+    </div>
+  ) : (
     <div className="px-6 py-20">
       <div className="grid grid-cols-4 gap-4">
         {headings?.map((heading, i) => (
