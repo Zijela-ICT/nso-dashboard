@@ -14,6 +14,7 @@ import {
   SubSubChapter,
   TableData,
 } from "../booktypes";
+import { VideoData } from "../components/AddVideoModal";
 
 function isItem(obj: unknown): obj is Item {
   return obj !== null && typeof obj === "object" && "type" in obj;
@@ -385,6 +386,7 @@ export const createNewItem = (
     | IDecisionTree
     | Linkable
     | InfographicData
+    | VideoData
     | Space
     | string[],
   forDecisionTree?: boolean
@@ -420,13 +422,22 @@ export const createNewItem = (
       };
       break;
     }
-    case "infographic": {
+    case "image": {
       const data = createData as InfographicData;
       newItem = {
         type,
         src: data.image as string,
         alt: `${newItemKey}_alt`,
         forDecisionTree: forDecisionTree || false,
+      };
+      break;
+    }
+    case "video": {
+      const data = createData as VideoData;
+      newItem = {
+        type,
+        src: data?.video as string,
+        alt: `${newItemKey}_alt`,
       };
       break;
     }
@@ -590,7 +601,8 @@ export const handleCreateNewElement = (
       type === "table" ||
       type === "linkable" ||
       type === "decision" ||
-      type === "infographic" ||
+      type === "image" ||
+      type === "video" ||
       type === "space"
     ) {
       newItem = createNewItem(type, newItemKey, createData);

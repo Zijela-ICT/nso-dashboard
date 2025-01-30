@@ -8,17 +8,17 @@ import {
 import { Button } from "../../../../components/ui/button";
 import { uploadFile } from "@/utils/book.services";
 
-export interface InfographicData {
-  image: File | string; // Adjust this based on your actual data structure
+export interface VideoData {
+  video: File | string; // Adjust this based on your actual data structure
 }
 
-function AddInfographicModal({
+function AddVideoModal({
   addNewElement,
-  showInfographicModal,
+  showVideoModal,
   onClose,
 }: {
-  addNewElement: (e: string, f: InfographicData) => void;
-  showInfographicModal: boolean;
+  addNewElement: (e: string, f: VideoData) => void;
+  showVideoModal: boolean;
   onClose: () => void;
 }) {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -31,13 +31,12 @@ function AddInfographicModal({
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
     const form = new FormData();
     form.append("file", selectedImage);
-
+    setLoading(true);
     try {
       const res = await uploadFile(form);
-      addNewElement("image", { image: res.data });
+      addNewElement("video", { video: res.data });
       onClose();
     } catch (error) {
       console.log(error.response.data);
@@ -47,26 +46,22 @@ function AddInfographicModal({
   };
 
   return (
-    <Dialog open={showInfographicModal} onOpenChange={onClose}>
+    <Dialog open={showVideoModal} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add image</DialogTitle>
+          <DialogTitle>Add video</DialogTitle>
         </DialogHeader>
         <div className="bg-white">
-          <h2 className="text-xl font-bold mb-4">Upload Image</h2>
+          <h2 className="text-xl font-bold mb-4">Upload Video</h2>
           <input
             type="file"
-            accept="image/*"
+            accept="video/*"
             onChange={handleImageChange}
             className="mb-4"
           />
-          {selectedImage && <p>Selected image: {selectedImage.name}</p>}
-          <Button
-            // className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={handleSubmit}
-            isLoading={loading}
-          >
-            Add Image
+          {selectedImage && <p>Selected file: {selectedImage.name}</p>}
+          <Button isLoading={loading} onClick={handleSubmit}>
+            Add Video
           </Button>
         </div>
       </DialogContent>
@@ -74,4 +69,4 @@ function AddInfographicModal({
   );
 }
 
-export default AddInfographicModal;
+export default AddVideoModal;
