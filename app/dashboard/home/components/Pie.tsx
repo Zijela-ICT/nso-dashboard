@@ -41,12 +41,12 @@ export function PieChartComponent({
   const chartData = [
     {
       facilityType: "public",
-      facilities: pieData.public,
+      facilities: pieData?.public,
       fill: "var(--color-public)",
     },
     {
       facilityType: "private",
-      facilities: pieData.private,
+      facilities: pieData?.private,
       fill: "var(--color-private)",
     },
   ];
