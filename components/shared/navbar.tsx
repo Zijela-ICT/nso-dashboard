@@ -39,8 +39,8 @@ const Navbar = () => {
           <Avatar className="w-6 h-6 rounded-full">
             {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
             <AvatarFallback>
-              {data?.data?.firstName[0].toUpperCase() +
-                data?.data?.lastName[0].toUpperCase()}
+              {data?.data?.firstName ? `${data?.data?.firstName[0].toUpperCase() +
+                data?.data?.lastName[0].toUpperCase()}` : "L"}
             </AvatarFallback>
           </Avatar>
           <span className="font-medium text-sm text-primary hidden md:block">
