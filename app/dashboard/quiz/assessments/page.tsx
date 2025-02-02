@@ -23,6 +23,7 @@ import { useFetchAssessments, useFetchQuizzes } from "@/hooks/api/queries/quiz";
 import { useFetchAppUsers } from "@/hooks/api/queries/users";
 import { useCreateAssessment } from "@/hooks/api/mutations/quiz";
 import { ViewAudience } from "@/components/modals/quiz/view-audience";
+import { formatToLocalTime } from "@/utils/date-formatter";
 
 const MultiSelect = dynamic(
   () => import("@/components/ui").then((mod) => mod.MultiSelect),
@@ -393,8 +394,8 @@ const Page = () => {
                 <TableCell>{assessment.name}</TableCell>
                 <TableCell>{assessment.duration}</TableCell>
                 <TableCell>{assessment.cadre || "N/a"}</TableCell>
-                <TableCell>{assessment.startDate}</TableCell>
-                <TableCell>{assessment.endDate}</TableCell>
+                <TableCell>{formatToLocalTime(assessment.startDate)}</TableCell>
+                <TableCell>{formatToLocalTime(assessment.endDate)}</TableCell>
                 <TableCell>
                   {!assessment.cadre ? (
                     <button
