@@ -55,7 +55,8 @@ export type ItemTypes =
   | "unorderedList"
   | "orderedList"
   | "text"
-  | "infographic"
+  | "image"
+  | "video"
   | "linkable"
   | "space"
   | "heading2"
@@ -158,7 +159,7 @@ export interface FlattenedObj {
   dataPath?: string;
   forDecisionTree?: boolean;
   needsFixing?: boolean; // ignore. this was added to fix broken decision trees without their corresponding hidden items
-  canAddNewItem?: boolean
+  canAddNewItem?: boolean;
 }
 
 export interface FlattenedData {

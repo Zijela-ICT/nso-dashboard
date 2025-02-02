@@ -18,6 +18,7 @@ import ImageRenderer from "./ImageRenderer";
 import { groupClass } from "@/constants";
 import clsx from "clsx";
 import { useSearchParams } from "next/navigation";
+import VideoRenderer from "./VideoRenderer";
 
 interface NestedListItem {
   content: string | NestedContent[];
@@ -304,7 +305,7 @@ function PageItems({
               })}
           </ul>
         );
-      } else if (itemData.type === "infographic") {
+      } else if (itemData.type === "image") {
         element = (
           <div
             data-text_path={itemPath}
@@ -313,6 +314,17 @@ function PageItems({
             className="flex justify-center items-center w-full my-4"
           >
             <ImageRenderer url={itemData.src} key={index} />
+          </div>
+        );
+      } else if (itemData.type === "video") {
+        element = (
+          <div
+            data-text_path={itemPath}
+            data-text_type={itemData.type}
+            key={index}
+            className="flex justify-center items-center w-full my-4"
+          >
+            <VideoRenderer url={itemData.src} key={index} />
           </div>
         );
       } else if (itemData.type === "table") {
@@ -404,7 +416,7 @@ function PageItems({
           {(showDeleteAndAdd ||
             (itemData.type === "decision" && isEditting)) && (
             <button
-              className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px]"
+              className="group-hover:flex hidden w-8 h-8 bg-white rounded-full  items-center justify-center border border-[#e7e7e7] absolute bottom-0 -left-[10px] z-50"
               onClick={() => {
                 removeElement(elementIndex);
               }}
@@ -416,7 +428,7 @@ function PageItems({
           {element}
 
           {(showDeleteAndAdd || (items[0].canAddNewItem && isEditting)) && (
-            <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px]">
+            <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px] z-50">
               <AddDropdown
                 addNewElement={(e, f) => addNewElement(e, f, elementIndex)}
                 isList={["unorderedList", "orderedList"].includes(

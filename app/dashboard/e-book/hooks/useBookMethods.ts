@@ -258,7 +258,6 @@ const useBookMethods = () => {
       updatedData,
       "un_flat"
     );
-    console.log("unflattendContent", unflattendContent);
 
     if (returnData) {
       return unflattendContent;

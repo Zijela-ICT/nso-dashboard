@@ -166,6 +166,67 @@ function ApprovalPage() {
     // Remove trailing comma and space
     return pathString.trim().replace(/,$/, "");
   }
+  // function generateParentIndex(differences) {
+  //   const parentIndices = [];
+
+  //   differences.forEach((diff) => {
+  //     const path = diff.path;
+  //     const parentIndex = [];
+
+  //     // Skip book and content levels
+  //     let contentIndex = path.indexOf("content");
+  //     if (contentIndex !== -1) {
+  //       // Get the chapter index
+  //       if (typeof path[contentIndex + 1] === "number") {
+  //         parentIndex.push(path[contentIndex + 1]);
+  //       }
+
+  //       // Get subchapter index if it exists
+  //       let subChapterIndex = path.indexOf("subChapters");
+  //       if (
+  //         subChapterIndex !== -1 &&
+  //         typeof path[subChapterIndex + 1] === "number"
+  //       ) {
+  //         parentIndex.push(path[subChapterIndex + 1]);
+  //       }
+
+  //       // Get page index if it exists
+  //       let pageIndex = path.indexOf("pages");
+  //       if (pageIndex !== -1 && typeof path[pageIndex + 1] === "number") {
+  //         parentIndex.push(path[pageIndex + 1]);
+  //       }
+
+  //       // Get item index if it exists
+  //       let itemIndex = path.indexOf("items");
+  //       if (itemIndex !== -1) {
+  //         if (diff.kind === "A") {
+  //           parentIndex.push(diff.index);
+  //         } else if (typeof path[itemIndex + 1] === "number") {
+  //           parentIndex.push(path[itemIndex + 1]);
+  //         }
+  //       }
+  //     }
+
+  //     parentIndices.push({
+  //       path: path,
+  //       parentIndex: parentIndex,
+  //     });
+  //   });
+
+  //   return parentIndices;
+  // }
+
+  // const differenceIndices = useMemo(() => {
+  //   if (currentVersionDetails?.difference) {
+  //     return generateParentIndex(currentVersionDetails?.difference);
+  //   }
+  //   return [];
+  // }, [currentVersionDetails?.difference]);
+  // console.log(
+  //   "currentVersionDetails?.difference",
+  //   currentVersionDetails?.difference
+  // );
+  // console.log("differenceIndices", differenceIndices);
 
   return (
     <div className="py-6">
