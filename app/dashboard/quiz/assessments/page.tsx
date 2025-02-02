@@ -17,12 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
   Input,
-  DatePicker
+  DatePicker,
+  DateTimePicker
 } from "@/components/ui";
 import { useFetchAssessments, useFetchQuizzes } from "@/hooks/api/queries/quiz";
 import { useFetchAppUsers } from "@/hooks/api/queries/users";
 import { useCreateAssessment } from "@/hooks/api/mutations/quiz";
 import { ViewAudience } from "@/components/modals/quiz/view-audience";
+import { formatToLocalTime } from "@/utils/date-formatter";
 
 const MultiSelect = dynamic(
   () => import("@/components/ui").then((mod) => mod.MultiSelect),
@@ -162,15 +164,11 @@ const Page = () => {
     }
 
     // Create a new Date object to avoid mutating the state
-    const startDateCopy = new Date(startDate);
-    const endDateCopy = new Date(endDate);
+    // const startDateCopy = new Date(startDate);
+    // const endDateCopy = new Date(endDate);
 
-    const formattedStartDate = new Date(
-      startDateCopy.setHours(10, 0, 0, 0)
-    ).toISOString();
-    const formattedEndDate = new Date(
-      endDateCopy.setHours(23, 59, 59, 999)
-    ).toISOString();
+    const formattedStartDate = startDate.toISOString();
+  const formattedEndDate = endDate.toISOString();
 
     const payload = {
       name: assessmentTitle,
@@ -266,20 +264,31 @@ const Page = () => {
             </div>
 
             <div className="w-full">
-              <DatePicker
+              {/* <DatePicker
                 value={startDate}
                 onChange={setStartDate}
                 placeholder="Select start date"
-              />
+              /> */}
+               <DateTimePicker
+    value={startDate}
+    onChange={setStartDate}
+    placeholder="Select start date and time"
+  />
             </div>
 
             <div className="w-full">
-              <DatePicker
+              {/* <DatePicker
                 value={endDate}
                 fromDate={startDate || undefined}
                 onChange={setEndDate}
                 placeholder="Select end date"
-              />
+              /> */}
+              <DateTimePicker
+    value={endDate}
+    fromDate={startDate || undefined}
+    onChange={setEndDate}
+    placeholder="Select end date and time"
+  />
             </div>
 
             <div className="flex items-center space-x-1">
@@ -393,8 +402,8 @@ const Page = () => {
                 <TableCell>{assessment.name}</TableCell>
                 <TableCell>{assessment.duration}</TableCell>
                 <TableCell>{assessment.cadre || "N/a"}</TableCell>
-                <TableCell>{assessment.startDate}</TableCell>
-                <TableCell>{assessment.endDate}</TableCell>
+                <TableCell>{formatToLocalTime(assessment.startDate)}</TableCell>
+                <TableCell>{formatToLocalTime(assessment.endDate)}</TableCell>
                 <TableCell>
                   {!assessment.cadre ? (
                     <button

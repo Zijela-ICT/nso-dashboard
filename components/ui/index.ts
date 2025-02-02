@@ -17,3 +17,4 @@ export * from "./tabs";
 export * from "./multi-select";
 export * from "./switch";
 export * from "./date-picker";
+export * from "./date-time-picker";
