@@ -11,14 +11,17 @@ import {
   Pagination,
   Button
 } from "@/components/ui";
-import { useFetchAppUsers } from "@/hooks/api/queries/users";
+import { useFetchUserByRole } from "@/hooks/api/queries/users";
+import { format } from "date-fns";
+import { useParams } from "next/navigation";
 import React, { useState } from "react";
 
 const Page = () => {
+  const params = useParams<{ id: string }>();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
 
-  const {data} = useFetchAppUsers(currentPage, reportsPerPage);
+  const { data } = useFetchUserByRole(params.id, currentPage, reportsPerPage);
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -27,6 +30,12 @@ const Page = () => {
   return (
     <div className="bg-white p-4 rounded-2xl mt-20">
       <div className="gap-4 flex flex-row items-center w-full mb-3">
+        <div className="w-[300px] text-xl font-medium">
+          Role:{" "}
+          <span className="font-semibold capitalize">
+            {decodeURIComponent(params.id)}
+          </span>
+        </div>
         <div className="relative w-full">
           <input
             className="border border-[#919EAB33] px-12 py-4 rounded-lg w-full text-[#637381] placeholder:text-[#637381] text-sm"
@@ -37,10 +46,7 @@ const Page = () => {
         <Button className="w-fit" variant="outline">
           Sort
         </Button>
-        <Button className="w-fit">
-          Filter 
-        </Button>
-        
+        <Button className="w-fit">Filter</Button>
       </div>
       <Table>
         <TableHeader>
@@ -62,8 +68,12 @@ const Page = () => {
               <TableCell>{user.lastName}</TableCell>
               <TableCell>{user.id}</TableCell>
               <TableCell>{user.email}</TableCell>
-              <TableCell>{user.regExpiration || "N/a"}</TableCell>
-              <TableCell>{user.cadre}</TableCell>
+              <TableCell>
+                {user.regExpiration
+                  ? format(new Date("2025-05-18T23:59:59.000Z"), "PPpp")
+                  : "N/a"}
+              </TableCell>
+              <TableCell>{user.cadre || "N/a"}</TableCell>
               <TableCell>
                 <Badge variant="success">{user.roles[0].name}</Badge>
               </TableCell>

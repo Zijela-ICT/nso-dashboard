@@ -1,18 +1,7 @@
 "use client";
-import {
-  CreateUser,
-  DeleteModal,
-  EditUser,
-  RoleManagementModal,
-  UploadBulkUser
-} from "@/components/modals/users";
+import { DeleteModal, RoleManagementModal } from "@/components/modals/users";
 import { CreateRoleModal } from "@/components/modals/users/create-role";
 import {
-  Badge,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Icon,
   Table,
   TableBody,
@@ -27,6 +16,7 @@ import { useDeleteRole } from "@/hooks/api/mutations/user";
 import { RoleDataResponse, useFetchRoles } from "@/hooks/api/queries/users";
 import { usePermissions } from "@/hooks/custom/usePermissions";
 import { SystemPermissions } from "@/utils/permission-enums";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 interface RoleManagementProps {
@@ -35,6 +25,7 @@ interface RoleManagementProps {
   mode: "view" | "edit";
 }
 const Roles = () => {
+  const router = useRouter();
   const { hasPermission } = usePermissions();
   const { mutate, isLoading: isLoadingDeleteRole } = useDeleteRole();
 
@@ -87,6 +78,18 @@ const Roles = () => {
               <TableCell>
                 <div className="flex flex-row items-center justify-start gap-2">
                   {hasPermission([
+                    SystemPermissions.READ_ADMIN_USERS_SYSTEM,
+                    SystemPermissions.READ_ADMIN_USERS_APP,
+                  ]) && (
+                    <div
+                      className="text-[#212B36] text-sm font-bold border border-[#919EAB52] py-1.5 px-3 rounded-lg"
+                      onClick={() =>
+                        router.push(`/dashboard/users/roles/${role.name}`)
+                      }>
+                      View user
+                    </div>
+                  )}
+                  {hasPermission([
                     SystemPermissions.READ_ADMIN_ROLES_PERMISSIONS,
                     SystemPermissions.UPDATE_ADMIN_ROLES,
                     SystemPermissions.READ_ADMIN_ROLES_ID
@@ -119,17 +122,18 @@ const Roles = () => {
                       Edit role
                     </div>
                   )}
-                  {hasPermission(SystemPermissions.DELETE_ADMIN_ROLES) && role.name !== "super_admin" && (
-                    <Icon
-                      name="trash"
-                      className="text-[#FF3B30]"
-                      fill="#FF3B30"
-                      onClick={() => {
-                        setSelectedRole(role.id);
-                        setDeleteModal(true);
-                      }}
-                    />
-                  )}
+                  {hasPermission(SystemPermissions.DELETE_ADMIN_ROLES) &&
+                    role.name !== "super_admin" && (
+                      <Icon
+                        name="trash"
+                        className="text-[#FF3B30]"
+                        fill="#FF3B30"
+                        onClick={() => {
+                          setSelectedRole(role.id);
+                          setDeleteModal(true);
+                        }}
+                      />
+                    )}
                 </div>
               </TableCell>
             </TableRow>
@@ -154,13 +158,16 @@ const Roles = () => {
         subText="Are you sure you want to delete this role "
         loading={isLoadingDeleteRole}
         handleConfirm={() => {
-          mutate({
-            id: selectedRole
-          }, {
-            onSuccess: () => {
-              setDeleteModal(false);
+          mutate(
+            {
+              id: selectedRole
+            },
+            {
+              onSuccess: () => {
+                setDeleteModal(false);
+              }
             }
-          });
+          );
         }}
       />
 
