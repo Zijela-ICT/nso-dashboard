@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
   Input,
-  DatePicker,
   DateTimePicker
 } from "@/components/ui";
 import { useFetchAssessments, useFetchQuizzes } from "@/hooks/api/queries/quiz";
@@ -168,7 +167,7 @@ const Page = () => {
     // const endDateCopy = new Date(endDate);
 
     const formattedStartDate = startDate.toISOString();
-  const formattedEndDate = endDate.toISOString();
+    const formattedEndDate = endDate.toISOString();
 
     const payload = {
       name: assessmentTitle,
@@ -269,11 +268,11 @@ const Page = () => {
                 onChange={setStartDate}
                 placeholder="Select start date"
               /> */}
-               <DateTimePicker
-    value={startDate}
-    onChange={setStartDate}
-    placeholder="Select start date and time"
-  />
+              <DateTimePicker
+                value={startDate}
+                onChange={setStartDate}
+                placeholder="Select start date and time"
+              />
             </div>
 
             <div className="w-full">
@@ -284,11 +283,11 @@ const Page = () => {
                 placeholder="Select end date"
               /> */}
               <DateTimePicker
-    value={endDate}
-    fromDate={startDate || undefined}
-    onChange={setEndDate}
-    placeholder="Select end date and time"
-  />
+                value={endDate}
+                fromDate={startDate || undefined}
+                onChange={setEndDate}
+                placeholder="Select end date and time"
+              />
             </div>
 
             <div className="flex items-center space-x-1">

@@ -24,10 +24,9 @@ type SingleAssessmentResp = {
     ];
     audience: [
       {
-        id: 15;
-      },
-      {
-        id: 14;
+        id: string;
+        firstName: string;
+        lastName: string;
       }
     ];
   };

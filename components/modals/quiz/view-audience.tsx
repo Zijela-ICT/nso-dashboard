@@ -22,8 +22,6 @@ const ViewAudience = ({
 }: ViewAudienceModalProps) => {
   const { data } = useFetchSingleAssessment(assessmentId);
 
-  console.log("data", data);
-
   const handleClose = () => {
     setOpenModal(false);
   };
@@ -60,7 +58,7 @@ const ViewAudience = ({
         </AlertDialogHeader>
         <div className="flex flex-col item-start gap-8">
           {data?.data?.audience.map((audience) => (
-            <div key={audience?.id} className="text-[#101828] font-medium text-base">{audience?.id}</div>
+            <div key={audience?.id} className="text-[#101828] font-medium text-base">{audience?.firstName} {audience?.lastName}</div>
           ))}
         </div>
       </AlertDialogContent>
