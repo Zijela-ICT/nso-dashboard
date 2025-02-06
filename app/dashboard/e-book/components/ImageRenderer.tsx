@@ -30,8 +30,8 @@ const BinaryImageRenderer = ({ url }: { url: string }) => {
 
   const fileUrl = URL.createObjectURL(fileBlob);
   return (
-    <div>
-      <img src={fileUrl} alt="" className="w-[200px]" />
+    <div className="w-full">
+      <img src={fileUrl} alt="" className="w-[70%] mx-auto" />
     </div>
   );
 };
