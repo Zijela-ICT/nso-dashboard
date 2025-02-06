@@ -2,23 +2,27 @@ export interface Chapter {
   chapter: string;
   subChapters: SubChapter[];
   pages?: Page[];
+  id?: string;
 }
 
 export interface SubChapter {
   subChapterTitle: string; // Ensure this property exists
   subSubChapters?: SubSubChapter[]; // Add this line to include subSubChapters
   pages?: Page[];
+  id?: string;
 }
 
 export interface SubSubChapter {
   subSubChapterTitle: string; // Title for the subSubChapter
   pages: Page[]; // Pages under this subSubChapter
+  id?: string;
 }
 
 export interface Page {
   pageTitle: string;
   items: (Item | Linkable | IDecisionTree)[];
   markVisit?: boolean;
+  id?: string;
 }
 
 export type iContent = string | { text?: string; linkTo?: string }[];
@@ -71,7 +75,7 @@ export interface Item {
   alt?: string;
   src?: string;
   type: ItemTypes;
-
+  id?: string;
   // decision_tree?: IDecisionTree;
   items?:
     | string[]
