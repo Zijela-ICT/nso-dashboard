@@ -166,6 +166,11 @@ function ApprovalPage() {
     // Remove trailing comma and space
     return pathString.trim().replace(/,$/, "");
   }
+  console.log(
+    "currentVersionDetails?.difference",
+    currentVersionDetails?.difference
+  );
+
   // function generateParentIndex(differences) {
   //   const parentIndices = [];
 
@@ -345,6 +350,8 @@ function ApprovalPage() {
                           path.push(diff.path[index]);
                         }
                       }
+
+                      path.filter((n) => n !== null);
 
                       return (
                         <AccordionItem key={i} value={`item-${i}`}>

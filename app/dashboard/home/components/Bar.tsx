@@ -1,5 +1,11 @@
 "use client";
-import { Bar, BarChart, CartesianGrid, XAxis, ResponsiveContainer } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  ResponsiveContainer,
+} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
@@ -19,9 +25,9 @@ export default function BarChartComponent({
 }) {
   const { JCHEW, CHEW, CHO } = graphData;
   const chartData = [
-    { cadre: "JCHEW", value: JCHEW || 0 },
-    { cadre: "CHEW", value: CHEW || 0 },
-    { cadre: "CHO", value: CHO || 0 },
+    { cadre: "JCHEW", assessments: JCHEW || 0 },
+    { cadre: "CHEW", assessments: CHEW || 0 },
+    { cadre: "CHO", assessments: CHO || 0 },
   ];
 
   const chartConfig = {
@@ -46,13 +52,17 @@ export default function BarChartComponent({
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 5)}
+                tickFormatter={(assessments) => assessments.slice(0, 5)}
               />
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent indicator="line" />}
               />
-              <Bar dataKey="value" fill="var(--color-desktop)" radius={4} />
+              <Bar
+                dataKey="assessments"
+                fill="var(--color-desktop)"
+                radius={4}
+              />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>

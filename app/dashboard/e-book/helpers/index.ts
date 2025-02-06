@@ -90,11 +90,6 @@ export function flattenArrayOfObjects(
             )
           );
         }
-        console.log(
-          "Array.isArray(typedItem.subChapters)",
-          Array.isArray(typedItem?.subChapters)
-        );
-        console.log("typedItem.subChapters", typedItem.subChapters);
 
         // Handle subChapters
         if (Array.isArray(typedItem?.subChapters)) {
