@@ -111,11 +111,11 @@ const routes: RouteItem[] = [
         href: "/quiz/assessments",
         permission: [SystemPermissions.READ_ADMIN_USERS_APP],
       },
-      {
-        label: "Submissions",
-        href: "/quiz/submissions",
-        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
-      },
+      // {
+      //   label: "Submissions",
+      //   href: "/quiz/submissions",
+      //   permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+      // },
     ],
   },
   {
@@ -144,7 +144,7 @@ const routes: RouteItem[] = [
     id: 8,
     icon: "setting",
     label: "Settings",
-    href: "/settings",
+    href: "/profile",
     permission: SystemPermissions.READ_APP_SETTINGS,
   },
   {
