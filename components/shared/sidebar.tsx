@@ -333,7 +333,7 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarMenu className="mt-10 border-t absolute bottom-0 left-0">
+        <SidebarMenu className="mt-10 border-t">
           <SidebarMenuItem
             onClick={handleLogout}
             className="py-3 pl-11 cursor-pointer flex flex-row gap-3 items-center "
