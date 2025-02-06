@@ -7,7 +7,7 @@ import useBookMethods from "../hooks/useBookMethods";
 import { UploadFileModal } from "../components/UploadFileModal";
 import { useBookContext } from "../context/bookContext";
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button, Spinner } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -132,8 +132,10 @@ function Ebook() {
         setShowDropdown(false);
       }}
     >
-      {loadingBook ? (
-        <Loader />
+      {loadingBook || !data?.book ? (
+        <div className="w-full py-[100px] flex items-center justify-center">
+          <Spinner />
+        </div>
       ) : (
         <>
           <Select
@@ -175,7 +177,7 @@ function Ebook() {
             fixDecisionTree={fixDecisionTree}
           />
 
-          {hasEditAccess && (
+          {hasEditAccess && isEditting && (
             <>
               <UploadFileModal onChange={handleFileUpload}>
                 <button className="fixed bottom-[120px] right-12 bg-[#136c2a] text-white px-4 h-[60px] w-[60px] rounded-full flex items-center justify-center shadow-md hover:shadow-lg">

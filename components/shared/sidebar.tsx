@@ -140,13 +140,13 @@ const routes: RouteItem[] = [
       },
     ],
   },
-  {
-    id: 8,
-    icon: "setting",
-    label: "Settings",
-    href: "/profile",
-    permission: SystemPermissions.READ_APP_SETTINGS,
-  },
+  // {
+  //   id: 8,
+  //   icon: "setting",
+  //   label: "Settings",
+  //   href: "/settings",
+  //   permission: SystemPermissions.READ_APP_SETTINGS,
+  // },
   {
     id: 9,
     icon: "audit",
@@ -333,7 +333,7 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarMenu className="mt-10 border-t ">
+        <SidebarMenu className="mt-10 border-t">
           <SidebarMenuItem
             onClick={handleLogout}
             className="py-3 pl-11 cursor-pointer flex flex-row gap-3 items-center "
