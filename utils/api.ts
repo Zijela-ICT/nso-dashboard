@@ -1,9 +1,102 @@
 /* eslint-disable  */
-
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { showToast } from "@/utils/toast";
 import storageUtil from "./browser-storage";
 import CONFIG from "./config";
+
+class AuthManager {
+  private static instance: AuthManager;
+  private isRefreshing: boolean = false;
+  private failedQueue: Array<{
+    resolve: (token: string) => void;
+    reject: (error: any) => void;
+  }> = [];
+
+  private constructor() {}
+
+  public static getInstance(): AuthManager {
+    if (!AuthManager.instance) {
+      AuthManager.instance = new AuthManager();
+    }
+    return AuthManager.instance;
+  }
+
+  private processQueue(error: any = null, token: string | null = null) {
+    this.failedQueue.forEach((promise) => {
+      if (error) {
+        promise.reject(error);
+      } else if (token) {
+        promise.resolve(token);
+      }
+    });
+    this.failedQueue = [];
+  }
+
+  private async refreshAuthToken(): Promise<string | null> {
+    try {
+      const refreshToken = storageUtil.get("@refresh_token");
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const response = await axios.post(
+        `${CONFIG.API_BASE_URL}/auth/refresh-token`,
+        { refreshToken }
+      );
+
+      const { data: newAccessToken } = response.data;
+
+      // Store the new access token
+      storageUtil.store("@chprbn", newAccessToken);
+
+      return newAccessToken;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  public async handleTokenRefresh(error: any): Promise<string | null> {
+    const originalRequest = error.config;
+
+    if (originalRequest._retry) {
+      return null;
+    }
+
+    if (this.isRefreshing) {
+      return new Promise((resolve, reject) => {
+        this.failedQueue.push({ resolve, reject });
+      });
+    }
+
+    originalRequest._retry = true;
+    this.isRefreshing = true;
+
+    try {
+      const newToken = await this.refreshAuthToken();
+
+      if (newToken) {
+        this.processQueue(null, newToken);
+        return newToken;
+      } else {
+        this.processQueue(new Error("Failed to refresh token"));
+        this.logout();
+        return null;
+      }
+    } catch (refreshError) {
+      this.processQueue(refreshError);
+      this.logout();
+      return null;
+    } finally {
+      this.isRefreshing = false;
+    }
+  }
+
+  public logout() {
+    storageUtil.delete("@chprbn");
+    storageUtil.delete("@refresh_token");
+    window.location.href = "/";
+  }
+}
 
 const api = axios.create({
   baseURL: CONFIG.API_BASE_URL
@@ -19,6 +112,26 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      const newToken = await AuthManager.getInstance().handleTokenRefresh(
+        error
+      );
+
+      if (newToken) {
+        originalRequest.headers.authorization = `Bearer ${newToken}`;
+        return api(originalRequest);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 interface ValidationError {
   loc: (string | number)[];
@@ -40,17 +153,13 @@ const formatErrorDetail = (
 ): string => {
   if (!detail) return "Request failed, Try again later.";
 
-  // Handle array of validation errors
   if (Array.isArray(detail) && detail.length > 0) {
-    // Check if it's an array of ValidationError objects
     if (typeof detail[0] === "object" && "msg" in detail[0]) {
       return (detail as ValidationError[]).map((error) => error.msg).join("\n");
     }
-    // If it's an array of strings
     return (detail as string[]).join("\n");
   }
 
-  // If it's a string, return as is
   return detail.toString();
 };
 
@@ -69,13 +178,11 @@ const handleApiError = (
     const { data, status }: any = error.response;
     const statusCode = data.statusCode || status;
 
-    // Handle the message formatting
     let formattedMessage: string;
     if (statusCode >= 500) {
       formattedMessage =
         "Something went wrong on our end. Please try again later.";
     } else if (showError) {
-      // Try to get message from different possible locations
       const messageContent = data.detail || data.message;
       formattedMessage = formatErrorDetail(messageContent);
     } else {
@@ -88,14 +195,14 @@ const handleApiError = (
       statusCode: statusCode
     };
 
-    // Handle session expiration
+    // Handle expired token
     if (
       status === 401 &&
       (data.detail?.toString().toLowerCase().includes("expired") ||
         data.message?.toString().toLowerCase().includes("expired"))
     ) {
       showToast("Session expired. Please login again.", "error");
-      window.location.href = "/";
+      AuthManager.getInstance().logout();
       return;
     }
   } else if (error.request) {
@@ -106,14 +213,7 @@ const handleApiError = (
     };
   }
 
-  // Show appropriate toast messages based on status
-  if (
-    errorMessage.status === 401 &&
-    errorMessage.message?.toString().toLowerCase().includes("expired")
-  ) {
-    showToast("Session expired. Please login again.", "error");
-    window.location.href = "/";
-  } else if (errorMessage.status >= 404 && show404Error) {
+  if (errorMessage.status >= 404 && show404Error) {
     showError && showToast("Resource not found", "error");
   } else if (errorMessage.status >= 500) {
     showToast(errorMessage.message, "error");
@@ -127,7 +227,6 @@ const handleApiError = (
 let CancelToken = axios.CancelToken;
 let source = CancelToken.source();
 
-// Axios request wrapper with loading and toast handling
 const request = async <T>(
   method: AxiosRequestConfig["method"],
   url: string,
@@ -136,9 +235,9 @@ const request = async <T>(
   showErrorMessage: boolean = true,
   customMessage: string = "",
   isFormData: boolean = false,
-  isFileDownload: boolean = false, // New parameter
+  isFileDownload: boolean = false,
   fileName?: string,
-  show404Error: boolean = false // New parameter
+  show404Error: boolean = false
 ): Promise<any> => {
   try {
     let requestData = data;
@@ -151,7 +250,6 @@ const request = async <T>(
       requestData = JSON.stringify(data);
     }
 
-    // Add responseType for file downloads
     const config: AxiosRequestConfig = {
       method,
       url,
@@ -167,13 +265,11 @@ const request = async <T>(
 
     const response = await api.request(config);
 
-    // Handle file download
     if (isFileDownload && response.data) {
       const contentType = response.headers["content-type"];
       const contentDisposition = response.headers["content-disposition"];
       let filename = fileName || "download";
 
-      // Extract filename from Content-Disposition header
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(
           /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
@@ -183,7 +279,6 @@ const request = async <T>(
         }
       }
 
-      // Create blob and trigger download
       const blob = new Blob([response.data], { type: contentType });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -206,6 +301,7 @@ const request = async <T>(
     return handleApiError(error, showErrorMessage, show404Error);
   }
 };
+
 export const cancelRequest = () => {
   source.cancel("Request cancelled or undone");
 };
