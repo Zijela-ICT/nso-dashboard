@@ -19,6 +19,7 @@ import {
   FlattenedObj,
   iContent,
   IDecisionTree,
+  Item,
   Linkable,
 } from "../booktypes";
 import RenderBook from "../components/RenderBook";
@@ -44,7 +45,7 @@ export interface VersionData {
     index: number;
     item: {
       kind: string;
-      lhs: iContent | Linkable | IDecisionTree | string[] | string;
+      lhs: Item | iContent | Linkable | IDecisionTree | string[] | string;
     };
     rhs: string;
     kind: string;
@@ -86,6 +87,23 @@ function ApprovalPage() {
       }
     }
   };
+
+  function isItem(
+    obj: Item | iContent | Linkable | IDecisionTree | string[] | string
+  ): obj is Item {
+    return obj && typeof obj === "object" && "id" in obj && "type" in obj; // assuming Item type has these properties
+  }
+
+  // Function to access id from lhs when it's an Item
+  function getItemId(difference: VersionData["difference"][0]): string | null {
+    const { item } = difference;
+
+    if (item && item.lhs && isItem(item.lhs)) {
+      return item.lhs.id;
+    }
+
+    return null;
+  }
 
   const downloadBook = async (url) => {
     try {
@@ -340,19 +358,6 @@ function ApprovalPage() {
                 <div className="h-full overflow-y-auto w-full mt-[70px]">
                   <Accordion type="single" collapsible className="w-full">
                     {currentVersionDetails?.difference?.map((diff, i) => {
-                      let pathEnding = "";
-                      if (diff.kind === "A") {
-                        pathEnding += `-${diff.index}`;
-                      }
-                      const path = [];
-                      for (let index = 0; index < diff.path.length; index++) {
-                        if (typeof diff.path[index] === "number") {
-                          path.push(diff.path[index]);
-                        }
-                      }
-
-                      path.filter((n) => n !== null);
-
                       return (
                         <AccordionItem key={i} value={`item-${i}`}>
                           <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
@@ -382,27 +387,11 @@ function ApprovalPage() {
                           </AccordionTrigger>
                           <AccordionContent className="p-2 bg-[#ffffff]">
                             <div>
-                              {/* <PageItems
-                            items={[
-                              {
-                                data: diff?.item?.lhs,
-                                parentIndex: [], //path,
-                              },
-                            ]}
-                            data={data}
-                            updateElementAtPath={null}
-                            elementIndex={null}
-                            addNewElement={null}
-                            removeElement={null}
-                            createNewItem={null}
-                          /> */}
-                              <Link
-                                href={`?hashId=item-${path.join(
-                                  "-"
-                                )}${pathEnding}`}
-                              >
-                                <Button size="sm">Visit element</Button>
-                              </Link>
+                              {getItemId(diff) && (
+                                <Link href={`?hashId=${getItemId(diff)}`}>
+                                  <Button size="sm">Visit element</Button>
+                                </Link>
+                              )}
                             </div>
                           </AccordionContent>
                         </AccordionItem>

@@ -161,6 +161,7 @@ export interface FlattenedObj {
     | Record<string, string | Item>;
   parentIndex: number[];
   dataPath?: string;
+  id?: string;
   forDecisionTree?: boolean;
   needsFixing?: boolean; // ignore. this was added to fix broken decision trees without their corresponding hidden items
   canAddNewItem?: boolean;

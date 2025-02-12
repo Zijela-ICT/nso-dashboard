@@ -63,7 +63,6 @@ function PageItems({
   const contentRef = useRef<HTMLParagraphElement | null>(null);
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
   const myRef = useRef<HTMLDivElement>(null);
-  const itemID = `item-${items[0].parentIndex.join("-")}`;
 
   const handleInputChange = (
     event: React.FormEvent<HTMLDivElement>,
@@ -94,13 +93,13 @@ function PageItems({
   };
 
   useEffect(() => {
-    if (hashId === itemID) {
+    if (hashId === itemData.id) {
       const element = document.getElementById(hashId);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, [hashId, itemID]);
+  }, [hashId, itemData]);
 
   if (!items[0] || !itemData) return <></>;
 
@@ -412,7 +411,13 @@ function PageItems({
         !itemData.forDecisionTree && itemData.type !== "decision" && isEditting;
 
       return (
-        <div className="group relative flex" key={index}>
+        <div
+          className={clsx("group relative flex", {
+            "bg-[#afe9c5] animate-pulse p-4": hashId === itemData.id,
+          })}
+          key={index}
+          id={itemData.id}
+        >
           {(showDeleteAndAdd ||
             (itemData.type === "decision" && isEditting)) && (
             <button
@@ -443,13 +448,7 @@ function PageItems({
   };
 
   return (
-    <div
-      className={clsx("text-[#344054] font-light p-1", {
-        "bg-[#afe9c5] animate-pulse": hashId === itemID,
-      })}
-      id={itemID}
-      ref={myRef}
-    >
+    <div className={clsx("text-[#344054] font-light p-1")} ref={myRef}>
       {renderItems(items)}
     </div>
   );
