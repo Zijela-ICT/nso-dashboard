@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import "./page.css";
-import { FileJson2Icon, Loader, Loader2, Upload } from "lucide-react";
+import { FileJson2Icon, Loader2, Upload } from "lucide-react";
 import useBookMethods from "../hooks/useBookMethods";
 
 import { UploadFileModal } from "../components/UploadFileModal";

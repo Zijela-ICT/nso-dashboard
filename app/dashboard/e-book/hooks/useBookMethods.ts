@@ -471,7 +471,7 @@ const useBookMethods = () => {
   const { book, locales } = useMemo(() => data, [data]) || {};
 
   const flattenBookData: FlattenedObj[] = useMemo(() => {
-    return flattenArrayOfObjects(data ? book?.content : []).filter(
+    return flattenArrayOfObjects(data ? book?.content : [])?.filter(
       (n) => n.data
     );
   }, [book?.content, data]);

@@ -76,6 +76,7 @@ export function flattenArrayOfObjects(
           results.push({
             data: typedItem.chapter as string,
             parentIndex: currentParentIndex,
+            id: (typedItem.id as string) || generateRandomString(),
           });
         }
         if (typedItem.type === "table" && typedItem.forDecisionTree) {
@@ -99,6 +100,7 @@ export function flattenArrayOfObjects(
               results?.push({
                 data: subChapter?.subChapterTitle as string,
                 parentIndex: [...currentParentIndex, subIndex],
+                id: (subChapter?.id as string) || generateRandomString(),
               });
             }
 
@@ -128,6 +130,8 @@ export function flattenArrayOfObjects(
                         subIndex,
                         subSubIndex,
                       ],
+                      id:
+                        (subSubChapter?.id as string) || generateRandomString(),
                     });
                   }
 
@@ -144,6 +148,7 @@ export function flattenArrayOfObjects(
                             subSubIndex,
                             pageIndex,
                           ],
+                          id: (page?.id as string) || generateRandomString(),
                         });
                       }
 
@@ -166,6 +171,7 @@ export function flattenArrayOfObjects(
                               pageIndex,
                               itemIndex,
                             ],
+                            id: (item?.id as string) || generateRandomString(),
                           });
                         });
                       }
@@ -183,6 +189,7 @@ export function flattenArrayOfObjects(
           {
             data: item as string | number | boolean | null | Item,
             parentIndex: currentParentIndex,
+            id: generateRandomString(),
           },
         ];
       }
@@ -233,7 +240,7 @@ export function unflattenArrayOfObjects(
   flattenedArray: FlattenedObj[]
 ): Chapter[] {
   const result: Chapter[] = [];
-  flattenedArray.forEach(({ data, parentIndex }) => {
+  flattenedArray.forEach(({ data, parentIndex, id }) => {
     const [chapterIndex, ...rest] = parentIndex;
     if (!data) {
       return;
@@ -252,6 +259,7 @@ export function unflattenArrayOfObjects(
     switch (parentIndex.length) {
       case 1: // Chapter title
         chapter.chapter = data as string;
+        chapter.id = id;
         chapter.pages = [{ items: [], pageTitle: "" }];
         chapter.subChapters = [];
         break;
@@ -267,9 +275,10 @@ export function unflattenArrayOfObjects(
             };
           }
           chapter.subChapters[rest[0]].subChapterTitle = data;
+          chapter.subChapters[rest[0]].id = id;
         } else {
           // Chapter page
-          chapter.pages[0].items[rest[0]] = data as Item;
+          chapter.pages[0].items[rest[0]] = { ...(data as Item), id };
           chapter.pages[0].items = chapter.pages[0].items.filter((n) => n); // used to filter out empty items
         }
         break;
@@ -305,8 +314,9 @@ export function unflattenArrayOfObjects(
           } else {
             subChapter.subSubChapters[rest[1]].subSubChapterTitle = data;
           }
+          subChapter.subSubChapters[rest[1]].id = id;
         } else {
-          subChapter.pages[0].items[rest[1]] = data as Item;
+          subChapter.pages[0].items[rest[1]] = { ...(data as Item), id };
           subChapter.pages[0].items = subChapter.pages[0].items.filter(
             (n) => n
           ); // used to filter out empty items
@@ -323,6 +333,7 @@ export function unflattenArrayOfObjects(
             targetSubChapter.subSubChapters[rest[1]] = {
               subSubChapterTitle: "",
               pages: [],
+              id,
             };
           }
           if (
@@ -332,11 +343,13 @@ export function unflattenArrayOfObjects(
             targetSubChapter.subSubChapters[rest[1]].pages[rest[2]] = {
               pageTitle: data as string,
               items: [],
+              id,
             };
           }
 
           targetSubChapter.subSubChapters[rest[1]].pages[rest[2]].pageTitle =
             data as string;
+          targetSubChapter.subSubChapters[rest[1]].pages[rest[2]].id = id;
         }
         break;
 
@@ -351,7 +364,10 @@ export function unflattenArrayOfObjects(
               items: [],
             };
           }
-          targetSubSubChapter.pages[rest[2]].items[rest[3]] = data as Item;
+          targetSubSubChapter.pages[rest[2]].items[rest[3]] = {
+            ...(data as Item),
+            id,
+          };
           targetSubSubChapter.pages[rest[2]].items = targetSubSubChapter.pages[
             rest[2]
           ].items.filter((n) => n); //filter out null items
@@ -464,7 +480,7 @@ export const createNewItem = (
     default:
       return null;
   }
-  return newItem;
+  return { ...newItem, id: generateRandomString() };
 };
 
 export const createNewPageData = (
@@ -521,7 +537,7 @@ export const createNewPageData = (
   return newItem;
 };
 
-export function generateRandomString(length: number = 8): string {
+export function generateRandomString(length: number = 12): string {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
