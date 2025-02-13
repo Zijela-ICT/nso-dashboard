@@ -429,9 +429,7 @@ function PageItems({
               <Trash className="w-4" />
             </button>
           )}
-
           {element}
-
           {(showDeleteAndAdd || (items[0].canAddNewItem && isEditting)) && (
             <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px] z-50">
               <AddDropdown

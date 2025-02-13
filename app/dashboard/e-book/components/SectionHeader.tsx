@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "../../../../components/ui/button";
 import { Plus, Trash } from "lucide-react";
 import {
@@ -18,6 +18,8 @@ import { InfographicData } from "./AddInfographicModal";
 import AddDropdown from "./AddDropdown";
 import { useBookContext } from "../context/bookContext";
 import { groupClass } from "@/constants";
+import { useSearchParams } from "next/navigation";
+import clsx from "clsx";
 
 function SectionHeader({
   updateElementAtPath,
@@ -44,6 +46,9 @@ function SectionHeader({
     PageItemType.Page,
   ];
 
+  const searchParams = useSearchParams();
+  const hashId = searchParams.get("hashId");
+
   const handleInput = (
     event: React.FormEvent<HTMLDivElement>,
     elementIndex
@@ -54,12 +59,27 @@ function SectionHeader({
     }
   };
 
+  useEffect(() => {
+    if (hashId === chapter.id) {
+      const element = document.getElementById(hashId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [hashId, chapter]);
+
   return (
     <h3
+      id={chapter.id}
       onBlur={(e) => handleInput(e, index)}
       contentEditable={isEditting}
       suppressContentEditableWarning={true}
-      className={`group  text-[18px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`}
+      className={clsx(
+        `group  text-[18px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`,
+        {
+          "bg-[#afe9c5] animate-pulse p-4": hashId === chapter.id,
+        }
+      )}
     >
       <p>{(chapter.data as string) || "---"}</p>
 

@@ -45,9 +45,11 @@ export interface VersionData {
     index: number;
     item: {
       kind: string;
-      lhs: Item | iContent | Linkable | IDecisionTree | string[] | string;
+      lhs?: Item | iContent | Linkable | IDecisionTree | string[] | string;
+      rhs?: Item | iContent | Linkable | IDecisionTree | string[] | string;
     };
     rhs: string;
+    lhs: Item | string;
     kind: string;
     path: string[];
   }[];
@@ -91,18 +93,23 @@ function ApprovalPage() {
   function isItem(
     obj: Item | iContent | Linkable | IDecisionTree | string[] | string
   ): obj is Item {
-    return obj && typeof obj === "object" && "id" in obj && "type" in obj; // assuming Item type has these properties
+    return obj && typeof obj === "object" && "id" in obj;
   }
 
   // Function to access id from lhs when it's an Item
-  function getItemId(difference: VersionData["difference"][0]): string | null {
-    const { item } = difference;
-
-    if (item && item.lhs && isItem(item.lhs)) {
-      return item.lhs.id;
+  function getItemId(difference: any): string | null {
+    let ID = null;
+    if (difference?.kind === "E") {
+      ID = difference.lhs as string;
     }
-
-    return null;
+    if (
+      difference &&
+      difference.item &&
+      (isItem(difference?.item?.lhs) || isItem(difference?.item?.rhs))
+    ) {
+      ID = difference?.item?.lhs?.id || difference?.item?.rhs?.id;
+    }
+    return ID;
   }
 
   const downloadBook = async (url) => {
@@ -118,7 +125,7 @@ function ApprovalPage() {
 
   const flattenBookData: FlattenedObj[] = useMemo(() => {
     return flattenArrayOfObjects(data ? data?.book?.content : []);
-  }, [data?.book]);
+  }, [data]);
 
   const currentVersionID: number | null = useMemo(() => {
     const whichBook = ebooks?.find((b) => b.id === Number(currentBookID));
@@ -134,6 +141,7 @@ function ApprovalPage() {
     try {
       await approveEbook(currentVersionID);
       showToast("Approval successful");
+      getCurrentBookVersion(currentBookID, null);
     } catch (error) {
       console.log(error);
     } finally {
@@ -146,6 +154,7 @@ function ApprovalPage() {
     try {
       await unApproveEbook(currentVersionID);
       showToast("Un approval successful");
+      getCurrentBookVersion(currentBookID, null);
     } catch (error) {
       console.log(error);
     } finally {
@@ -176,80 +185,17 @@ function ApprovalPage() {
         pathString += `${next + 1}, `;
       }
     }
-    // console.log(
-    //   'pathString.trim().replace(/,$/, "")',
-    //   pathString.trim().replace(/,$/, "")
-    // );
-
     // Remove trailing comma and space
     return pathString.trim().replace(/,$/, "");
   }
-  console.log(
-    "currentVersionDetails?.difference",
-    currentVersionDetails?.difference
-  );
 
-  // function generateParentIndex(differences) {
-  //   const parentIndices = [];
-
-  //   differences.forEach((diff) => {
-  //     const path = diff.path;
-  //     const parentIndex = [];
-
-  //     // Skip book and content levels
-  //     let contentIndex = path.indexOf("content");
-  //     if (contentIndex !== -1) {
-  //       // Get the chapter index
-  //       if (typeof path[contentIndex + 1] === "number") {
-  //         parentIndex.push(path[contentIndex + 1]);
-  //       }
-
-  //       // Get subchapter index if it exists
-  //       let subChapterIndex = path.indexOf("subChapters");
-  //       if (
-  //         subChapterIndex !== -1 &&
-  //         typeof path[subChapterIndex + 1] === "number"
-  //       ) {
-  //         parentIndex.push(path[subChapterIndex + 1]);
-  //       }
-
-  //       // Get page index if it exists
-  //       let pageIndex = path.indexOf("pages");
-  //       if (pageIndex !== -1 && typeof path[pageIndex + 1] === "number") {
-  //         parentIndex.push(path[pageIndex + 1]);
-  //       }
-
-  //       // Get item index if it exists
-  //       let itemIndex = path.indexOf("items");
-  //       if (itemIndex !== -1) {
-  //         if (diff.kind === "A") {
-  //           parentIndex.push(diff.index);
-  //         } else if (typeof path[itemIndex + 1] === "number") {
-  //           parentIndex.push(path[itemIndex + 1]);
-  //         }
-  //       }
-  //     }
-
-  //     parentIndices.push({
-  //       path: path,
-  //       parentIndex: parentIndex,
-  //     });
-  //   });
-
-  //   return parentIndices;
-  // }
-
-  // const differenceIndices = useMemo(() => {
-  //   if (currentVersionDetails?.difference) {
-  //     return generateParentIndex(currentVersionDetails?.difference);
-  //   }
-  //   return [];
-  // }, [currentVersionDetails?.difference]);
-  // console.log(
-  //   "currentVersionDetails?.difference",
-  //   currentVersionDetails?.difference
-  // );
-  // console.log("differenceIndices", differenceIndices);
+  const bookDifferences = useMemo(() => {
+    return (
+      currentVersionDetails?.difference?.filter(
+        (n) => typeof n.lhs !== "string"
+      ) || []
+    );
+  }, [currentVersionDetails]);
 
   return (
     <div className="py-6">
@@ -346,7 +292,7 @@ function ApprovalPage() {
               </div>
             )}
 
-            {!currentVersionDetails?.difference?.length ? (
+            {!bookDifferences?.length ? (
               <div className="bg-white p-4 shadow-md rounded-sm">
                 <p>No difference to show</p>
               </div>
@@ -355,9 +301,9 @@ function ApprovalPage() {
                 <div className="shadow-md rounded-sm absolute top-12 left-0 w-full bg-white p-4 text-[20px] font-semibold">
                   Changes
                 </div>
-                <div className="h-full overflow-y-auto w-full mt-[70px]">
+                <div className="h-[70vh] overflow-y-auto w-full mt-[70px]">
                   <Accordion type="single" collapsible className="w-full">
-                    {currentVersionDetails?.difference?.map((diff, i) => {
+                    {bookDifferences?.map((diff, i) => {
                       return (
                         <AccordionItem key={i} value={`item-${i}`}>
                           <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
