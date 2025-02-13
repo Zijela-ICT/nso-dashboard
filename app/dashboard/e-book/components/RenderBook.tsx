@@ -7,7 +7,6 @@ import BookHeader from "./BookHeader";
 import { useParams } from "next/navigation";
 import { IChprbnBook } from "../hooks/useEBooks";
 import { useBookContext } from "../context/bookContext";
-import clsx from "clsx";
 
 function RenderBook({
   flattenBookData,
