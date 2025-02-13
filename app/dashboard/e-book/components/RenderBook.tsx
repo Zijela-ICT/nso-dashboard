@@ -7,6 +7,7 @@ import BookHeader from "./BookHeader";
 import { useParams } from "next/navigation";
 import { IChprbnBook } from "../hooks/useEBooks";
 import { useBookContext } from "../context/bookContext";
+import clsx from "clsx";
 
 function RenderBook({
   flattenBookData,
@@ -119,16 +120,15 @@ function RenderBook({
         {flattenBookData.map((chapter, index) => {
           const isHeader = typeof chapter.data === "string";
           const indices = [...chapter.parentIndex];
-          const itemID = `item-${chapter.parentIndex.join("-")}`;
           indices.pop();
           if (parentFolded(indices)) {
             return null;
           }
+
           return (
             <div key={index} className="container mx-auto">
               {isHeader ? (
                 <div
-                  id={itemID}
                   style={{
                     marginLeft: chapter.parentIndex.length * 20,
                   }}

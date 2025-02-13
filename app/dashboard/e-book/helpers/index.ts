@@ -646,6 +646,7 @@ export const handleCreateNewElement = (
       }
       return item;
     });
+    console.log("newItem", newItem);
 
     // Insert the new element
     updatedFlattenedArr.splice(elementIndex + 1, 0, {
@@ -693,6 +694,8 @@ export const handleCreateNewElement = (
     unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
     flattenedArr = updatedFlattenedArr;
   }
+  console.log("flattenedArr", flattenedArr);
+
   return whatType === "flat" ? flattenedArr : unflattendContent;
 };
 
