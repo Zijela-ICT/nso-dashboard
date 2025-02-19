@@ -71,7 +71,7 @@ const TableGenerator = ({
 
     setTableConfig((prev) => ({
       ...prev,
-      headers: !prev.headless ? emptyHeaders : undefined,
+      headers: !prev.headless ? emptyHeaders : [],
       columnCount,
       rows: randomRows,
       type: "table",

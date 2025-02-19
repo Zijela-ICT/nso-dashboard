@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import "./page.css";
 import { FileJson2Icon, Loader2, Upload } from "lucide-react";
 import useBookMethods from "../hooks/useBookMethods";
 
@@ -49,7 +48,6 @@ function Ebook() {
     bookVersion,
     fixDecisionTree,
   } = useBookMethods();
-
   const { data: user } = useFetchProfile();
   const params = useParams<{ id: string }>();
   const router = useRouter();

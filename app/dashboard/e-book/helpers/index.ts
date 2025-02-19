@@ -366,7 +366,7 @@ export function unflattenArrayOfObjects(
           }
           targetSubSubChapter.pages[rest[2]].items[rest[3]] = {
             ...(data as Item),
-            id,
+            id: id || generateRandomString(),
           };
           targetSubSubChapter.pages[rest[2]].items = targetSubSubChapter.pages[
             rest[2]
@@ -646,12 +646,12 @@ export const handleCreateNewElement = (
       }
       return item;
     });
-    console.log("newItem", newItem);
 
     // Insert the new element
     updatedFlattenedArr.splice(elementIndex + 1, 0, {
       data: newItem,
       parentIndex: newPath, // Use the new path here
+      id: generateRandomString(),
     });
 
     // add a table to every decision tree
@@ -666,18 +666,22 @@ export const handleCreateNewElement = (
       updatedFlattenedArr.splice(elementIndex + 2, 0, {
         data: createNewItem("table", newItemKey, upperTable),
         parentIndex: newPath2,
+        id: generateRandomString(),
       });
       updatedFlattenedArr.splice(elementIndex + 3, 0, {
         data: createNewItem("table", newItemKey, lowerTable),
         parentIndex: newPath3,
+        id: generateRandomString(),
       });
       updatedFlattenedArr.splice(elementIndex + 4, 0, {
         data: {
           type: "heading2",
           content: "Health Education",
           forDecisionTree: true,
+          id: generateRandomString(),
         },
         parentIndex: newPath4,
+        id: generateRandomString(),
       });
       updatedFlattenedArr.splice(elementIndex + 5, 0, {
         data: createNewItem(
@@ -687,6 +691,7 @@ export const handleCreateNewElement = (
           true
         ),
         parentIndex: newPath5,
+        id: generateRandomString(),
       });
     }
 
@@ -694,8 +699,6 @@ export const handleCreateNewElement = (
     unflattendContent = unflattenArrayOfObjects([...updatedFlattenedArr]);
     flattenedArr = updatedFlattenedArr;
   }
-  console.log("flattenedArr", flattenedArr);
-
   return whatType === "flat" ? flattenedArr : unflattendContent;
 };
 

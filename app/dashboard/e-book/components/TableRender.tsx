@@ -8,6 +8,7 @@ import {
 } from "../../../../components/ui/dialog";
 import EditTableModal from "./EditTableModal";
 import { Button } from "../../../../components/ui/button";
+import { useBookContext } from "../context/bookContext";
 
 const TableRenderer = ({
   tableData,
@@ -20,6 +21,7 @@ const TableRenderer = ({
   edit?: boolean;
   onSave?: (e: TableData) => void;
 }) => {
+  const { isEditting } = useBookContext();
   const [openModal, setOpenModal] = useState<boolean>(false);
 
   const renderCell = (
@@ -59,7 +61,7 @@ const TableRenderer = ({
         {tableData.title && (
           <h3 className="text-xl font-semibold mb-4">{tableData.title}</h3>
         )}
-        {edit && (
+        {edit && isEditting && (
           <Button className="!w-[120px]" onClick={() => setOpenModal(true)}>
             Edit table
           </Button>
