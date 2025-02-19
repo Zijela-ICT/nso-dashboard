@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import {
   approveEbook,
+  getDifferenceFromLastApproved,
   getEbookVersion,
   getFile,
   unApproveEbook,
@@ -56,6 +57,23 @@ export interface VersionData {
   approvedAt: string;
   createdAt: string;
 }
+
+type PathArray = (string | number)[];
+type DiffKind = "D" | "N" | "E" | "A";
+type DiffItem = {
+  kind: DiffKind;
+  lhs?: Item;
+  rhs?: Item;
+};
+
+type DiffObject = {
+  kind: DiffKind;
+  path: PathArray;
+  index: number;
+  item: DiffItem;
+  lhs: string | DiffItem;
+};
+
 function ApprovalPage() {
   const { data: ebooks } = useEBooks();
   const { data: user } = useFetchProfile();
@@ -67,6 +85,7 @@ function ApprovalPage() {
   const [approving, setApproving] = useState(false);
   const [unApproving, setUnApproving] = useState(false);
   const [data, setData] = useState<Data | null>(null);
+  const [cummulativeDiff, setCummulativeDiff] = useState([]);
 
   const currentBook: IChprbnBook | undefined = useMemo(() => {
     return ebooks?.find((b) => b.id.toString() === currentBookID) || undefined;
@@ -90,6 +109,27 @@ function ApprovalPage() {
     }
   };
 
+  const getCurrentBookVersionDifferences = async (
+    id: string,
+    version: string | null
+  ) => {
+    const versionID = currentBook.versions.find(
+      (v) => v.version.toString() === version
+    )?.id;
+
+    if (id && versionID) {
+      try {
+        const res = await getDifferenceFromLastApproved(
+          id,
+          versionID.toString()
+        );
+        setCummulativeDiff(res.data.difference);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   function isItem(
     obj: Item | iContent | Linkable | IDecisionTree | string[] | string
   ): obj is Item {
@@ -97,7 +137,7 @@ function ApprovalPage() {
   }
 
   // Function to access id from lhs when it's an Item
-  function getItemId(difference: any): string | null {
+  function getItemId(difference: DiffObject): string | null {
     let ID = null;
     if (difference?.kind === "E") {
       ID = difference.lhs as string;
@@ -190,12 +230,8 @@ function ApprovalPage() {
   }
 
   const bookDifferences = useMemo(() => {
-    return (
-      currentVersionDetails?.difference?.filter(
-        (n) => typeof n.lhs !== "string"
-      ) || []
-    );
-  }, [currentVersionDetails]);
+    return cummulativeDiff?.filter((n) => typeof n.lhs !== "string") || [];
+  }, [cummulativeDiff]);
 
   return (
     <div className="py-6">
@@ -223,6 +259,7 @@ function ApprovalPage() {
             onValueChange={(e) => {
               setCurrentVersion(e);
               getCurrentBookVersion(currentBookID, e);
+              getCurrentBookVersionDifferences(currentBookID, e);
             }}
             disabled={!currentBookID}
           >

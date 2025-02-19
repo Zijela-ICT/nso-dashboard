@@ -65,3 +65,10 @@ export const assignApprover = (
     data
   );
 };
+
+export const getDifferenceFromLastApproved = (
+  ebookId: string,
+  version: string
+) => {
+  return request("GET", `/admin/ebooks/${ebookId}/compare_version/${version}`);
+};
