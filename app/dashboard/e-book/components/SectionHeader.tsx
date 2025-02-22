@@ -75,7 +75,7 @@ function SectionHeader({
       contentEditable={isEditting}
       suppressContentEditableWarning={true}
       className={clsx(
-        `group  text-[18px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`,
+        `group text-[14px] md:text-[18px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`,
         {
           "bg-[#afe9c5] animate-pulse p-4": hashId === chapter.id,
         }

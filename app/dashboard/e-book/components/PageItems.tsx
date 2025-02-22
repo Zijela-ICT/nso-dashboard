@@ -58,11 +58,13 @@ function PageItems({
   const { isEditting } = useBookContext();
   const searchParams = useSearchParams();
   const hashId = searchParams.get("hashId");
+  const content = searchParams.get("content");
   const itemData = items[0].data as Item;
   const itemPath = items[0].dataPath;
   const contentRef = useRef<HTMLParagraphElement | null>(null);
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
   const myRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (
     event: React.FormEvent<HTMLDivElement>,
@@ -99,7 +101,7 @@ function PageItems({
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, [hashId, itemData]);
+  }, [hashId, itemData, content]);
 
   if (!items[0] || !itemData) return <></>;
 
@@ -412,8 +414,16 @@ function PageItems({
 
       return (
         <div
-          className={clsx("group relative flex", {
-            "bg-[#afe9c5] animate-pulse p-4": hashId === itemData.id,
+          ref={innerRef}
+          className={clsx("group relative flex p-1.5 rounded-md", {
+            "animate-pulse":
+              hashId === itemData.id ||
+              content === itemData.id ||
+              innerRef?.current?.innerText.includes(content),
+            "bg-[#afe9c5] p-4": hashId === itemData.id,
+            "bg-[#e5e9af] p-4 font-semibold":
+              innerRef?.current?.innerText.includes(content),
+            "bg-red-200": items[0].variant === "deletion",
           })}
           key={index}
           id={itemData.id}

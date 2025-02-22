@@ -34,6 +34,7 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.13",
+    "deep-diff": "^1.0.2",
     "file-saver": "^2.0.5",
     "formik": "^2.4.6",
     "input-otp": "^1.4.1",

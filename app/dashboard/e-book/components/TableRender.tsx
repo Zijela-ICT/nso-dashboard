@@ -99,7 +99,10 @@ const TableRenderer = ({
         </tbody>
       </table>
 
-      <Dialog open={openModal} onOpenChange={() => setOpenModal(false)}>
+      <Dialog
+        open={openModal && !!tableData}
+        onOpenChange={() => setOpenModal(false)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Table</DialogTitle>

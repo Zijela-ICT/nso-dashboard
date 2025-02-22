@@ -1,3 +1,4 @@
+import { Diff } from "deep-diff";
 export interface Chapter {
   chapter: string;
   subChapters: SubChapter[];
@@ -165,6 +166,7 @@ export interface FlattenedObj {
   forDecisionTree?: boolean;
   needsFixing?: boolean; // ignore. this was added to fix broken decision trees without their corresponding hidden items
   canAddNewItem?: boolean;
+  variant?: string;
 }
 
 export interface FlattenedData {
@@ -203,4 +205,11 @@ export enum PageItemType {
   SubChapter = "sub-chapter",
   SubSubChapter = "sub sub-chapter",
   Page = "page",
+}
+
+export type Difference = Diff<any>;
+export interface DeletedDiff extends Diff<any> {
+  kind: "D";
+  path: (string | number)[];
+  lhs: any;
 }
