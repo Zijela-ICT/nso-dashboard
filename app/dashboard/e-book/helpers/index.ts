@@ -2,6 +2,8 @@ import { InfographicData } from "../components/AddInfographicModal";
 import {
   Chapter,
   Data,
+  DeletedDiff,
+  Difference,
   FlattenedObj,
   IDecisionTree,
   Item,
@@ -792,3 +794,44 @@ export const generateTablesFromDecisionTree = (
 
   return { upperTable, lowerTable };
 };
+
+export function regenerateInitialObject(diffs: DeletedDiff[]): any {
+  // Start with an empty object
+  let obj: any = {};
+
+  // Process each diff in the array
+  for (const diff of diffs) {
+    if (diff.kind !== "D") {
+      continue; // Skip non-deleted differences
+    }
+
+    let current: any = obj;
+
+    // Traverse the path and build the nested structure
+    for (let i = 0; i < diff.path.length - 1; i++) {
+      const key = diff.path[i];
+      const nextKey = diff.path[i + 1];
+
+      // If the current level doesn't exist, create it
+      if (current[key] === undefined) {
+        // If the next key is a number, create an array; otherwise, create an object
+        current[key] = typeof nextKey === "number" ? [] : {};
+      }
+
+      // Move into the newly created object or array
+      current = current[key];
+    }
+
+    // Assign the deleted value (lhs) to the final key in the path
+    const lastKey = diff.path[diff.path.length - 1];
+    if (typeof lastKey === "number") {
+      // If the last key is a number, assign the value to the array index
+      current[lastKey] = diff.lhs;
+    } else {
+      // If the last key is a string, assign the value to the object key
+      current[lastKey] = diff.lhs;
+    }
+  }
+
+  return obj;
+}

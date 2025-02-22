@@ -115,7 +115,7 @@ function RenderBook({
         bookInfo={bookInfo}
       />
 
-      <div className="parent-wrapper w-full md:w-[900px] min-h-[90vh] bg-white py-[40px] px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">
+      <div className="parent-wrapper w-full md:w-[900px] min-h-[90vh] bg-white py-[40px] px-0 md:px-[40px] mb-[50px] border-[#EAEDFF] border mx-auto relative rounded-lg">
         {flattenBookData.map((chapter, index) => {
           const isHeader = typeof chapter.data === "string";
           const indices = [...chapter.parentIndex];
@@ -125,7 +125,7 @@ function RenderBook({
           }
 
           return (
-            <div key={index} className="container mx-auto">
+            <div key={index} className="container mx-auto overflow-x-auto">
               {isHeader ? (
                 <div
                   style={{

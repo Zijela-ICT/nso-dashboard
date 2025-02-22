@@ -82,58 +82,63 @@ const EditTableModal: React.FC<ModalProps> = ({
         <table className="min-w-full border-collapse border border-gray-200">
           <thead>
             <tr className="bg-gray-100">
-              {updatedData.headers?.[0].map((header, colIndex) => (
-                <th key={colIndex} className="border border-gray-300 px-4 py-2">
-                  <div className="flex">
-                    <input
-                      type="text"
-                      value={header.content as string}
-                      onChange={(e) =>
-                        handleChange(0, colIndex, e.target.value)
-                      }
-                      className="bg-transparent"
-                    />
-
-                    <Button
-                      variant="outline"
-                      onClick={() => handleRemoveColumn(colIndex)}
-                      className="h-6"
-                    >
-                      Remove column
-                    </Button>
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {updatedData.rows.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, colIndex) => (
-                  <td
+              {updatedData &&
+                updatedData?.headers?.[0]?.map((header, colIndex) => (
+                  <th
                     key={colIndex}
                     className="border border-gray-300 px-4 py-2"
                   >
-                    <input
-                      type="text"
-                      value={cell.content as string}
-                      onChange={(e) =>
-                        handleChange(rowIndex + 1, colIndex, e.target.value)
-                      } // Adjust index for rows
-                      className="bg-transparent"
-                    />
-                  </td>
+                    <div className="flex">
+                      <input
+                        type="text"
+                        value={header.content as string}
+                        onChange={(e) =>
+                          handleChange(0, colIndex, e.target.value)
+                        }
+                        className="bg-transparent"
+                      />
+
+                      <Button
+                        variant="outline"
+                        onClick={() => handleRemoveColumn(colIndex)}
+                        className="h-6"
+                      >
+                        Remove column
+                      </Button>
+                    </div>
+                  </th>
                 ))}
-                <td>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleRemoveRow(rowIndex)}
-                  >
-                    Remove Row
-                  </Button>
-                </td>
-              </tr>
-            ))}
+            </tr>
+          </thead>
+          <tbody>
+            {updatedData &&
+              updatedData?.rows?.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, colIndex) => (
+                    <td
+                      key={colIndex}
+                      className="border border-gray-300 px-4 py-2"
+                    >
+                      <input
+                        type="text"
+                        value={cell.content as string}
+                        onChange={(e) =>
+                          handleChange(rowIndex + 1, colIndex, e.target.value)
+                        } // Adjust index for rows
+                        className="bg-transparent"
+                      />
+                    </td>
+                  ))}
+                  <td>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleRemoveRow(rowIndex)}
+                    >
+                      Remove Row
+                    </Button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

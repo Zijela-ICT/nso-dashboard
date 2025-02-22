@@ -24,7 +24,11 @@ import {
   Linkable,
 } from "../booktypes";
 import RenderBook from "../components/RenderBook";
-import { flattenArrayOfObjects } from "../helpers";
+import {
+  flattenArrayOfObjects,
+  regenerateInitialObject,
+  unflattenArrayOfObjects,
+} from "../helpers";
 import { Badge, Button } from "@/components/ui";
 import { Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast";
@@ -58,6 +62,14 @@ export interface VersionData {
   createdAt: string;
 }
 
+type Difference = {
+  lhs?: any;
+  rhs?: any;
+  kind: string;
+  path: (string | number)[];
+  index?: number;
+  item?: Difference;
+};
 type PathArray = (string | number)[];
 type DiffKind = "D" | "N" | "E" | "A";
 type DiffItem = {
@@ -79,6 +91,7 @@ function ApprovalPage() {
   const { data: user } = useFetchProfile();
   const [currentBookID, setCurrentBookID] = useState<string | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
+  const [oldContent, setOldContent] = useState<Data | null>(null);
   const [currentVersionDetails, setCurrentVersionDetails] =
     useState<VersionData | null>(null);
   const [loadingBook, setLoadingBook] = useState(false);
@@ -90,7 +103,6 @@ function ApprovalPage() {
   const currentBook: IChprbnBook | undefined = useMemo(() => {
     return ebooks?.find((b) => b.id.toString() === currentBookID) || undefined;
   }, [currentBookID]);
-
   const hasApprovalAccess = useMemo(() => {
     return !!currentBook?.approvers.find((u) => u.id === user?.data?.id);
   }, [currentBook, user]);
@@ -124,6 +136,7 @@ function ApprovalPage() {
           versionID.toString()
         );
         setCummulativeDiff(res.data.difference);
+        setOldContent(res.data.oldContent);
       } catch (error) {
         console.log(error);
       }
@@ -162,6 +175,10 @@ function ApprovalPage() {
       setLoadingBook(false);
     }
   };
+
+  const oldBookData = useMemo(() => {
+    return flattenArrayOfObjects(oldContent?.book?.content || []);
+  }, [oldContent]);
 
   const flattenBookData: FlattenedObj[] = useMemo(() => {
     return flattenArrayOfObjects(data ? data?.book?.content : []);
@@ -230,8 +247,108 @@ function ApprovalPage() {
   }
 
   const bookDifferences = useMemo(() => {
-    return cummulativeDiff?.filter((n) => typeof n.lhs !== "string") || [];
+    return (
+      cummulativeDiff?.filter((n) => {
+        const path = n.path;
+        return path[path.length - 1] !== "id";
+        // typeof n.lhs !== "string"
+      }) || []
+    );
   }, [cummulativeDiff]);
+
+  const currentVersions = useMemo(() => {
+    return (
+      currentBook?.versions?.sort((a, b) => {
+        return a.version === b.version ? 0 : a.version > b.version ? -1 : 1;
+      }) || []
+    );
+  }, [currentBook]);
+
+  const {
+    repackedItems: compareBooks,
+    inferedDifference_: inferedDifference,
+    nonEdits,
+  } = useMemo(() => {
+    const currentObj = flattenBookData;
+    const oldObj = oldBookData;
+    const oldIDs = oldObj.map((item) => item.id);
+    const currentIDs = currentObj.map((item) => item.id);
+    let repackedItems = [];
+    const inferedDifference_: FlattenedObj[] = [];
+    const nonEdits: FlattenedObj[] = [];
+
+    for (let i = 0; i < Math.max(currentObj.length, oldObj.length); i++) {
+      if (
+        i < currentObj.length &&
+        i < oldObj.length &&
+        currentObj[i].id === oldObj[i].id
+      ) {
+        repackedItems.push({
+          ...currentObj[i],
+          variant: "same",
+        });
+      } else if (i < currentObj.length && !oldIDs.includes(currentObj[i].id)) {
+        repackedItems.push({
+          ...currentObj[i],
+          variant: "addition",
+        });
+        inferedDifference_.push({
+          ...currentObj[i],
+          variant: "addition",
+        });
+        nonEdits.push({
+          ...currentObj[i],
+          variant: "addition",
+        });
+      } else if (i < oldObj.length && !currentIDs.includes(oldObj[i].id)) {
+        repackedItems.push({
+          ...oldObj[i],
+          variant: "deletion",
+        });
+        inferedDifference_.push({
+          ...oldObj[i],
+          variant: "deletion",
+        });
+        nonEdits.push({
+          ...currentObj[i],
+          variant: "deletion",
+        });
+      } else {
+        repackedItems.push({
+          ...currentObj[i],
+          variant: "editted",
+        });
+        inferedDifference_.push({
+          ...currentObj[i],
+          variant: "editted",
+        });
+      }
+    }
+
+    return {
+      repackedItems,
+      inferedDifference_,
+      nonEdits,
+    };
+  }, [flattenBookData, oldBookData]);
+
+  function getChangeDescription(diff: Difference): string {
+    switch (diff.kind) {
+      case "E":
+        return "edit";
+      case "D":
+        return "addition";
+      case "N":
+        return "deletion";
+      case "A":
+        if (diff.item) {
+          return getChangeDescription(diff.item);
+        }
+        return "modification";
+      default:
+        return "unknown";
+    }
+  }
 
   return (
     <div className="py-6">
@@ -267,7 +384,7 @@ function ApprovalPage() {
               <SelectValue placeholder="Select book" />
             </SelectTrigger>
             <SelectContent>
-              {currentBook?.versions?.map((version, i) => (
+              {currentVersions.map((version, i) => (
                 <SelectItem value={version.version.toString()} key={i}>
                   version {version.version}
                 </SelectItem>
@@ -288,7 +405,7 @@ function ApprovalPage() {
         <div className="flex relative">
           <div className="mr-[20px]">
             <RenderBook
-              flattenBookData={flattenBookData}
+              flattenBookData={compareBooks}
               data={data}
               currentBook={data?.book}
               canEdit={false}
@@ -341,6 +458,7 @@ function ApprovalPage() {
                 <div className="h-[70vh] overflow-y-auto w-full mt-[70px]">
                   <Accordion type="single" collapsible className="w-full">
                     {bookDifferences?.map((diff, i) => {
+                      const diffText = getChangeDescription(diff);
                       return (
                         <AccordionItem key={i} value={`item-${i}`}>
                           <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
@@ -352,29 +470,46 @@ function ApprovalPage() {
                               <div>
                                 <Badge
                                   variant={
-                                    diff.kind === "A"
+                                    diffText === "addition"
                                       ? "success"
-                                      : diff.kind === "E"
+                                      : diffText === "edit"
                                       ? "pending"
                                       : "failed"
                                   }
+                                  className="uppercase"
                                 >
-                                  {diff.kind === "A"
-                                    ? "Add"
-                                    : diff.kind === "E"
-                                    ? "Edit"
-                                    : "Delete"}
+                                  {diffText}
                                 </Badge>
                               </div>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="p-2 bg-[#ffffff]">
                             <div>
-                              {getItemId(diff) && (
-                                <Link href={`?hashId=${getItemId(diff)}`}>
-                                  <Button size="sm">Visit element</Button>
-                                </Link>
+                              {diff.kind === "E" && (
+                                <>
+                                  <p className="p-2 mb-0">
+                                    Old:{" "}
+                                    <span className="font-semibold">
+                                      {diff.rhs}
+                                    </span>{" "}
+                                  </p>
+                                  <p className="p-2">
+                                    New:{" "}
+                                    <span className="font-semibold">
+                                      {diff.lhs}
+                                    </span>{" "}
+                                  </p>
+                                </>
                               )}
+                              <Link
+                                href={
+                                  diff.kind === "E"
+                                    ? `?content=${getItemId(diff)}`
+                                    : `?hashId=${getItemId(diff)}`
+                                }
+                              >
+                                <Button size="sm">Visit element</Button>
+                              </Link>
                             </div>
                           </AccordionContent>
                         </AccordionItem>

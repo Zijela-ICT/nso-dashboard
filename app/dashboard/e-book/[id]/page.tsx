@@ -125,7 +125,7 @@ function Ebook() {
 
   return (
     <div
-      className="App bg-[#F8FAFC] min-h-screen w-[900px] mx-auto text-left relative py-[40px] overflow-hidden transition-all duration-300 ease-in-out"
+      className="App bg-[#F8FAFC] min-h-screen w-full md:w-[900px] mx-auto text-left relative py-[40px] overflow-hidden transition-all duration-300 ease-in-out"
       onClick={() => {
         setShowDropdown(false);
       }}

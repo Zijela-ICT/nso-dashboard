@@ -36,10 +36,10 @@ function BookHeader({
   }, [bookInfo, user]);
 
   return (
-    <div className="container mx-auto mt-[20px] md:w-[900px]">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto mt-[20px] w-full md:w-[900px]">
+      <div className="md:flex justify-between items-center mb-8">
         <h1
-          className={`text-3xl font-bold mb-0 book-title text-[#0CA554] ${groupClass}`}
+          className={`text-xl md:text-3xl font-bold mb-2 md:mb-0 book-title text-[#0CA554] ${groupClass}`}
           contentEditable={canEdit && isEditting}
           suppressContentEditableWarning={true}
           onBlur={(e) => setBookTitle(e.target.textContent)}
