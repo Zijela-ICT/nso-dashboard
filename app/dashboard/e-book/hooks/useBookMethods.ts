@@ -471,7 +471,7 @@ const useBookMethods = () => {
   const { book, locales } = useMemo(() => data, [data]) || {};
 
   const flattenBookData: FlattenedObj[] = useMemo(() => {
-    return flattenArrayOfObjects(data ? book?.content : []).filter(
+    return flattenArrayOfObjects(data ? book?.content : [])?.filter(
       (n) => n.data
     );
   }, [book?.content, data]);
@@ -561,12 +561,7 @@ const useBookMethods = () => {
       setFetchingVersion(true);
       const res = await getEbookVersion(currentBook.id, version);
       downloadBook(res.data.fileUrl);
-      setBookVersion(
-        version ||
-          currentBook.versions[
-            currentBook.versions.length - 1
-          ].version.toString()
-      );
+      setBookVersion(version || currentBook.versions[0].version.toString());
     } catch (error) {
       console.log(error);
     } finally {

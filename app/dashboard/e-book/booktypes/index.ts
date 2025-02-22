@@ -1,24 +1,29 @@
+import { Diff } from "deep-diff";
 export interface Chapter {
   chapter: string;
   subChapters: SubChapter[];
   pages?: Page[];
+  id?: string;
 }
 
 export interface SubChapter {
   subChapterTitle: string; // Ensure this property exists
   subSubChapters?: SubSubChapter[]; // Add this line to include subSubChapters
   pages?: Page[];
+  id?: string;
 }
 
 export interface SubSubChapter {
   subSubChapterTitle: string; // Title for the subSubChapter
   pages: Page[]; // Pages under this subSubChapter
+  id?: string;
 }
 
 export interface Page {
   pageTitle: string;
   items: (Item | Linkable | IDecisionTree)[];
   markVisit?: boolean;
+  id?: string;
 }
 
 export type iContent = string | { text?: string; linkTo?: string }[];
@@ -71,7 +76,7 @@ export interface Item {
   alt?: string;
   src?: string;
   type: ItemTypes;
-
+  id?: string;
   // decision_tree?: IDecisionTree;
   items?:
     | string[]
@@ -157,9 +162,11 @@ export interface FlattenedObj {
     | Record<string, string | Item>;
   parentIndex: number[];
   dataPath?: string;
+  id?: string;
   forDecisionTree?: boolean;
   needsFixing?: boolean; // ignore. this was added to fix broken decision trees without their corresponding hidden items
   canAddNewItem?: boolean;
+  variant?: string;
 }
 
 export interface FlattenedData {
@@ -198,4 +205,11 @@ export enum PageItemType {
   SubChapter = "sub-chapter",
   SubSubChapter = "sub sub-chapter",
   Page = "page",
+}
+
+export type Difference = Diff<any>;
+export interface DeletedDiff extends Diff<any> {
+  kind: "D";
+  path: (string | number)[];
+  lhs: any;
 }

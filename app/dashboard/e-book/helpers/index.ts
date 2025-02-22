@@ -2,6 +2,8 @@ import { InfographicData } from "../components/AddInfographicModal";
 import {
   Chapter,
   Data,
+  DeletedDiff,
+  Difference,
   FlattenedObj,
   IDecisionTree,
   Item,
@@ -76,6 +78,7 @@ export function flattenArrayOfObjects(
           results.push({
             data: typedItem.chapter as string,
             parentIndex: currentParentIndex,
+            id: (typedItem.id as string) || generateRandomString(),
           });
         }
         if (typedItem.type === "table" && typedItem.forDecisionTree) {
@@ -99,6 +102,7 @@ export function flattenArrayOfObjects(
               results?.push({
                 data: subChapter?.subChapterTitle as string,
                 parentIndex: [...currentParentIndex, subIndex],
+                id: (subChapter?.id as string) || generateRandomString(),
               });
             }
 
@@ -128,6 +132,8 @@ export function flattenArrayOfObjects(
                         subIndex,
                         subSubIndex,
                       ],
+                      id:
+                        (subSubChapter?.id as string) || generateRandomString(),
                     });
                   }
 
@@ -144,6 +150,7 @@ export function flattenArrayOfObjects(
                             subSubIndex,
                             pageIndex,
                           ],
+                          id: (page?.id as string) || generateRandomString(),
                         });
                       }
 
@@ -166,6 +173,7 @@ export function flattenArrayOfObjects(
                               pageIndex,
                               itemIndex,
                             ],
+                            id: (item?.id as string) || generateRandomString(),
                           });
                         });
                       }
@@ -183,6 +191,7 @@ export function flattenArrayOfObjects(
           {
             data: item as string | number | boolean | null | Item,
             parentIndex: currentParentIndex,
+            id: generateRandomString(),
           },
         ];
       }
@@ -233,7 +242,7 @@ export function unflattenArrayOfObjects(
   flattenedArray: FlattenedObj[]
 ): Chapter[] {
   const result: Chapter[] = [];
-  flattenedArray.forEach(({ data, parentIndex }) => {
+  flattenedArray.forEach(({ data, parentIndex, id }) => {
     const [chapterIndex, ...rest] = parentIndex;
     if (!data) {
       return;
@@ -252,6 +261,7 @@ export function unflattenArrayOfObjects(
     switch (parentIndex.length) {
       case 1: // Chapter title
         chapter.chapter = data as string;
+        chapter.id = id;
         chapter.pages = [{ items: [], pageTitle: "" }];
         chapter.subChapters = [];
         break;
@@ -267,9 +277,10 @@ export function unflattenArrayOfObjects(
             };
           }
           chapter.subChapters[rest[0]].subChapterTitle = data;
+          chapter.subChapters[rest[0]].id = id;
         } else {
           // Chapter page
-          chapter.pages[0].items[rest[0]] = data as Item;
+          chapter.pages[0].items[rest[0]] = { ...(data as Item), id };
           chapter.pages[0].items = chapter.pages[0].items.filter((n) => n); // used to filter out empty items
         }
         break;
@@ -305,8 +316,9 @@ export function unflattenArrayOfObjects(
           } else {
             subChapter.subSubChapters[rest[1]].subSubChapterTitle = data;
           }
+          subChapter.subSubChapters[rest[1]].id = id;
         } else {
-          subChapter.pages[0].items[rest[1]] = data as Item;
+          subChapter.pages[0].items[rest[1]] = { ...(data as Item), id };
           subChapter.pages[0].items = subChapter.pages[0].items.filter(
             (n) => n
           ); // used to filter out empty items
@@ -323,6 +335,7 @@ export function unflattenArrayOfObjects(
             targetSubChapter.subSubChapters[rest[1]] = {
               subSubChapterTitle: "",
               pages: [],
+              id,
             };
           }
           if (
@@ -332,11 +345,13 @@ export function unflattenArrayOfObjects(
             targetSubChapter.subSubChapters[rest[1]].pages[rest[2]] = {
               pageTitle: data as string,
               items: [],
+              id,
             };
           }
 
           targetSubChapter.subSubChapters[rest[1]].pages[rest[2]].pageTitle =
             data as string;
+          targetSubChapter.subSubChapters[rest[1]].pages[rest[2]].id = id;
         }
         break;
 
@@ -351,7 +366,10 @@ export function unflattenArrayOfObjects(
               items: [],
             };
           }
-          targetSubSubChapter.pages[rest[2]].items[rest[3]] = data as Item;
+          targetSubSubChapter.pages[rest[2]].items[rest[3]] = {
+            ...(data as Item),
+            id: id || generateRandomString(),
+          };
           targetSubSubChapter.pages[rest[2]].items = targetSubSubChapter.pages[
             rest[2]
           ].items.filter((n) => n); //filter out null items
@@ -464,7 +482,7 @@ export const createNewItem = (
     default:
       return null;
   }
-  return newItem;
+  return { ...newItem, id: generateRandomString() };
 };
 
 export const createNewPageData = (
@@ -521,7 +539,7 @@ export const createNewPageData = (
   return newItem;
 };
 
-export function generateRandomString(length: number = 8): string {
+export function generateRandomString(length: number = 12): string {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -635,6 +653,7 @@ export const handleCreateNewElement = (
     updatedFlattenedArr.splice(elementIndex + 1, 0, {
       data: newItem,
       parentIndex: newPath, // Use the new path here
+      id: generateRandomString(),
     });
 
     // add a table to every decision tree
@@ -649,18 +668,22 @@ export const handleCreateNewElement = (
       updatedFlattenedArr.splice(elementIndex + 2, 0, {
         data: createNewItem("table", newItemKey, upperTable),
         parentIndex: newPath2,
+        id: generateRandomString(),
       });
       updatedFlattenedArr.splice(elementIndex + 3, 0, {
         data: createNewItem("table", newItemKey, lowerTable),
         parentIndex: newPath3,
+        id: generateRandomString(),
       });
       updatedFlattenedArr.splice(elementIndex + 4, 0, {
         data: {
           type: "heading2",
           content: "Health Education",
           forDecisionTree: true,
+          id: generateRandomString(),
         },
         parentIndex: newPath4,
+        id: generateRandomString(),
       });
       updatedFlattenedArr.splice(elementIndex + 5, 0, {
         data: createNewItem(
@@ -670,6 +693,7 @@ export const handleCreateNewElement = (
           true
         ),
         parentIndex: newPath5,
+        id: generateRandomString(),
       });
     }
 
@@ -770,3 +794,44 @@ export const generateTablesFromDecisionTree = (
 
   return { upperTable, lowerTable };
 };
+
+export function regenerateInitialObject(diffs: DeletedDiff[]): any {
+  // Start with an empty object
+  let obj: any = {};
+
+  // Process each diff in the array
+  for (const diff of diffs) {
+    if (diff.kind !== "D") {
+      continue; // Skip non-deleted differences
+    }
+
+    let current: any = obj;
+
+    // Traverse the path and build the nested structure
+    for (let i = 0; i < diff.path.length - 1; i++) {
+      const key = diff.path[i];
+      const nextKey = diff.path[i + 1];
+
+      // If the current level doesn't exist, create it
+      if (current[key] === undefined) {
+        // If the next key is a number, create an array; otherwise, create an object
+        current[key] = typeof nextKey === "number" ? [] : {};
+      }
+
+      // Move into the newly created object or array
+      current = current[key];
+    }
+
+    // Assign the deleted value (lhs) to the final key in the path
+    const lastKey = diff.path[diff.path.length - 1];
+    if (typeof lastKey === "number") {
+      // If the last key is a number, assign the value to the array index
+      current[lastKey] = diff.lhs;
+    } else {
+      // If the last key is a string, assign the value to the object key
+      current[lastKey] = diff.lhs;
+    }
+  }
+
+  return obj;
+}

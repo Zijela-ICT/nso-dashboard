@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "../../../../components/ui/button";
 import { Plus, Trash } from "lucide-react";
 import {
@@ -18,6 +18,8 @@ import { InfographicData } from "./AddInfographicModal";
 import AddDropdown from "./AddDropdown";
 import { useBookContext } from "../context/bookContext";
 import { groupClass } from "@/constants";
+import { useSearchParams } from "next/navigation";
+import clsx from "clsx";
 
 function SectionHeader({
   updateElementAtPath,
@@ -44,6 +46,11 @@ function SectionHeader({
     PageItemType.Page,
   ];
 
+  const innerRef = React.useRef<HTMLHeadingElement>(null);
+  const searchParams = useSearchParams();
+  const hashId = searchParams.get("hashId");
+  const content = searchParams.get("content");
+
   const handleInput = (
     event: React.FormEvent<HTMLDivElement>,
     elementIndex
@@ -54,12 +61,38 @@ function SectionHeader({
     }
   };
 
+  useEffect(() => {
+    if (
+      hashId === chapter.id ||
+      innerRef?.current?.innerText.includes(content)
+    ) {
+      const element = document.getElementById(hashId) || innerRef?.current;
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [hashId, chapter, content]);
+
   return (
     <h3
+      id={chapter.id}
+      ref={innerRef}
       onBlur={(e) => handleInput(e, index)}
       contentEditable={isEditting}
       suppressContentEditableWarning={true}
-      className={`group  text-[18px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`}
+      className={clsx(
+        `group text-[14px] md:text-[18px] font-medium chapter-title text-[#0CA554] flex justify-between items-center ${groupClass}`,
+        {
+          "animate-pulse ":
+            hashId === chapter.id ||
+            content === chapter.id ||
+            (innerRef?.current?.innerText.includes(content) && content),
+          "bg-[#afe9c5] p-4": hashId === chapter.id,
+          "bg-[#e5e9af] p-4 font-semibold":
+            innerRef?.current?.innerText.includes(content) && content,
+          "bg-red-200": chapter.variant === "deletion",
+        }
+      )}
     >
       <p>{(chapter.data as string) || "---"}</p>
 

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import {
   approveEbook,
+  getDifferenceFromLastApproved,
   getEbookVersion,
   getFile,
   unApproveEbook,
@@ -19,10 +20,15 @@ import {
   FlattenedObj,
   iContent,
   IDecisionTree,
+  Item,
   Linkable,
 } from "../booktypes";
 import RenderBook from "../components/RenderBook";
-import { flattenArrayOfObjects } from "../helpers";
+import {
+  flattenArrayOfObjects,
+  regenerateInitialObject,
+  unflattenArrayOfObjects,
+} from "../helpers";
 import { Badge, Button } from "@/components/ui";
 import { Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast";
@@ -44,31 +50,59 @@ export interface VersionData {
     index: number;
     item: {
       kind: string;
-      lhs: iContent | Linkable | IDecisionTree | string[] | string;
+      lhs?: Item | iContent | Linkable | IDecisionTree | string[] | string;
+      rhs?: Item | iContent | Linkable | IDecisionTree | string[] | string;
     };
     rhs: string;
+    lhs: Item | string;
     kind: string;
     path: string[];
   }[];
   approvedAt: string;
   createdAt: string;
 }
+
+type Difference = {
+  lhs?: any;
+  rhs?: any;
+  kind: string;
+  path: (string | number)[];
+  index?: number;
+  item?: Difference;
+};
+type PathArray = (string | number)[];
+type DiffKind = "D" | "N" | "E" | "A";
+type DiffItem = {
+  kind: DiffKind;
+  lhs?: Item;
+  rhs?: Item;
+};
+
+type DiffObject = {
+  kind: DiffKind;
+  path: PathArray;
+  index: number;
+  item: DiffItem;
+  lhs: string | DiffItem;
+};
+
 function ApprovalPage() {
   const { data: ebooks } = useEBooks();
   const { data: user } = useFetchProfile();
   const [currentBookID, setCurrentBookID] = useState<string | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string | null>(null);
+  const [oldContent, setOldContent] = useState<Data | null>(null);
   const [currentVersionDetails, setCurrentVersionDetails] =
     useState<VersionData | null>(null);
   const [loadingBook, setLoadingBook] = useState(false);
   const [approving, setApproving] = useState(false);
   const [unApproving, setUnApproving] = useState(false);
   const [data, setData] = useState<Data | null>(null);
+  const [cummulativeDiff, setCummulativeDiff] = useState([]);
 
   const currentBook: IChprbnBook | undefined = useMemo(() => {
     return ebooks?.find((b) => b.id.toString() === currentBookID) || undefined;
   }, [currentBookID]);
-
   const hasApprovalAccess = useMemo(() => {
     return !!currentBook?.approvers.find((u) => u.id === user?.data?.id);
   }, [currentBook, user]);
@@ -87,6 +121,50 @@ function ApprovalPage() {
     }
   };
 
+  const getCurrentBookVersionDifferences = async (
+    id: string,
+    version: string | null
+  ) => {
+    const versionID = currentBook.versions.find(
+      (v) => v.version.toString() === version
+    )?.id;
+
+    if (id && versionID) {
+      try {
+        const res = await getDifferenceFromLastApproved(
+          id,
+          versionID.toString()
+        );
+        setCummulativeDiff(res.data.difference);
+        setOldContent(res.data.oldContent);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  function isItem(
+    obj: Item | iContent | Linkable | IDecisionTree | string[] | string
+  ): obj is Item {
+    return obj && typeof obj === "object" && "id" in obj;
+  }
+
+  // Function to access id from lhs when it's an Item
+  function getItemId(difference: DiffObject): string | null {
+    let ID = null;
+    if (difference?.kind === "E") {
+      ID = difference.lhs as string;
+    }
+    if (
+      difference &&
+      difference.item &&
+      (isItem(difference?.item?.lhs) || isItem(difference?.item?.rhs))
+    ) {
+      ID = difference?.item?.lhs?.id || difference?.item?.rhs?.id;
+    }
+    return ID;
+  }
+
   const downloadBook = async (url) => {
     try {
       const bookData = (await getFile(url)) as Data;
@@ -98,9 +176,13 @@ function ApprovalPage() {
     }
   };
 
+  const oldBookData = useMemo(() => {
+    return flattenArrayOfObjects(oldContent?.book?.content || []);
+  }, [oldContent]);
+
   const flattenBookData: FlattenedObj[] = useMemo(() => {
     return flattenArrayOfObjects(data ? data?.book?.content : []);
-  }, [data?.book]);
+  }, [data]);
 
   const currentVersionID: number | null = useMemo(() => {
     const whichBook = ebooks?.find((b) => b.id === Number(currentBookID));
@@ -116,6 +198,7 @@ function ApprovalPage() {
     try {
       await approveEbook(currentVersionID);
       showToast("Approval successful");
+      getCurrentBookVersion(currentBookID, null);
     } catch (error) {
       console.log(error);
     } finally {
@@ -128,6 +211,7 @@ function ApprovalPage() {
     try {
       await unApproveEbook(currentVersionID);
       showToast("Un approval successful");
+      getCurrentBookVersion(currentBookID, null);
     } catch (error) {
       console.log(error);
     } finally {
@@ -158,80 +242,109 @@ function ApprovalPage() {
         pathString += `${next + 1}, `;
       }
     }
-    // console.log(
-    //   'pathString.trim().replace(/,$/, "")',
-    //   pathString.trim().replace(/,$/, "")
-    // );
-
     // Remove trailing comma and space
     return pathString.trim().replace(/,$/, "");
   }
-  console.log(
-    "currentVersionDetails?.difference",
-    currentVersionDetails?.difference
-  );
 
-  // function generateParentIndex(differences) {
-  //   const parentIndices = [];
+  const bookDifferences = useMemo(() => {
+    return (
+      cummulativeDiff?.filter((n) => {
+        const path = n.path;
+        return path[path.length - 1] !== "id";
+        // typeof n.lhs !== "string"
+      }) || []
+    );
+  }, [cummulativeDiff]);
 
-  //   differences.forEach((diff) => {
-  //     const path = diff.path;
-  //     const parentIndex = [];
+  const currentVersions = useMemo(() => {
+    return (
+      currentBook?.versions?.sort((a, b) => {
+        return a.version === b.version ? 0 : a.version > b.version ? -1 : 1;
+      }) || []
+    );
+  }, [currentBook]);
 
-  //     // Skip book and content levels
-  //     let contentIndex = path.indexOf("content");
-  //     if (contentIndex !== -1) {
-  //       // Get the chapter index
-  //       if (typeof path[contentIndex + 1] === "number") {
-  //         parentIndex.push(path[contentIndex + 1]);
-  //       }
+  const { repackedItems: compareBooks } = useMemo(() => {
+    const currentObj = flattenBookData;
+    const oldObj = oldBookData;
+    const oldIDs = oldObj.map((item) => item.id);
+    const currentIDs = currentObj.map((item) => item.id);
+    let repackedItems = [];
+    const inferedDifference_: FlattenedObj[] = [];
+    const nonEdits: FlattenedObj[] = [];
 
-  //       // Get subchapter index if it exists
-  //       let subChapterIndex = path.indexOf("subChapters");
-  //       if (
-  //         subChapterIndex !== -1 &&
-  //         typeof path[subChapterIndex + 1] === "number"
-  //       ) {
-  //         parentIndex.push(path[subChapterIndex + 1]);
-  //       }
+    for (let i = 0; i < Math.max(currentObj.length, oldObj.length); i++) {
+      if (
+        i < currentObj.length &&
+        i < oldObj.length &&
+        currentObj[i].id === oldObj[i].id
+      ) {
+        repackedItems.push({
+          ...currentObj[i],
+          variant: "same",
+        });
+      } else if (i < currentObj.length && !oldIDs.includes(currentObj[i].id)) {
+        repackedItems.push({
+          ...currentObj[i],
+          variant: "addition",
+        });
+        inferedDifference_.push({
+          ...currentObj[i],
+          variant: "addition",
+        });
+        nonEdits.push({
+          ...currentObj[i],
+          variant: "addition",
+        });
+      } else if (i < oldObj.length && !currentIDs.includes(oldObj[i].id)) {
+        repackedItems.push({
+          ...oldObj[i],
+          variant: "deletion",
+        });
+        inferedDifference_.push({
+          ...oldObj[i],
+          variant: "deletion",
+        });
+        nonEdits.push({
+          ...currentObj[i],
+          variant: "deletion",
+        });
+      } else {
+        repackedItems.push({
+          ...currentObj[i],
+          variant: "editted",
+        });
+        inferedDifference_.push({
+          ...currentObj[i],
+          variant: "editted",
+        });
+      }
+    }
 
-  //       // Get page index if it exists
-  //       let pageIndex = path.indexOf("pages");
-  //       if (pageIndex !== -1 && typeof path[pageIndex + 1] === "number") {
-  //         parentIndex.push(path[pageIndex + 1]);
-  //       }
+    return {
+      repackedItems,
+      inferedDifference_,
+      nonEdits,
+    };
+  }, [flattenBookData, oldBookData]);
 
-  //       // Get item index if it exists
-  //       let itemIndex = path.indexOf("items");
-  //       if (itemIndex !== -1) {
-  //         if (diff.kind === "A") {
-  //           parentIndex.push(diff.index);
-  //         } else if (typeof path[itemIndex + 1] === "number") {
-  //           parentIndex.push(path[itemIndex + 1]);
-  //         }
-  //       }
-  //     }
-
-  //     parentIndices.push({
-  //       path: path,
-  //       parentIndex: parentIndex,
-  //     });
-  //   });
-
-  //   return parentIndices;
-  // }
-
-  // const differenceIndices = useMemo(() => {
-  //   if (currentVersionDetails?.difference) {
-  //     return generateParentIndex(currentVersionDetails?.difference);
-  //   }
-  //   return [];
-  // }, [currentVersionDetails?.difference]);
-  // console.log(
-  //   "currentVersionDetails?.difference",
-  //   currentVersionDetails?.difference
-  // );
-  // console.log("differenceIndices", differenceIndices);
+  function getChangeDescription(diff: Difference): string {
+    switch (diff.kind) {
+      case "E":
+        return "edit";
+      case "D":
+        return "addition";
+      case "N":
+        return "deletion";
+      case "A":
+        if (diff.item) {
+          return getChangeDescription(diff.item);
+        }
+        return "modification";
+      default:
+        return "unknown";
+    }
+  }
 
   return (
     <div className="py-6">
@@ -259,6 +372,7 @@ function ApprovalPage() {
             onValueChange={(e) => {
               setCurrentVersion(e);
               getCurrentBookVersion(currentBookID, e);
+              getCurrentBookVersionDifferences(currentBookID, e);
             }}
             disabled={!currentBookID}
           >
@@ -266,7 +380,7 @@ function ApprovalPage() {
               <SelectValue placeholder="Select book" />
             </SelectTrigger>
             <SelectContent>
-              {currentBook?.versions?.map((version, i) => (
+              {currentVersions.map((version, i) => (
                 <SelectItem value={version.version.toString()} key={i}>
                   version {version.version}
                 </SelectItem>
@@ -287,7 +401,7 @@ function ApprovalPage() {
         <div className="flex relative">
           <div className="mr-[20px]">
             <RenderBook
-              flattenBookData={flattenBookData}
+              flattenBookData={compareBooks}
               data={data}
               currentBook={data?.book}
               canEdit={false}
@@ -328,7 +442,7 @@ function ApprovalPage() {
               </div>
             )}
 
-            {!currentVersionDetails?.difference?.length ? (
+            {!bookDifferences?.length ? (
               <div className="bg-white p-4 shadow-md rounded-sm">
                 <p>No difference to show</p>
               </div>
@@ -337,22 +451,10 @@ function ApprovalPage() {
                 <div className="shadow-md rounded-sm absolute top-12 left-0 w-full bg-white p-4 text-[20px] font-semibold">
                   Changes
                 </div>
-                <div className="h-full overflow-y-auto w-full mt-[70px]">
+                <div className="h-[70vh] overflow-y-auto w-full mt-[70px]">
                   <Accordion type="single" collapsible className="w-full">
-                    {currentVersionDetails?.difference?.map((diff, i) => {
-                      let pathEnding = "";
-                      if (diff.kind === "A") {
-                        pathEnding += `-${diff.index}`;
-                      }
-                      const path = [];
-                      for (let index = 0; index < diff.path.length; index++) {
-                        if (typeof diff.path[index] === "number") {
-                          path.push(diff.path[index]);
-                        }
-                      }
-
-                      path.filter((n) => n !== null);
-
+                    {bookDifferences?.map((diff, i) => {
+                      const diffText = getChangeDescription(diff);
                       return (
                         <AccordionItem key={i} value={`item-${i}`}>
                           <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
@@ -364,42 +466,46 @@ function ApprovalPage() {
                               <div>
                                 <Badge
                                   variant={
-                                    diff.kind === "A"
+                                    diffText === "addition"
                                       ? "success"
-                                      : diff.kind === "E"
+                                      : diffText === "edit"
                                       ? "pending"
                                       : "failed"
                                   }
+                                  className="uppercase"
                                 >
-                                  {diff.kind === "A"
-                                    ? "Add"
-                                    : diff.kind === "E"
-                                    ? "Edit"
-                                    : "Delete"}
+                                  {diffText}
                                 </Badge>
                               </div>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="p-2 bg-[#ffffff]">
                             <div>
-                              {/* <PageItems
-                            items={[
-                              {
-                                data: diff?.item?.lhs,
-                                parentIndex: [], //path,
-                              },
-                            ]}
-                            data={data}
-                            updateElementAtPath={null}
-                            elementIndex={null}
-                            addNewElement={null}
-                            removeElement={null}
-                            createNewItem={null}
-                          /> */}
+                              {diff.kind === "E" && (
+                                <>
+                                  <p className="p-2 mb-0">
+                                    Old:{" "}
+                                    <span className="font-semibold">
+                                      {diff.rhs}
+                                    </span>{" "}
+                                  </p>
+                                  <p className="p-2">
+                                    New:{" "}
+                                    <span className="font-semibold">
+                                      {diff.lhs}
+                                    </span>{" "}
+                                  </p>
+                                </>
+                              )}
                               <Link
-                                href={`?hashId=item-${path.join(
-                                  "-"
-                                )}${pathEnding}`}
+                                href={
+                                  diff.kind === "E"
+                                    ? `?content=${diff?.lhs?.replace(
+                                        /\n/g,
+                                        " "
+                                      )}`
+                                    : `?hashId=${getItemId(diff)}`
+                                }
                               >
                                 <Button size="sm">Visit element</Button>
                               </Link>

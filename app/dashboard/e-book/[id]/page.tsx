@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import "./page.css";
-import { FileJson2Icon, Loader, Loader2, Upload } from "lucide-react";
+import { FileJson2Icon, Loader2, Upload } from "lucide-react";
 import useBookMethods from "../hooks/useBookMethods";
 
 import { UploadFileModal } from "../components/UploadFileModal";
@@ -49,7 +48,6 @@ function Ebook() {
     bookVersion,
     fixDecisionTree,
   } = useBookMethods();
-
   const { data: user } = useFetchProfile();
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -103,6 +101,14 @@ function Ebook() {
     };
   }, [router, isEditting]);
 
+  const bookVersions = useMemo(() => {
+    return (
+      currentBook?.versions?.sort((a, b) => {
+        return a.version === b.version ? 0 : a.version > b.version ? -1 : 1;
+      }) || []
+    );
+  }, [currentBook]);
+
   if (loadingBook) {
     return (
       <div className="w-full flex items-center justify-center py-10">
@@ -127,7 +133,7 @@ function Ebook() {
 
   return (
     <div
-      className="App bg-[#F8FAFC] min-h-screen w-[900px] mx-auto text-left relative py-[40px] overflow-hidden transition-all duration-300 ease-in-out"
+      className="App bg-[#F8FAFC] min-h-screen w-full md:w-[900px] mx-auto text-left relative py-[40px] overflow-hidden transition-all duration-300 ease-in-out"
       onClick={() => {
         setShowDropdown(false);
       }}
@@ -153,7 +159,7 @@ function Ebook() {
               <SelectValue placeholder="Select book version" />
             </SelectTrigger>
             <SelectContent>
-              {currentBook.versions.map((version, i) => (
+              {bookVersions.map((version, i) => (
                 <SelectItem value={version.version.toString()} key={i}>
                   version {version.version}
                 </SelectItem>

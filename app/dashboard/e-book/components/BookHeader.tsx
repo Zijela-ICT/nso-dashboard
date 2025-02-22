@@ -1,5 +1,5 @@
 import { Book, PageItemType } from "../booktypes";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Button } from "../../../../components/ui/button";
 import { useBookContext } from "../context/bookContext";
 import {
@@ -12,6 +12,8 @@ import { Plus } from "lucide-react";
 import { groupClass } from "@/constants";
 import { useFetchProfile } from "@/hooks/api/queries/settings";
 import { IChprbnBook } from "../hooks/useEBooks";
+import { useSearchParams } from "next/navigation";
+import clsx from "clsx";
 
 function BookHeader({
   setBookTitle,
@@ -30,16 +32,35 @@ function BookHeader({
 }) {
   const { data: user } = useFetchProfile();
   const { isEditting, setIsEditting, savingBook } = useBookContext();
+  const headerRef = React.useRef<HTMLHeadingElement>(null);
+  const searchParams = useSearchParams();
+  const content = searchParams.get("content")?.replace(/\n/g, " ") || "";
 
   const hasEditAccess = useMemo(() => {
     return !!bookInfo?.editors.find((u) => u.id === user?.data?.id);
   }, [bookInfo, user]);
 
+  useEffect(() => {
+    if (headerRef?.current?.innerText.includes(content)) {
+      const element = headerRef?.current;
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [content]);
+
   return (
-    <div className="container mx-auto mt-[20px] md:w-[900px]">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto mt-[20px] w-full md:w-[900px]">
+      <div className="md:flex justify-between items-center mb-8">
         <h1
-          className={`text-3xl font-bold mb-0 book-title text-[#0CA554] ${groupClass}`}
+          ref={headerRef}
+          className={clsx(
+            `text-xl md:text-3xl font-bold mb-2 md:mb-0 book-title text-[#0CA554] ${groupClass}`,
+            {
+              "bg-[#e5e9af] p-4 font-semibold animate-pulse":
+                headerRef?.current?.innerText.includes(content) && content,
+            }
+          )}
           contentEditable={canEdit && isEditting}
           suppressContentEditableWarning={true}
           onBlur={(e) => setBookTitle(e.target.textContent)}

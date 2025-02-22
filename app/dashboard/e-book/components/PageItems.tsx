@@ -58,12 +58,13 @@ function PageItems({
   const { isEditting } = useBookContext();
   const searchParams = useSearchParams();
   const hashId = searchParams.get("hashId");
+  const content = searchParams.get("content");
   const itemData = items[0].data as Item;
   const itemPath = items[0].dataPath;
   const contentRef = useRef<HTMLParagraphElement | null>(null);
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
   const myRef = useRef<HTMLDivElement>(null);
-  const itemID = `item-${items[0].parentIndex.join("-")}`;
+  const innerRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (
     event: React.FormEvent<HTMLDivElement>,
@@ -94,13 +95,16 @@ function PageItems({
   };
 
   useEffect(() => {
-    if (hashId === itemID) {
-      const element = document.getElementById(hashId);
+    if (
+      hashId === itemData.id ||
+      innerRef?.current?.innerText.includes(content)
+    ) {
+      const element = document.getElementById(hashId) || innerRef?.current;
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, [hashId, itemID]);
+  }, [hashId, itemData, content]);
 
   if (!items[0] || !itemData) return <></>;
 
@@ -412,7 +416,21 @@ function PageItems({
         !itemData.forDecisionTree && itemData.type !== "decision" && isEditting;
 
       return (
-        <div className="group relative flex" key={index}>
+        <div
+          ref={innerRef}
+          className={clsx("group relative flex p-1.5 rounded-md", {
+            "animate-pulse":
+              hashId === itemData.id ||
+              content === itemData.id ||
+              (innerRef?.current?.innerText.includes(content) && content),
+            "bg-[#afe9c5] p-4": hashId === itemData.id,
+            "bg-[#e5e9af] p-4 font-semibold":
+              innerRef?.current?.innerText.includes(content) && content,
+            "bg-red-200": items[0].variant === "deletion",
+          })}
+          key={index}
+          id={itemData.id}
+        >
           {(showDeleteAndAdd ||
             (itemData.type === "decision" && isEditting)) && (
             <button
@@ -424,9 +442,7 @@ function PageItems({
               <Trash className="w-4" />
             </button>
           )}
-
           {element}
-
           {(showDeleteAndAdd || (items[0].canAddNewItem && isEditting)) && (
             <div className="group-hover:opacity-100 opacity-0 absolute bottom-0 pl-4 right-[10px] z-50">
               <AddDropdown
@@ -443,13 +459,7 @@ function PageItems({
   };
 
   return (
-    <div
-      className={clsx("text-[#344054] font-light p-1", {
-        "bg-[#afe9c5] animate-pulse": hashId === itemID,
-      })}
-      id={itemID}
-      ref={myRef}
-    >
+    <div className={clsx("text-[#344054] font-light p-1")} ref={myRef}>
       {renderItems(items)}
     </div>
   );
