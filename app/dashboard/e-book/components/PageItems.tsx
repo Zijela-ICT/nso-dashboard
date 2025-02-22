@@ -422,10 +422,10 @@ function PageItems({
             "animate-pulse":
               hashId === itemData.id ||
               content === itemData.id ||
-              innerRef?.current?.innerText.includes(content),
+              (innerRef?.current?.innerText.includes(content) && content),
             "bg-[#afe9c5] p-4": hashId === itemData.id,
             "bg-[#e5e9af] p-4 font-semibold":
-              innerRef?.current?.innerText.includes(content),
+              innerRef?.current?.innerText.includes(content) && content,
             "bg-red-200": items[0].variant === "deletion",
           })}
           key={index}

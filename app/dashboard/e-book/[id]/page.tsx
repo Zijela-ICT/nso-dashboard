@@ -101,6 +101,14 @@ function Ebook() {
     };
   }, [router, isEditting]);
 
+  const bookVersions = useMemo(() => {
+    return (
+      currentBook?.versions?.sort((a, b) => {
+        return a.version === b.version ? 0 : a.version > b.version ? -1 : 1;
+      }) || []
+    );
+  }, [currentBook]);
+
   if (loadingBook) {
     return (
       <div className="w-full flex items-center justify-center py-10">
@@ -151,7 +159,7 @@ function Ebook() {
               <SelectValue placeholder="Select book version" />
             </SelectTrigger>
             <SelectContent>
-              {currentBook.versions.map((version, i) => (
+              {bookVersions.map((version, i) => (
                 <SelectItem value={version.version.toString()} key={i}>
                   version {version.version}
                 </SelectItem>

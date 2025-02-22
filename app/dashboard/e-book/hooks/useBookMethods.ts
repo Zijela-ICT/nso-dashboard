@@ -561,12 +561,7 @@ const useBookMethods = () => {
       setFetchingVersion(true);
       const res = await getEbookVersion(currentBook.id, version);
       downloadBook(res.data.fileUrl);
-      setBookVersion(
-        version ||
-          currentBook.versions[
-            currentBook.versions.length - 1
-          ].version.toString()
-      );
+      setBookVersion(version || currentBook.versions[0].version.toString());
     } catch (error) {
       console.log(error);
     } finally {
