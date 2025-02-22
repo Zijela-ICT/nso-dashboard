@@ -95,8 +95,11 @@ function PageItems({
   };
 
   useEffect(() => {
-    if (hashId === itemData.id) {
-      const element = document.getElementById(hashId);
+    if (
+      hashId === itemData.id ||
+      innerRef?.current?.innerText.includes(content)
+    ) {
+      const element = document.getElementById(hashId) || innerRef?.current;
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
