@@ -39,6 +39,7 @@ const Login = () => {
               return;
             }
             storageUtil.store("@chprbn", data.data.token);
+            storageUtil.store("@refresh_token", data.data.token);
             navigation.push("/dashboard/home");
           }
         }

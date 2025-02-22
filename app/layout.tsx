@@ -16,7 +16,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "CHPRBN",
-  description: "Community health is our conern"
+  description: "Community health is our concern"
 };
 
 export default function RootLayout({
