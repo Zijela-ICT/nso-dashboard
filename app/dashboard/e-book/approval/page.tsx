@@ -264,11 +264,7 @@ function ApprovalPage() {
     );
   }, [currentBook]);
 
-  const {
-    repackedItems: compareBooks,
-    inferedDifference_: inferedDifference,
-    nonEdits,
-  } = useMemo(() => {
+  const { repackedItems: compareBooks } = useMemo(() => {
     const currentObj = flattenBookData;
     const oldObj = oldBookData;
     const oldIDs = oldObj.map((item) => item.id);
