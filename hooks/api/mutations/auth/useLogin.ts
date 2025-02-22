@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useMutation } from "react-query";
 
 import request from "@/utils/api";
@@ -8,6 +8,7 @@ type ResponseType = {
   message: string;
   data: {
     token: string;
+    refreshToken: string;
     requirePasswordReset: boolean;
     roles: string[];
   };
@@ -26,7 +27,7 @@ const Login = (input: InputType): Promise<ResponseType> => {
     `/auth/login`,
     {
       email: input.email,
-      password: input.password,
+      password: input.password
     },
     false
   );
