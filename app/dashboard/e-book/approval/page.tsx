@@ -500,7 +500,10 @@ function ApprovalPage() {
                               <Link
                                 href={
                                   diff.kind === "E"
-                                    ? `?content=${getItemId(diff)}`
+                                    ? `?content=${diff?.lhs?.replace(
+                                        /\n/g,
+                                        " "
+                                      )}`
                                     : `?hashId=${getItemId(diff)}`
                                 }
                               >
