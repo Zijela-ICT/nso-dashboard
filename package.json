@@ -56,7 +56,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
-    "a": "^8.1.0",
+    "@svgr/webpack": "^8.1.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-avatar-editor": "^13.0.3",
