@@ -103,7 +103,7 @@ const DecisionTreeRenderer: React.FC<{
           <ul>
             {decisionTree?.healthEducation.map((item, i) => (
               <li key={i} className="mb-1">
-                {i + 1}. {item}
+                {item}
               </li>
             ))}
           </ul>
