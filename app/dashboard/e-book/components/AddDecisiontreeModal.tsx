@@ -16,6 +16,7 @@ import {
 } from "../../../../components/ui/accordion";
 import { MultiSelect } from "./MultiSelect";
 import { IDecisionTree, ItemTypes } from "../booktypes";
+import NewlineTextField from "./NewLineInput";
 
 function AddDecisionTreeModal({
   addNewElement,
@@ -450,22 +451,23 @@ function AddDecisionTreeModal({
                               {ailment.actions.map((e, index) => (
                                 <div
                                   key={index}
-                                  className="flex items-center justify-between"
+                                  className="flex items-center justify-between mb-6"
                                 >
-                                  <input
+                                  <NewlineTextField
                                     key={index}
                                     value={e}
                                     onChange={(e) => {
                                       const currentActions = [
                                         ...ailment.actions,
                                       ];
-                                      currentActions[index] = e.target.value;
+                                      currentActions[index] = e;
                                       const currAilment = ailments[i];
                                       currAilment.actions = currentActions;
                                       const newdata = [...ailments];
                                       newdata[i] = currAilment;
                                       setAilments(newdata);
                                     }}
+                                    as="textarea"
                                     className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
                                   />
 
@@ -543,11 +545,12 @@ function AddDecisionTreeModal({
                   <div className="flex-1 pr-2">
                     {healthEducation?.map((education, index) => (
                       <div className="flex gap-3 items-center mb-4" key={index}>
-                        <input
+                        <NewlineTextField
                           value={education}
+                          as="textarea"
                           onChange={(e) => {
                             const newHealthEducation = [...healthEducation];
-                            newHealthEducation[index] = e.target.value;
+                            newHealthEducation[index] = e;
                             setHealthEducation(newHealthEducation);
                           }}
                           className="border-[#cccfd3] bg-[#FCFCFD] border px-4 rounded-sm h-[50px] w-full outline-none focus:outline-none"
