@@ -87,7 +87,12 @@ const DecisionTreeRenderer: React.FC<{
                 <ol className="pl-6 list-decimal">
                   {ailment.actions.map((action, actionIndex) => (
                     <li className="w-full" key={actionIndex}>
-                      {action}
+                      {action.split("\n").map((line, idx, arr) => (
+                        <React.Fragment key={idx}>
+                          {line}
+                          {idx < arr.length - 1 && <br />}
+                        </React.Fragment>
+                      ))}
                     </li>
                   ))}
                 </ol>
@@ -103,7 +108,12 @@ const DecisionTreeRenderer: React.FC<{
           <ul>
             {decisionTree?.healthEducation.map((item, i) => (
               <li key={i} className="mb-1">
-                {item}
+                {item.split("\n").map((line, idx, arr) => (
+                  <React.Fragment key={idx}>
+                    {line}
+                    {idx < arr.length - 1 && <br />}
+                  </React.Fragment>
+                ))}
               </li>
             ))}
           </ul>
