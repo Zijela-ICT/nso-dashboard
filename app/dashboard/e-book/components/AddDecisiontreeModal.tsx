@@ -138,13 +138,13 @@ function AddDecisionTreeModal({
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {questions.map((q, index) => (
-                        <div key={index} className="flex items-center">
-                          <input
+                        <div key={index} className="flex items-center mb-4">
+                          <NewlineTextField
                             key={index}
                             value={q}
                             onChange={(e) => {
                               const newQuestions = [...questions];
-                              newQuestions[index] = e.target.value;
+                              newQuestions[index] = e;
                               setQuestions(newQuestions);
                             }}
                             className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
@@ -195,13 +195,13 @@ function AddDecisionTreeModal({
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {examinations.map((e, index) => (
-                        <div key={index} className="flex items-center">
-                          <input
+                        <div key={index} className="flex items-center mb-4">
+                          <NewlineTextField
                             key={index}
                             value={e}
                             onChange={(e) => {
                               const newExaminations = [...examinations];
-                              newExaminations[index] = e.target.value;
+                              newExaminations[index] = e;
                               setExaminations(newExaminations);
                             }}
                             className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
@@ -256,12 +256,12 @@ function AddDecisionTreeModal({
                   <div className="flex-1 pr-2">
                     {allSymptoms.map((symptom, index) => (
                       <div className="flex items-center" key={index}>
-                        <input
+                        <NewlineTextField
                           placeholder="Symptom"
                           value={symptom}
                           onChange={(e) => {
                             const newSymptoms = [...allSymptoms];
-                            newSymptoms[index] = e.target.value;
+                            newSymptoms[index] = e;
                             setAllSymptoms(newSymptoms);
                           }}
                           className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"

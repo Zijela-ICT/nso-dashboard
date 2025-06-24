@@ -1,3 +1,4 @@
+import { UndoIcon } from "lucide-react";
 import React, { useRef } from "react";
 
 type NewlineTextFieldProps = {
@@ -33,23 +34,20 @@ const NewlineTextField: React.FC<NewlineTextFieldProps> = ({
   const Field = as;
 
   return (
-    <div
-      style={{ display: "flex", gap: 8 }}
-      className="flex flex-col gap-2 flex-1"
-    >
+    <div className="flex flex-1">
       <Field
         ref={ref}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`${props.className} flex-1`}
+        className={`${props.className} flex-1 !min-h-[70px]`}
         {...props}
       />
       <button
         type="button"
         onClick={insertNewline}
-        className="bg-[#e8e8e8] h-[40px] -mt-4"
+        className="bg-[#e8e8e8] h-[40px] w-[40px] flex items-center justify-center"
       >
-        Add New Line
+        <img src="/assets/new-line.svg" alt="" className="w-4" />
       </button>
     </div>
   );

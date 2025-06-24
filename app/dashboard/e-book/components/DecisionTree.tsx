@@ -1,3 +1,4 @@
+import FormattedText from "@/components/shared/FormattedText";
 import { IDecisionTree } from "../booktypes";
 import React from "react";
 
@@ -29,7 +30,8 @@ const DecisionTreeRenderer: React.FC<{
                 <ul>
                   {decisionTree.history.map((question, index) => (
                     <li className="mb-1" key={index}>
-                      {index + 1}.{question}
+                      {index + 1}.
+                      <FormattedText text={question} />
                     </li>
                   ))}
                 </ul>
@@ -39,7 +41,7 @@ const DecisionTreeRenderer: React.FC<{
                   {decisionTree.examinationsActions.map(
                     (examination, index) => (
                       <li className="mb-1" key={index}>
-                        {index + 1}.{examination}
+                        {index + 1}. <FormattedText text={examination} />
                       </li>
                     )
                   )}
@@ -87,12 +89,7 @@ const DecisionTreeRenderer: React.FC<{
                 <ol className="pl-6 list-decimal">
                   {ailment.actions.map((action, actionIndex) => (
                     <li className="w-full" key={actionIndex}>
-                      {action.split("\n").map((line, idx, arr) => (
-                        <React.Fragment key={idx}>
-                          {line}
-                          {idx < arr.length - 1 && <br />}
-                        </React.Fragment>
-                      ))}
+                      <FormattedText text={action} />
                     </li>
                   ))}
                 </ol>
@@ -108,12 +105,7 @@ const DecisionTreeRenderer: React.FC<{
           <ul>
             {decisionTree?.healthEducation.map((item, i) => (
               <li key={i} className="mb-1">
-                {item.split("\n").map((line, idx, arr) => (
-                  <React.Fragment key={idx}>
-                    {line}
-                    {idx < arr.length - 1 && <br />}
-                  </React.Fragment>
-                ))}
+                <FormattedText text={item} />
               </li>
             ))}
           </ul>
