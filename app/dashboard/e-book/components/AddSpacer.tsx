@@ -12,7 +12,7 @@ const AddSpacerModal: React.FC<{
   addNewElement: (e: string, f: Item) => void;
   onClose: () => void;
 }> = ({ addNewElement, showSpacerModal, onClose }) => {
-  const [spacerValue, setSpacerValue] = useState("");
+  const [spacerValue, setSpacerValue] = useState("20");
 
   const handleAddSpacerItem = () => {
     const newSpacerItem: Space = {
@@ -21,7 +21,7 @@ const AddSpacerModal: React.FC<{
     };
 
     addNewElement("space", newSpacerItem);
-    setSpacerValue("");
+    setSpacerValue("20");
     onClose();
   };
 

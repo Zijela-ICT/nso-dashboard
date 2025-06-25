@@ -21,7 +21,7 @@ const NewlineTextField: React.FC<NewlineTextFieldProps> = ({
     const el = ref.current;
     const start = el.selectionStart || 0;
     const end = el.selectionEnd || 0;
-    const newValue = value.slice(0, start) + "\n" + value.slice(end);
+    const newValue = value.slice(0, start) + " \n " + value.slice(end);
     onChange(newValue);
 
     // Set cursor after the newline

@@ -71,19 +71,20 @@ const DecisionTreeRenderer: React.FC<{
               className={index % 2 === 0 ? "bg-[#ECFDF3]" : "bg-[#fbffff]"}
             >
               <td className="border border-gray-300 p-2 align-top">
-                {ailment.findingsOnHistory}
+                <FormattedText text={ailment.findingsOnHistory} />
               </td>
               <td className="border border-gray-300 p-2 align-top">
                 <ul>
                   {ailment.decisionDependencies.map((finding, findingIndex) => (
                     <li className="mb-1" key={findingIndex}>
-                      {findingIndex + 1}.{finding}
+                      {findingIndex + 1}.
+                      <FormattedText text={finding} />
                     </li>
                   ))}
                 </ul>
               </td>
               <td className="border border-gray-300 p-2 align-top">
-                {ailment.clinicalJudgement}
+                <FormattedText text={ailment.clinicalJudgement} />
               </td>
               <td className="border border-gray-300 p-2 align-top">
                 <ol className="pl-6 list-decimal">
