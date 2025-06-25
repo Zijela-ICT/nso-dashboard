@@ -71,6 +71,7 @@ const DecisionTreeRenderer: React.FC<{
               className={index % 2 === 0 ? "bg-[#ECFDF3]" : "bg-[#fbffff]"}
             >
               <td className="border border-gray-300 p-2 align-top">
+                {/* {ailment.findingsOnHistory} */}
                 <FormattedText text={ailment.findingsOnHistory} />
               </td>
               <td className="border border-gray-300 p-2 align-top">
@@ -84,7 +85,7 @@ const DecisionTreeRenderer: React.FC<{
                 </ul>
               </td>
               <td className="border border-gray-300 p-2 align-top">
-                <FormattedText text={ailment.clinicalJudgement} />
+                {ailment.clinicalJudgement}
               </td>
               <td className="border border-gray-300 p-2 align-top">
                 <ol className="pl-6 list-decimal">
