@@ -455,6 +455,14 @@ function ApprovalPage() {
                   <Accordion type="single" collapsible className="w-full">
                     {bookDifferences?.map((diff, i) => {
                       const diffText = getChangeDescription(diff);
+                      let href = "";
+                      if (diff.kind === "E") {
+                        typeof diff?.lhs === "string"
+                          ? `?content=${diff?.lhs?.replace(/\n/g, " ")}`
+                          : "";
+                      } else {
+                        `?hashId=${getItemId(diff)}`;
+                      }
                       return (
                         <AccordionItem key={i} value={`item-${i}`}>
                           <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
@@ -497,16 +505,7 @@ function ApprovalPage() {
                                   </p>
                                 </>
                               )}
-                              <Link
-                                href={
-                                  diff.kind === "E"
-                                    ? `?content=${diff?.lhs?.replace(
-                                        /\n/g,
-                                        " "
-                                      )}`
-                                    : `?hashId=${getItemId(diff)}`
-                                }
-                              >
+                              <Link href={href}>
                                 <Button size="sm">Visit element</Button>
                               </Link>
                             </div>
