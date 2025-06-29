@@ -1,0 +1,47 @@
+name: Deploy UPDCFM Frontend App
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.APP_DIR }}
+            git fetch --all
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
+            export NVM_DIR="$HOME/.nvm"
+            . "$NVM_DIR/nvm.sh"
+            nvm use default
+            npm install --legacy-peer-deps
+            npm install @next/swc-linux-x64-gnu --legacy-peer-deps --save-optional
+            npm run build
+
+            # Check if PM2 process exists and handle accordingly
+            if pm2 list | grep -q "nso-fe"; then
+              echo "PM2 process exists, reloading..."
+              pm2 reload nso-fe
+            else
+              echo "PM2 process does not exist, starting..."
+              pm2 start npm --name nso-fe -- run start
+            fi
+
+            echo "✅ Deployment successful!"
