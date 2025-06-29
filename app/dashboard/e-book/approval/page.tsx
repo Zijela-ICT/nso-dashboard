@@ -24,11 +24,7 @@ import {
   Linkable,
 } from "../booktypes";
 import RenderBook from "../components/RenderBook";
-import {
-  flattenArrayOfObjects,
-  regenerateInitialObject,
-  unflattenArrayOfObjects,
-} from "../helpers";
+import { flattenArrayOfObjects } from "../helpers";
 import { Badge, Button } from "@/components/ui";
 import { Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast";

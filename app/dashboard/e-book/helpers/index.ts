@@ -196,43 +196,83 @@ export function flattenArrayOfObjects(
         ];
       }
     });
-    return result?.map((res, i) => {
-      if (
-        res.data &&
-        typeof res?.data === "object" &&
-        "type" in res.data &&
-        res?.data?.type === "decision"
-      ) {
-        const next1 = result[i + 1]?.data as unknown as Item;
-        const next2 = result[i + 2]?.data as unknown as Item;
-        const next3 = result[i + 3]?.data as unknown as Item;
-        const next4 = result[i + 4]?.data as unknown as Item;
+    return result
+      ?.map((res, i) => {
         if (
-          !next1?.forDecisionTree ||
-          !next2?.forDecisionTree ||
-          !next3?.forDecisionTree ||
-          !next4?.forDecisionTree
+          res.data &&
+          typeof res?.data === "object" &&
+          "type" in res.data &&
+          res?.data?.type === "decision"
+        ) {
+          const next1 = result[i + 1]?.data as unknown as Item;
+          const next2 = result[i + 2]?.data as unknown as Item;
+          const next3 = result[i + 3]?.data as unknown as Item;
+          const next4 = result[i + 4]?.data as unknown as Item;
+          if (
+            !next1?.forDecisionTree ||
+            !next2?.forDecisionTree ||
+            !next3?.forDecisionTree ||
+            !next4?.forDecisionTree
+          ) {
+            return {
+              ...res,
+              needsFixing: true,
+            };
+          }
+        }
+        if (
+          res.data &&
+          typeof res?.data === "object" &&
+          "forDecisionTree" in res.data &&
+          res.data.forDecisionTree &&
+          res.data.type === "orderedList"
         ) {
           return {
             ...res,
-            needsFixing: true,
+            canAddNewItem: true,
           };
         }
-      }
-      if (
-        res.data &&
-        typeof res?.data === "object" &&
-        "forDecisionTree" in res.data &&
-        res.data.forDecisionTree &&
-        res.data.type === "orderedList"
-      ) {
-        return {
-          ...res,
-          canAddNewItem: true,
-        };
-      }
-      return res;
-    });
+
+        return res;
+      })
+      .map((res, i, originalArr) => {
+        if (
+          res.data &&
+          typeof res?.data === "object" &&
+          "forDecisionTree" in res.data
+        ) {
+          const nestElement = originalArr[i + 1]?.data as unknown as any;
+          if (
+            !nestElement?.items?.length &&
+            "type" in res.data &&
+            res?.data?.type === "heading2"
+          ) {
+            return {
+              ...res,
+              data: {
+                ...res.data,
+                content: "",
+              },
+            };
+          } else if (
+            nestElement?.items?.length &&
+            "type" in res.data &&
+            res?.data?.type === "heading2"
+          ) {
+            return {
+              ...res,
+              data: {
+                ...res.data,
+                content: "Health Education",
+              },
+            };
+          } else {
+            return res;
+          }
+        } else {
+          return res;
+        }
+      });
   } catch (error) {
     console.log("error", error);
   }
