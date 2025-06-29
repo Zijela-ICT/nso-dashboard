@@ -1,3 +1,4 @@
+import FormattedText from "@/components/shared/FormattedText";
 import { IDecisionTree } from "../booktypes";
 import React from "react";
 
@@ -29,7 +30,8 @@ const DecisionTreeRenderer: React.FC<{
                 <ul>
                   {decisionTree.history.map((question, index) => (
                     <li className="mb-1" key={index}>
-                      {index + 1}.{question}
+                      {index + 1}.
+                      <FormattedText text={question} />
                     </li>
                   ))}
                 </ul>
@@ -39,7 +41,7 @@ const DecisionTreeRenderer: React.FC<{
                   {decisionTree.examinationsActions.map(
                     (examination, index) => (
                       <li className="mb-1" key={index}>
-                        {index + 1}.{examination}
+                        {index + 1}. <FormattedText text={examination} />
                       </li>
                     )
                   )}
@@ -69,13 +71,15 @@ const DecisionTreeRenderer: React.FC<{
               className={index % 2 === 0 ? "bg-[#ECFDF3]" : "bg-[#fbffff]"}
             >
               <td className="border border-gray-300 p-2 align-top">
-                {ailment.findingsOnHistory}
+                {/* {ailment.findingsOnHistory} */}
+                <FormattedText text={ailment.findingsOnHistory} />
               </td>
               <td className="border border-gray-300 p-2 align-top">
                 <ul>
                   {ailment.decisionDependencies.map((finding, findingIndex) => (
                     <li className="mb-1" key={findingIndex}>
-                      {findingIndex + 1}.{finding}
+                      {findingIndex + 1}.
+                      <FormattedText text={finding} />
                     </li>
                   ))}
                 </ul>
@@ -87,7 +91,7 @@ const DecisionTreeRenderer: React.FC<{
                 <ol className="pl-6 list-decimal">
                   {ailment.actions.map((action, actionIndex) => (
                     <li className="w-full" key={actionIndex}>
-                      {action}
+                      <FormattedText text={action} />
                     </li>
                   ))}
                 </ol>
@@ -103,7 +107,7 @@ const DecisionTreeRenderer: React.FC<{
           <ul>
             {decisionTree?.healthEducation.map((item, i) => (
               <li key={i} className="mb-1">
-                {i + 1}. {item}
+                <FormattedText text={item} />
               </li>
             ))}
           </ul>
