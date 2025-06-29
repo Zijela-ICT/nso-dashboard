@@ -3,7 +3,7 @@ name: Deploy UPDCFM Frontend App
 on:
   push:
     branches:
-      - dev
+      # - dev
       - main
 
 jobs:
