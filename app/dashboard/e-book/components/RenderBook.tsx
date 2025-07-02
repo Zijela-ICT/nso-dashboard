@@ -120,6 +120,8 @@ function RenderBook({
           const isHeader = typeof chapter.data === "string";
           const indices = [...chapter.parentIndex];
           indices.pop();
+          // console.log("chapter.data", chapter.data);
+
           if (parentFolded(indices)) {
             return null;
           }
