@@ -141,18 +141,16 @@ export function flattenArrayOfObjects(
                   if (Array.isArray(subSubChapter?.pages)) {
                     subSubChapter.pages.forEach((page, pageIndex) => {
                       // Add page title
-                      if (page.pageTitle) {
-                        results?.push({
-                          data: page.pageTitle,
-                          parentIndex: [
-                            ...currentParentIndex,
-                            subIndex,
-                            subSubIndex,
-                            pageIndex,
-                          ],
-                          id: (page?.id as string) || generateRandomString(),
-                        });
-                      }
+                      results?.push({
+                        data: (page.pageTitle as string) || "---",
+                        parentIndex: [
+                          ...currentParentIndex,
+                          subIndex,
+                          subSubIndex,
+                          pageIndex,
+                        ],
+                        id: (page?.id as string) || generateRandomString(),
+                      });
 
                       // Add page items
                       if (Array.isArray(page.items)) {
@@ -241,6 +239,7 @@ export function flattenArrayOfObjects(
           typeof res?.data === "object" &&
           "forDecisionTree" in res.data
         ) {
+          // make heading empty if there are no health education items
           const nestElement = originalArr[i + 1]?.data as unknown as any;
           if (
             !nestElement?.items?.length &&
@@ -390,7 +389,7 @@ export function unflattenArrayOfObjects(
           }
 
           targetSubChapter.subSubChapters[rest[1]].pages[rest[2]].pageTitle =
-            data as string;
+            data === "---" ? "" : (data as string);
           targetSubChapter.subSubChapters[rest[1]].pages[rest[2]].id = id;
         }
         break;
