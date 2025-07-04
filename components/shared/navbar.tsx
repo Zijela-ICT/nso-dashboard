@@ -29,7 +29,6 @@ const Navbar = () => {
 
   const router = useRouter();
   const markAsRead = async () => {
-    console.log("reddd");
     const notifIDs = notificationsData?.data?.data
       .filter((notif) => notif.unread)
       .map((notif) => notif.id);
