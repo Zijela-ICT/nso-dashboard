@@ -88,13 +88,13 @@ const DecisionTreeRenderer: React.FC<{
                 {ailment.clinicalJudgement}
               </td>
               <td className="border border-gray-300 p-2 align-top">
-                <ol className="pl-6 list-decimal">
+                <ul className="pl-6 list-none">
                   {ailment.actions.map((action, actionIndex) => (
                     <li className="w-full" key={actionIndex}>
                       <FormattedText text={action} />
                     </li>
                   ))}
-                </ol>
+                </ul>
               </td>
             </tr>
           ))}
