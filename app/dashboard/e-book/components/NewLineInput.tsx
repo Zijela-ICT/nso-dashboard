@@ -4,14 +4,12 @@ import React, { useRef } from "react";
 type NewlineTextFieldProps = {
   value: string;
   onChange: (val: string) => void;
-  as?: "input" | "textarea";
   [key: string]: any; // for other props like placeholder, className, etc.
 };
 
 const NewlineTextField: React.FC<NewlineTextFieldProps> = ({
   value,
   onChange,
-  as = "textarea",
   ...props
 }) => {
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
@@ -31,11 +29,9 @@ const NewlineTextField: React.FC<NewlineTextFieldProps> = ({
     }, 0);
   };
 
-  const Field = as;
-
   return (
     <div className="flex flex-1">
-      <Field
+      <textarea
         ref={ref}
         value={value}
         onChange={(e) => onChange(e.target.value)}
