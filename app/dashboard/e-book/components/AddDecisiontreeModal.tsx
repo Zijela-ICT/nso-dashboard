@@ -328,13 +328,9 @@ function AddDecisionTreeModal({
                                 <label htmlFor="">
                                   Finding on history(Name of ailment)
                                 </label>
-                                <input
+                                <NewlineTextField
                                   onChange={(e) =>
-                                    updateAilment(
-                                      i,
-                                      "findingsOnHistory",
-                                      e.target.value
-                                    )
+                                    updateAilment(i, "findingsOnHistory", e)
                                   }
                                   value={ailment.findingsOnHistory}
                                   className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"
@@ -344,14 +340,10 @@ function AddDecisionTreeModal({
                                 <label htmlFor="">
                                   Clinical judgement(severity level)
                                 </label>
-                                <input
+                                <NewlineTextField
                                   placeholder="Clinical Judgement"
                                   onChange={(e) =>
-                                    updateAilment(
-                                      i,
-                                      "clinicalJudgement",
-                                      e.target.value
-                                    )
+                                    updateAilment(i, "clinicalJudgement", e)
                                   }
                                   value={ailment.clinicalJudgement}
                                   className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none"

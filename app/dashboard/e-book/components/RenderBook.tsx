@@ -140,7 +140,7 @@ function RenderBook({
                       color="#0CA554"
                       onClick={() => toggleItem(chapter.parentIndex)}
                       className={`${
-                        containsSubArray(chapter.parentIndex)
+                        !containsSubArray(chapter.parentIndex)
                           ? "rotate-180"
                           : "rotate-0"
                       } cursor-pointer`}
