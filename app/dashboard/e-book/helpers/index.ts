@@ -322,7 +322,7 @@ export function unflattenArrayOfObjects(
           // Chapter page
           chapter.pages[0].items[rest[0]] = { ...(data as Item), id };
           chapter.pages[0].items = chapter.pages[0].items.filter((n) => n); // used to filter out empty items
-          // Check if the chapter contains decision trees
+          // Check if the chapter contains decision trees.
           if (
             typeof data === "object" &&
             data !== null &&
