@@ -4,6 +4,7 @@ export interface Chapter {
   subChapters: SubChapter[];
   pages?: Page[];
   id?: string;
+  containsDecisionTrees: boolean;
 }
 
 export interface SubChapter {
