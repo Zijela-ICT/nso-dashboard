@@ -446,7 +446,6 @@ export function unflattenArrayOfObjects(
         break;
     }
   });
-  console.log("unflattend obj", result);
 
   return result;
 }
