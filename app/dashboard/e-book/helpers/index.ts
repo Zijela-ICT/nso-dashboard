@@ -292,6 +292,7 @@ export function unflattenArrayOfObjects(
         chapter: "",
         pages: [],
         subChapters: [],
+        containsDecisionTrees: false,
       };
     }
 
@@ -321,6 +322,15 @@ export function unflattenArrayOfObjects(
           // Chapter page
           chapter.pages[0].items[rest[0]] = { ...(data as Item), id };
           chapter.pages[0].items = chapter.pages[0].items.filter((n) => n); // used to filter out empty items
+          // Check if the chapter contains decision trees
+          if (
+            typeof data === "object" &&
+            data !== null &&
+            "type" in data &&
+            data.type === "decision"
+          ) {
+            chapter.containsDecisionTrees = true;
+          }
         }
         break;
 
@@ -361,6 +371,16 @@ export function unflattenArrayOfObjects(
           subChapter.pages[0].items = subChapter.pages[0].items.filter(
             (n) => n
           ); // used to filter out empty items
+
+          // Check if the chapter contains decision trees
+          if (
+            typeof data === "object" &&
+            data !== null &&
+            "type" in data &&
+            data.type === "decision"
+          ) {
+            chapter.containsDecisionTrees = true;
+          }
         }
         break;
 
@@ -412,10 +432,21 @@ export function unflattenArrayOfObjects(
           targetSubSubChapter.pages[rest[2]].items = targetSubSubChapter.pages[
             rest[2]
           ].items.filter((n) => n); //filter out null items
+
+          // Check if the chapter contains decision trees
+          if (
+            typeof data === "object" &&
+            data !== null &&
+            "type" in data &&
+            data.type === "decision"
+          ) {
+            chapter.containsDecisionTrees = true;
+          }
         }
         break;
     }
   });
+  console.log("unflattend obj", result);
 
   return result;
 }
@@ -540,6 +571,7 @@ export const createNewPageData = (
             items: [],
           },
         ],
+        containsDecisionTrees: false,
       };
       break;
     case PageItemType.SubChapter:

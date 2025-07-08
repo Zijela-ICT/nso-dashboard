@@ -26,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui";
+import { unflattenArrayOfObjects } from "../helpers";
 
 function Ebook() {
   const {
@@ -100,6 +101,8 @@ function Ebook() {
       router.replace = originalReplace;
     };
   }, [router, isEditting]);
+
+  console.log("unflattend", unflattenArrayOfObjects(flattenBookData));
 
   const bookVersions = useMemo(() => {
     return (
