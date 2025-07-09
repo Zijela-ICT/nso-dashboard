@@ -30,7 +30,6 @@ const DecisionTreeRenderer: React.FC<{
                 <ul>
                   {decisionTree.history.map((question, index) => (
                     <li className="mb-1" key={index}>
-                      {index + 1}.
                       <FormattedText text={question} />
                     </li>
                   ))}
@@ -41,7 +40,7 @@ const DecisionTreeRenderer: React.FC<{
                   {decisionTree.examinationsActions.map(
                     (examination, index) => (
                       <li className="mb-1" key={index}>
-                        {index + 1}. <FormattedText text={examination} />
+                        <FormattedText text={examination} />
                       </li>
                     )
                   )}
@@ -78,7 +77,6 @@ const DecisionTreeRenderer: React.FC<{
                 <ul>
                   {ailment.decisionDependencies.map((finding, findingIndex) => (
                     <li className="mb-1" key={findingIndex}>
-                      {findingIndex + 1}.
                       <FormattedText text={finding} />
                     </li>
                   ))}
