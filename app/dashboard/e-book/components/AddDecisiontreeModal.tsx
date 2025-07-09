@@ -134,7 +134,19 @@ function AddDecisionTreeModal({
                   className="border-[#cccfd3] bg-[#FCFCFD] border px-4 mb-2 rounded-sm h-[50px] w-full outline-none focus:outline-none  mt-1"
                 />
                 <div className="border-t mt-4 pt-4 border-[#e4e4e4]">
-                  <h3 className="mt-2 mb-1">History</h3>
+                  <div className="flex justify-between">
+                    <h3 className="mt-2 mb-1">History</h3>
+                    <button
+                      className="border border-[#0CA554] text-[#0CA554] bg-[#F6FEF9] w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                      onClick={() => {
+                        const newArray = [...questions];
+                        newArray.splice(0, 0, "");
+                        setQuestions(newArray);
+                      }}
+                    >
+                      <Plus width={12} />
+                    </button>
+                  </div>
                   <div className="flex">
                     <div className="flex-1 pr-2">
                       {questions.map((q, index) => (

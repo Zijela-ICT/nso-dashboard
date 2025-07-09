@@ -78,7 +78,7 @@ const EditTableModal: React.FC<ModalProps> = ({
 
   return (
     <div className="">
-      <div className="w-[450px] overflow-x-auto mb-4">
+      <div className="w-full overflow-x-auto mb-4">
         <table className="min-w-full border-collapse border border-gray-200">
           <thead>
             <tr className="bg-gray-100">
@@ -119,13 +119,12 @@ const EditTableModal: React.FC<ModalProps> = ({
                       key={colIndex}
                       className="border border-gray-300 px-4 py-2"
                     >
-                      <input
-                        type="text"
+                      <textarea
                         value={cell.content as string}
                         onChange={(e) =>
                           handleChange(rowIndex + 1, colIndex, e.target.value)
                         } // Adjust index for rows
-                        className="bg-transparent"
+                        className="bg-transparent min-h-[70px] w-full"
                       />
                     </td>
                   ))}
