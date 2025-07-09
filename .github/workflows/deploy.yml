@@ -43,5 +43,10 @@ jobs:
             #   echo "PM2 process does not exist, starting..."
             #   pm2 start npm --name nso-fe -- run start
             # fi
+            if sudo systemctl is-active --quiet next-app; then
+              sudo systemctl reload next-app
+            else
+              sudo systemctl start next-app
+            fi
 
             echo "✅ Deployment successful!"

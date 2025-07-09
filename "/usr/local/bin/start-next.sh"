@@ -1,0 +1,18 @@
+#!/bin/bash
+cd /home/mole/nso-dashboard
+npm run start
+
+[Unit]
+Description=Next.js Application
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/start-next.sh
+Restart=always
+User=mole
+Environment=NODE_ENV=production
+WorkingDirectory=/home/mole/nso-dashboard
+
+[Install]
+WantedBy=multi-user.target
+
