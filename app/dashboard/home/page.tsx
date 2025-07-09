@@ -25,7 +25,7 @@ const Page = () => {
       count: metrics?.decisions?.totalDecisions ?? 0,
     },
     {
-      title: "E-book Versions",
+      title: "E-Book Versions",
       count: metrics?.ebooks?.totalVersions ?? 0,
     },
   ];
