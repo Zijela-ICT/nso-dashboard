@@ -36,12 +36,12 @@ jobs:
             npm run build
 
             # Check if PM2 process exists and handle accordingly
-            if pm2 list | grep -q "nso-fe"; then
-              echo "PM2 process exists, reloading..."
-              pm2 reload nso-fe
-            else
-              echo "PM2 process does not exist, starting..."
-              pm2 start npm --name nso-fe -- run start
-            fi
+            # if pm2 list | grep -q "nso-fe"; then
+            #   echo "PM2 process exists, reloading..."
+            #   pm2 reload nso-fe
+            # else
+            #   echo "PM2 process does not exist, starting..."
+            #   pm2 start npm --name nso-fe -- run start
+            # fi
 
             echo "✅ Deployment successful!"
