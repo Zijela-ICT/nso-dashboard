@@ -103,7 +103,7 @@ const TableRenderer = ({
         open={openModal && !!tableData}
         onOpenChange={() => setOpenModal(false)}
       >
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-[80%]">
           <DialogHeader>
             <DialogTitle>Edit Table</DialogTitle>
           </DialogHeader>
