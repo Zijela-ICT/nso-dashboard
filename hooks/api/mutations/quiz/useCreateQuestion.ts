@@ -32,10 +32,16 @@ const CreateQuestion = (
       option2: input.option2,
       option3: input.option3,
       option4: input.option4,
-      correctOption: input.correctOption
+      correctOption: input.correctOption,
     },
     true
   );
+};
+
+const CreateBulkQuestion = (input: {
+  questions: InputType[];
+}): Promise<AxiosResponse<ResponseType>> => {
+  return request("POST", `/quizzes/questions/bulk`, input, true);
 };
 
 const useCreateQuestion = () => {
@@ -47,10 +53,25 @@ const useCreateQuestion = () => {
   >((input: InputType) => CreateQuestion(input), {
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [QUERYKEYS.FETCHQUIZQUESTIONS]
+        queryKey: [QUERYKEYS.FETCHQUIZQUESTIONS],
       });
-    }
+    },
   });
 };
 
-export { useCreateQuestion };
+const useBulkCreateQuestion = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AxiosResponse<ResponseType>,
+    AxiosError<ErrorType>,
+    { questions: InputType[] }
+  >((input: { questions: InputType[] }) => CreateBulkQuestion(input), {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERYKEYS.FETCHQUIZQUESTIONS],
+      });
+    },
+  });
+};
+
+export { useCreateQuestion, useBulkCreateQuestion };

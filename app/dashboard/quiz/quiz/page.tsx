@@ -12,7 +12,12 @@ import {
   Search,
   Trash,
 } from "lucide-react";
-import { useCreateQuestion, useCreateQuiz } from "@/hooks/api/mutations/quiz";
+import {
+  InputType,
+  useBulkCreateQuestion,
+  useCreateQuestion,
+  useCreateQuiz,
+} from "@/hooks/api/mutations/quiz";
 import {
   useFetchQuestions,
   QuestionsDataResponse,
@@ -21,6 +26,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Pagination } from "@/components/ui";
 import { deleteQuizQuestion } from "@/utils/quiz.service";
 import { showToast } from "@/utils/toast";
+import Link from "next/link";
+import CSVQuizParser from "./components/CSVQuizParser";
 
 type TabTypes = "New Quiz" | "Question bank";
 
@@ -34,9 +41,17 @@ interface Question {
   id?: number;
 }
 
+interface iQuestion {
+  question: string;
+  options: string[];
+  answer: string;
+  id: number;
+}
+
 const QuizContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const {
     data: fetchedQuestions,
@@ -44,6 +59,8 @@ const QuizContent = () => {
     refetch: getQuestions,
   } = useFetchQuestions(currentPage);
   const { mutate: createQuestion } = useCreateQuestion();
+  const { mutate: createBulkQuestion, isLoading: bulkLoading } =
+    useBulkCreateQuestion();
   const { mutate: submitQuiz } = useCreateQuiz();
 
   const [title, setTitle] = useState("");
@@ -106,6 +123,30 @@ const QuizContent = () => {
         setIsAddingNewQuestion(false); // Close the form
       },
     });
+  };
+
+  const handleQuestionsUpload = (questions: iQuestion[]) => {
+    const data: any[] = questions.map((q) => {
+      let result: any = {};
+
+      result.question = q.question;
+      result.correctOption = q.answer;
+
+      q.options.forEach((option, index) => {
+        index < 4 && (result[`option${index + 1}`] = option);
+      });
+      return result;
+    });
+
+    createBulkQuestion(
+      { questions: data },
+      {
+        onSuccess: () => {
+          getQuestions();
+          setOpen(false);
+        },
+      }
+    );
   };
 
   const handleQuestionSelect = (questionId: number) => {
@@ -376,25 +417,40 @@ const QuizContent = () => {
   };
 
   return (
-    <div className="w-full mt-8">
-      <div className="w-full flex flex-row items-center gap-10 overflow-x-scroll bg-white p-4 rounded-2xl mb-6">
-        {tabs.map((name) => (
-          <div
-            key={name}
-            className={`py-3 font-semibold cursor-pointer ${
-              name === selectedTab
-                ? "border-b-2 border-[#0CA554] text-[#212B36]"
-                : "text-[#637381]"
-            }`}
-            onClick={() => handleTabClick(name)}
-          >
-            {name}
+    <>
+      <div className="w-full mt-8">
+        <div className="flex justify-between items-center mb-6">
+          <div className="w-full flex flex-row items-center gap-10 overflow-x-scroll bg-white p-4 rounded-2xl">
+            {tabs.map((name) => (
+              <div
+                key={name}
+                className={`py-3 font-semibold cursor-pointer ${
+                  name === selectedTab
+                    ? "border-b-2 border-[#0CA554] text-[#212B36]"
+                    : "text-[#637381]"
+                }`}
+                onClick={() => handleTabClick(name)}
+              >
+                {name}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+          <div className="flex gap-2">
+            <Button onClick={() => setOpen(true)} size="sm" className="w-fit">
+              Upload questions
+            </Button>
+          </div>
+        </div>
 
-      {selectedTab === "New Quiz" ? renderNewQuiz() : renderQuestionBank()}
-    </div>
+        {selectedTab === "New Quiz" ? renderNewQuiz() : renderQuestionBank()}
+      </div>
+      <CSVQuizParser
+        open={open}
+        setOpen={() => setOpen(false)}
+        proceed={(questions) => handleQuestionsUpload(questions)}
+        loading={bulkLoading}
+      />
+    </>
   );
 };
 

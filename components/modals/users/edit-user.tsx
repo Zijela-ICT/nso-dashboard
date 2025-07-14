@@ -32,7 +32,7 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
     lastName: "",
     phoneNumber: "",
     emailAddress: "",
-    roles: [] as string[]
+    roles: [] as string[],
   });
 
   useEffect(() => {
@@ -44,8 +44,8 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
         emailAddress: user.email || "",
         // Ensure roles is always an array
         roles: Array.isArray(user.roles)
-          ? user.roles
-          : [user.roles].filter(Boolean)
+          ? user.roles.map((role) => role.name)
+          : [user.roles].filter(Boolean),
       };
       setInitialValues(values);
     }
@@ -56,7 +56,7 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
     validationSchema: EditUserSchema,
     onSubmit: (values) => {
       const updates: InputType = {
-        id: user.id
+        id: user.id,
       };
 
       if (values.firstName !== initialValues.firstName) {
@@ -83,18 +83,18 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
         updateUser(updates, {
           onSuccess: () => {
             setOpenModal(false);
-          }
+          },
         });
       }
     },
-    enableReinitialize: true
+    enableReinitialize: true,
   });
 
   const roleOptions = React.useMemo(() => {
     if (!rolesData?.data) return [];
     return rolesData.data.map((role) => ({
       label: role.name,
-      value: role.name
+      value: role.name,
     }));
   }, [rolesData?.data]);
 
@@ -127,7 +127,8 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
 
         <form
           className="w-full flex flex-col gap-4"
-          onSubmit={formik.handleSubmit}>
+          onSubmit={formik.handleSubmit}
+        >
           <div className="flex flex-col md:flex-row items-start w-full gap-4">
             <div className="w-full">
               <Input
@@ -209,7 +210,8 @@ const EditUser = ({ openModal, setOpenModal, user }: EditUserModal) => {
             className="self-end mt-4 w-fit"
             type="submit"
             disabled={!formik.isValid || !formik.dirty || isUpdating}
-            isLoading={isUpdating}>
+            isLoading={isUpdating}
+          >
             {isUpdating ? "Updating..." : "Update User"}
           </Button>
         </form>
