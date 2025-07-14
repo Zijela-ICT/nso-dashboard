@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 
 export default function SupportPage() {
   return (
@@ -36,9 +37,9 @@ export default function SupportPage() {
         </h2>
         <p className="mb-4">
           Visit our{" "}
-          <a href="/" className="text-blue-600 underline">
+          <Link href="/" className="text-blue-600 underline">
             FAQ page
-          </a>{" "}
+          </Link>{" "}
           for answers to common questions.
         </p>
 
