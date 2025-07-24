@@ -54,10 +54,13 @@ export const FetchSystemUsers = async (
   return request("GET", `/admin/users/system?page=${page}&limit=${perPage}`);
 };
 
-export const useFetchSystemUsers = (page: number = 1, perPage: number = 10) => {
+export const useFetchSystemUsers = (
+  page: number = 1,
+  perPage: number = 100
+) => {
   const queryKey = [QUERYKEYS.FETCHSYSTEMUSERS, page, perPage];
   return useQuery(queryKey, () => FetchSystemUsers(page, perPage), {
     retry: 1,
-    keepPreviousData: true
+    keepPreviousData: true,
   });
 };

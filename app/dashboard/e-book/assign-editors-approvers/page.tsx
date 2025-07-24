@@ -126,6 +126,11 @@ function ApprovalPage() {
     }
   };
 
+  console.log("nonApprovers", nonApprovers);
+  console.log("nonEditors", nonEditors);
+  console.log("currentBook", currentBook);
+  console.log("systemUsers", systemUsers);
+
   if (isLoading) {
     return (
       <div className="w-full py-[50px] flex items-center justify-center">
