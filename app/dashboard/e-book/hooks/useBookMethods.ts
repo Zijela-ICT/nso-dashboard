@@ -28,7 +28,12 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
 import { useEffect, useMemo, useState } from "react";
-import { getEbookVersion, getFile, updateEbooks } from "@/utils/book.services";
+import {
+  getEbookVersion,
+  getFile,
+  streamEbook,
+  updateEbooks,
+} from "@/utils/book.services";
 import useEBooks from "./useEBooks";
 import { useParams } from "next/navigation";
 import { showToast } from "@/utils/toast";
@@ -571,6 +576,7 @@ const useBookMethods = () => {
 
   const downloadBook = async (url) => {
     try {
+      // streamEbook(currentBook.id.toString(), { newFileUrl: url });
       const bookData = (await getFile(url)) as Data;
       setData(bookData);
     } catch (error) {

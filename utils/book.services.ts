@@ -72,3 +72,7 @@ export const getDifferenceFromLastApproved = (
 ) => {
   return request("GET", `/admin/ebooks/${ebookId}/compare_version/${version}`);
 };
+
+export const streamEbook = (ebookId: string, data: any) => {
+  return request("PATCH", `/admin/ebooks/${ebookId}/stream`, data);
+};
