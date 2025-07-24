@@ -576,7 +576,7 @@ const useBookMethods = () => {
 
   const downloadBook = async (url) => {
     try {
-      streamEbook(currentBook.id.toString(), { newFileUrl: url });
+      // streamEbook(currentBook.id.toString(), { newFileUrl: url });
       const bookData = (await getFile(url)) as Data;
       setData(bookData);
     } catch (error) {

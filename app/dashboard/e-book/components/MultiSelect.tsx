@@ -139,8 +139,6 @@ export const MultiSelect = React.forwardRef<
     },
     ref
   ) => {
-    console.log("options", options);
-
     const [selectedValues, setSelectedValues] =
       React.useState<string[]>(defaultValue);
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
