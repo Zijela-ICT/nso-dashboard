@@ -4,14 +4,14 @@ export default function DeleteAccountPage() {
     <main className="max-w-2xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-6">Request Account Deletion</h1>
       <p className="mb-4">
-        We're sorry to see you go. To delete your Facilify account, please follow the steps below:
+        We're sorry to see you go. To delete your NSO account, please follow the steps below:
       </p>
       <ol className="list-decimal list-inside mb-6 space-y-2">
         <li>
           Open your registered email address (the one associated with your NSO account).
         </li>
         <li>
-          Send an email to <a href="mailto:support@facilify.africa" className="text-blue-600 underline">info@chprbngov.ng</a>
+          Send an email to <a href="mailto:info@chprbngov.ng" className="text-blue-600 underline">info@chprbngov.ng</a>
           {' '}with the subject line: <strong>"Account Deletion Request"</strong>.
         </li>
         <li>
