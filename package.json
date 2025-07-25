@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "service:stop": "sudo systemctl stop next-app",
+    "service:start": "sudo systemctl start next-app",
+    "service:restart": "sudo systemctl restart next-app",
+    "service:status": "sudo systemctl status next-app",
+    "logs": "sudo journalctl -u next-app -f"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.2",
