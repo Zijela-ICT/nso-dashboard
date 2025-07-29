@@ -42,6 +42,10 @@ export const getFile = (url: string) => {
   return request("GET", `/uploads/${url.split("/uploads/")[1]}`);
 };
 
+export const streamFile = (url: string) => {
+  return request("GET", `/uploads/${url.split("/uploads/")[1]}/binary`);
+};
+
 export const assignEditor = (
   ebookId: number,
   data: { editorIds: number[] },
