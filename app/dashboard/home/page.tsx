@@ -13,7 +13,7 @@ const Page = () => {
 
   const headings = [
     {
-      title: "App Users",
+      title: "App Users.",
       count: users?.data?.totalCount ?? 0,
     },
     {
