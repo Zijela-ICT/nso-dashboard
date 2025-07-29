@@ -31,7 +31,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   getEbookVersion,
   getFile,
-  streamEbook,
+  streamFile,
   updateEbooks,
 } from "@/utils/book.services";
 import useEBooks from "./useEBooks";
@@ -576,8 +576,8 @@ const useBookMethods = () => {
 
   const downloadBook = async (url) => {
     try {
-      // streamEbook(currentBook.id.toString(), { newFileUrl: url });
-      const bookData = (await getFile(url)) as Data;
+      const bookData = (await streamFile(url)) as Data;
+      // const bookData = (await getFile(url)) as Data;
       setData(bookData);
     } catch (error) {
       console.log(error);
