@@ -577,7 +577,7 @@ const useBookMethods = () => {
   const downloadBook = async (url) => {
     try {
       const bookData = (await streamFile(url)) as Data;
-      // const bookData = (await getFile(url)) as Data;
+      // const bookData = (await getFile(url)) as Data
       setData(bookData);
     } catch (error) {
       console.log(error);
