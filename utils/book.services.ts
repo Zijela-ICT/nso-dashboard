@@ -23,7 +23,15 @@ export const createEbooks = (data) => {
 };
 
 export const updateEbooks = (data, id) => {
-  return request("PATCH", `/admin/ebooks/${id}`, data, null, null, null, true);
+  return request(
+    "PATCH",
+    `/admin/ebooks/${id}/stream`,
+    data,
+    null,
+    null,
+    null,
+    true
+  );
 };
 
 export const approveEbook = (id) => {

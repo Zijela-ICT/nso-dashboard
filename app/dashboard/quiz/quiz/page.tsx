@@ -128,9 +128,9 @@ const QuizContent = () => {
   const handleQuestionsUpload = (questions: iQuestion[]) => {
     const data: any[] = questions.map((q) => {
       let result: any = {};
-
+      const resultIndex = q.options.findIndex((option) => option === q.answer);
       result.question = q.question;
-      result.correctOption = q.answer;
+      result.correctOption = `option${resultIndex + 1}`;
 
       q.options.forEach((option, index) => {
         index < 4 && (result[`option${index + 1}`] = option);
