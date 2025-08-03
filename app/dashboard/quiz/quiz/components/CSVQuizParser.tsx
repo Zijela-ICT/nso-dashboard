@@ -82,8 +82,6 @@ export default function CSVQuizParser({
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
-    console.log("file.type", file.type);
-
     if (!file) return;
 
     if (!isCSVFile(file) && !isExcelFile(file)) {

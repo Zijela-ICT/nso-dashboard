@@ -519,7 +519,8 @@ export const createNewItem = (
       newItem = {
         type,
         src: data?.video as string,
-        alt: `${newItemKey}_alt`,
+        fileName: "simple video",
+        title: "video title",
       };
       break;
     }

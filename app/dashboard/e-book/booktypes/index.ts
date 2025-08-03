@@ -103,6 +103,11 @@ export interface Item {
   title?: string;
   tableStyle?: { backgroundColor?: string; borderRadius?: number };
   forDecisionTree?: boolean;
+  fileName?: string;
+  description?: string;
+  openExternal?: boolean;
+  translate?: boolean;
+  youtube?: boolean;
 }
 
 export interface LinkableContent {
