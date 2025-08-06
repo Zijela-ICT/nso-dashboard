@@ -5,7 +5,9 @@ const BinaryImageRenderer = ({ url }: { url: string }) => {
 
   useEffect(() => {
     const fetchFile = async () => {
-      const response = await fetch(url, {
+      const filePath = url.split("/uploads/")[1];
+      const envUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${filePath}`;
+      const response = await fetch(envUrl, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
