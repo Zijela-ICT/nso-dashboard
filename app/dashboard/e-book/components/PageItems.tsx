@@ -66,11 +66,61 @@ function PageItems({
   const myRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
 
+  const renderTextContent = (content: string) => {
+    // Split content by double newlines to create paragraphs
+    const paragraphs = content.split(/\n\s*\n/);
+
+    if (paragraphs.length > 1) {
+      // Multiple paragraphs - render each as a separate <p> element
+      return (
+        <div>
+          {paragraphs.map((paragraph, index) => (
+            <p
+              key={index}
+              style={{
+                margin:
+                  index === 0
+                    ? "0 0 8px 0"
+                    : index === paragraphs.length - 1
+                    ? "8px 0 0 0"
+                    : "8px 0",
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {paragraph.trim()}
+            </p>
+          ))}
+        </div>
+      );
+    } else {
+      // Single paragraph or content with only single line breaks
+      return <span style={{ whiteSpace: "pre-wrap" }}>{content}</span>;
+    }
+  };
+
   const handleInputChange = (
     event: React.FormEvent<HTMLDivElement>,
     newValue?: string[]
   ) => {
-    const newText = event?.currentTarget?.textContent || "";
+    let newText = "";
+
+    if (event?.currentTarget) {
+      // Get the innerHTML and convert it back to text with preserved paragraphs
+      const element = event.currentTarget;
+      const paragraphs = element.querySelectorAll("p");
+
+      if (paragraphs.length > 1) {
+        // Multiple paragraphs - join them with double newlines
+        newText = Array.from(paragraphs)
+          .map((p) => p.textContent?.trim() || "")
+          .filter((text) => text.length > 0)
+          .join("\n\n");
+      } else {
+        // Single paragraph or span - use textContent but preserve single newlines
+        newText = element.textContent || "";
+      }
+    }
+
     if (itemData.content === newText) return;
     const value = newValue
       ? {
@@ -236,7 +286,7 @@ function PageItems({
       ) {
         const classses = `w-[100%] ${groupClass}`;
         element = (
-          <p
+          <div
             ref={contentRef}
             key={index}
             className={clsx(classses, {
@@ -252,8 +302,10 @@ function PageItems({
             data-text_type={"text"}
             onBlur={handleInputChange}
           >
-            {getLocalizedText(data, (itemData.content || "") as string)}
-          </p>
+            {renderTextContent(
+              getLocalizedText(data, (itemData.content || "") as string)
+            )}
+          </div>
         );
       } else if (
         itemData.type === "unorderedList" ||
