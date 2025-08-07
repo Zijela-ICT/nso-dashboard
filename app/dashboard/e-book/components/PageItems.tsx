@@ -61,42 +61,10 @@ function PageItems({
   const content = searchParams.get("content");
   const itemData = items[0].data as Item;
   const itemPath = items[0].dataPath;
-  const contentRef = useRef<HTMLParagraphElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
   const myRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
-
-  const renderTextContent = (content: string) => {
-    // Split content by double newlines to create paragraphs
-    const paragraphs = content.split(/\n\s*\n/);
-
-    if (paragraphs.length > 1) {
-      // Multiple paragraphs - render each as a separate <p> element
-      return (
-        <div>
-          {paragraphs.map((paragraph, index) => (
-            <p
-              key={index}
-              style={{
-                margin:
-                  index === 0
-                    ? "0 0 8px 0"
-                    : index === paragraphs.length - 1
-                    ? "8px 0 0 0"
-                    : "8px 0",
-                whiteSpace: "pre-wrap",
-              }}
-            >
-              {paragraph.trim()}
-            </p>
-          ))}
-        </div>
-      );
-    } else {
-      // Single paragraph or content with only single line breaks
-      return <span style={{ whiteSpace: "pre-wrap" }}>{content}</span>;
-    }
-  };
 
   const handleInputChange = (
     event: React.FormEvent<HTMLDivElement>,
@@ -105,23 +73,17 @@ function PageItems({
     let newText = "";
 
     if (event?.currentTarget) {
-      // Get the innerHTML and convert it back to text with preserved paragraphs
-      const element = event.currentTarget;
-      const paragraphs = element.querySelectorAll("p");
-
-      if (paragraphs.length > 1) {
-        // Multiple paragraphs - join them with double newlines
-        newText = Array.from(paragraphs)
-          .map((p) => p.textContent?.trim() || "")
-          .filter((text) => text.length > 0)
-          .join("\n\n");
-      } else {
-        // Single paragraph or span - use textContent but preserve single newlines
-        newText = element.textContent || "";
-      }
+      // Get the text content directly and preserve newlines
+      newText = event.currentTarget.textContent || "";
     }
 
-    if (itemData.content === newText) return;
+    // Avoid updating if content hasn't actually changed
+    const currentContent = getLocalizedText(
+      data,
+      (itemData.content || "") as string
+    );
+    if (currentContent === newText) return;
+
     const value = newValue
       ? {
           type: itemData.type || "unorderedList",
@@ -285,6 +247,12 @@ function PageItems({
         itemData.type === "heading4"
       ) {
         const classses = `w-[100%] ${groupClass}`;
+        // Convert double newlines to single newlines with extra spacing for visual paragraph breaks
+        const displayContent = getLocalizedText(
+          data,
+          (itemData.content || "") as string
+        ).replace(/\n\s*\n/g, "\n\n"); // Ensure consistent double newlines
+
         element = (
           <div
             ref={contentRef}
@@ -297,14 +265,16 @@ function PageItems({
             })}
             contentEditable={isEditting}
             suppressContentEditableWarning={true}
-            style={{ lineHeight: "160%" }}
+            style={{
+              lineHeight: "1.6",
+              whiteSpace: "pre-wrap",
+              wordWrap: "break-word",
+            }}
             data-text_path={itemPath}
             data-text_type={"text"}
             onBlur={handleInputChange}
           >
-            {renderTextContent(
-              getLocalizedText(data, (itemData.content || "") as string)
-            )}
+            {displayContent}
           </div>
         );
       } else if (

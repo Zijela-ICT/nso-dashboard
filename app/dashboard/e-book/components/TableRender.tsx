@@ -41,11 +41,15 @@ const TableRenderer = ({
 
     return (
       <CellComponent {...cellProps}>
-        {cell.type === "text" && <span>{cell.content as string}</span>}
+        {cell.type === "text" && (
+          <span style={{ whiteSpace: "pre-wrap" }}>
+            {cell.content as string}
+          </span>
+        )}
         {cell.type === "orderedList" && Array.isArray(cell.content) && (
           <ul className="list-decimal pl-2">
             {(cell.content as string[]).map((text, i) => (
-              <li className="pl-2" key={i}>
+              <li className="pl-2" key={i} style={{ whiteSpace: "pre-wrap" }}>
                 {text}
               </li>
             ))}
