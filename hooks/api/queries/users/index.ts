@@ -4,3 +4,4 @@ export * from "./useFetchRoles";
 export * from "./useFetchPermissions";
 export * from "./useFetchRole";
 export * from "./useFetchUsersByRole";
+export * from "./useLoginActivity";
