@@ -16,6 +16,7 @@ import {
   useBulkCreateQuestion,
   useCreateQuestion,
   useCreateQuiz,
+  useDeleteQuiz,
 } from "@/hooks/api/mutations/quiz";
 import {
   useFetchQuestions,
@@ -31,7 +32,15 @@ import {
   TableHeader,
   TableRow,
   Table,
-  Badge,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui";
 import { deleteQuizQuestion } from "@/utils/quiz.service";
 import CSVQuizParser from "./components/CSVQuizParser";
@@ -75,6 +84,7 @@ const QuizContent = () => {
   const { mutate: createBulkQuestion, isLoading: bulkLoading } =
     useBulkCreateQuestion();
   const { mutate: submitQuiz } = useCreateQuiz();
+  const { mutate: deleteQuiz, isLoading: isDeleting } = useDeleteQuiz();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -211,6 +221,10 @@ const QuizContent = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleDeleteQuiz = (quizId: number) => {
+    deleteQuiz(quizId);
   };
 
   const renderNewQuiz = () => {
@@ -460,9 +474,9 @@ const QuizContent = () => {
                   <TableRow>
                     <TableHead>Quiz Name</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead>Questions</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Last Updated</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -476,15 +490,42 @@ const QuizContent = () => {
                         {quiz.description}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="success">
-                          {quiz.questions?.length || 0} Questions
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
                         {new Date(quiz.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
                         {new Date(quiz.updatedAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete &quot;
+                                {quiz.name}&quot;? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteQuiz(quiz.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                disabled={isDeleting}
+                              >
+                                {isDeleting ? "Deleting..." : "Delete"}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </TableCell>
                     </TableRow>
                   ))}
