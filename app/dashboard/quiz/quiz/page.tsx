@@ -45,8 +45,7 @@ import {
 import { deleteQuizQuestion } from "@/utils/quiz.service";
 import CSVQuizParser from "./components/CSVQuizParser";
 
-// type TabTypes = "New Quiz" | "Question bank" | "Quiz List";
-type TabTypes = "New Quiz" | "Quiz List";
+type TabTypes = "New Quiz" | "Question bank" | "Quiz List";
 
 interface Question {
   question: string;
@@ -253,13 +252,13 @@ const QuizContent = () => {
           />
         </div>
 
-        {/* <Button
+        <Button
           onClick={() => handleTabClick("Question bank")}
           variant="outline"
           className="w-full"
         >
           Add Questions from Bank
-        </Button> */}
+        </Button>
 
         <div className="space-y-4">
           {selectedQuestionsList.map((question) => (
@@ -291,7 +290,6 @@ const QuizContent = () => {
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const renderQuestionBank = () => {
     if (questionsLoading) return <div>Loading...</div>;
 
@@ -575,12 +573,11 @@ const QuizContent = () => {
           </div>
         </div>
 
-        {selectedTab === "New Quiz" ? renderNewQuiz() : renderQuizList()}
-        {/* {selectedTab === "New Quiz"
+        {selectedTab === "New Quiz"
           ? renderNewQuiz()
           : selectedTab === "Question bank"
           ? renderQuestionBank()
-          : renderQuizList()} */}
+          : renderQuizList()}
       </div>
       <CSVQuizParser
         open={open}
