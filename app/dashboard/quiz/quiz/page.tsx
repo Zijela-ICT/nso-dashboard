@@ -13,23 +13,40 @@ import {
   Trash,
 } from "lucide-react";
 import {
-  InputType,
   useBulkCreateQuestion,
   useCreateQuestion,
   useCreateQuiz,
+  useDeleteQuiz,
 } from "@/hooks/api/mutations/quiz";
 import {
   useFetchQuestions,
   QuestionsDataResponse,
+  useFetchQuizzes,
 } from "@/hooks/api/queries/quiz";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pagination } from "@/components/ui";
+import {
+  Pagination,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Table,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui";
 import { deleteQuizQuestion } from "@/utils/quiz.service";
-import { showToast } from "@/utils/toast";
-import Link from "next/link";
 import CSVQuizParser from "./components/CSVQuizParser";
 
-type TabTypes = "New Quiz" | "Question bank";
+// type TabTypes = "New Quiz" | "Question bank" | "Quiz List";
+type TabTypes = "New Quiz" | "Quiz List";
 
 interface Question {
   question: string;
@@ -55,13 +72,20 @@ const QuizContent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const {
     data: fetchedQuestions,
-    isLoading,
+    isLoading: questionsLoading,
     refetch: getQuestions,
   } = useFetchQuestions(currentPage);
+  const reportsPerPage = 10;
+  const {
+    data: quizzesData,
+    isLoading: quizzesLoading,
+    error: quizzesError,
+  } = useFetchQuizzes(currentPage, reportsPerPage);
   const { mutate: createQuestion } = useCreateQuestion();
   const { mutate: createBulkQuestion, isLoading: bulkLoading } =
     useBulkCreateQuestion();
   const { mutate: submitQuiz } = useCreateQuiz();
+  const { mutate: deleteQuiz, isLoading: isDeleting } = useDeleteQuiz();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -80,7 +104,8 @@ const QuizContent = () => {
     correctOption: "",
   });
 
-  const tabs: TabTypes[] = ["New Quiz", "Question bank"];
+  const tabs: TabTypes[] = ["New Quiz", "Quiz List"];
+  // const tabs: TabTypes[] = ["New Quiz", "Question bank", "Quiz List"];
   const tab = searchParams.get("tab") as TabTypes;
   const [selectedTab, setSelectedTab] = useState<TabTypes>(tab || "New Quiz");
 
@@ -126,14 +151,24 @@ const QuizContent = () => {
   };
 
   const handleQuestionsUpload = (questions: iQuestion[]) => {
-    const data: any[] = questions.map((q) => {
-      let result: any = {};
+    const data: Question[] = questions.map((q) => {
+      const result: Question = {
+        question: q.question,
+        option1: "",
+        option2: "",
+        option3: "",
+        option4: "",
+        correctOption: "",
+      };
       const resultIndex = q.options.findIndex((option) => option === q.answer);
       result.question = q.question;
       result.correctOption = `option${resultIndex + 1}`;
 
       q.options.forEach((option, index) => {
-        index < 4 && (result[`option${index + 1}`] = option);
+        if (index === 0) result.option1 = option;
+        else if (index === 1) result.option2 = option;
+        else if (index === 2) result.option3 = option;
+        else if (index === 3) result.option4 = option;
       });
       return result;
     });
@@ -190,6 +225,10 @@ const QuizContent = () => {
     }
   };
 
+  const handleDeleteQuiz = (quizId: number) => {
+    deleteQuiz(quizId);
+  };
+
   const renderNewQuiz = () => {
     const selectedQuestionsList =
       fetchedQuestions?.data?.data?.filter((q) =>
@@ -214,13 +253,13 @@ const QuizContent = () => {
           />
         </div>
 
-        <Button
+        {/* <Button
           onClick={() => handleTabClick("Question bank")}
           variant="outline"
           className="w-full"
         >
           Add Questions from Bank
-        </Button>
+        </Button> */}
 
         <div className="space-y-4">
           {selectedQuestionsList.map((question) => (
@@ -252,8 +291,9 @@ const QuizContent = () => {
     );
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const renderQuestionBank = () => {
-    if (isLoading) return <div>Loading...</div>;
+    if (questionsLoading) return <div>Loading...</div>;
 
     const filteredQuestions = fetchedQuestions?.data?.data?.filter((q) =>
       q.question.toLowerCase().includes(searchTerm.toLowerCase())
@@ -416,6 +456,99 @@ const QuizContent = () => {
     );
   };
 
+  const renderQuizList = () => {
+    return (
+      <div className="space-y-4 bg-white p-6 rounded-lg">
+        <div className="bg-white p-4 rounded-2xl">
+          {quizzesLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-gray-500">Loading quizzes...</div>
+            </div>
+          ) : quizzesError ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-red-500">
+                Error loading quizzes. Please try again.
+              </div>
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Quiz Name</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Last Updated</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {quizzesData?.data?.data?.map((quiz) => (
+                    <TableRow className="cursor-pointer" key={quiz.id}>
+                      <TableCell className="font-medium">{quiz.name}</TableCell>
+                      <TableCell
+                        className="max-w-xs truncate"
+                        title={quiz.description}
+                      >
+                        {quiz.description}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(quiz.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(quiz.updatedAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete &quot;
+                                {quiz.name}&quot;? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteQuiz(quiz.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                disabled={isDeleting}
+                              >
+                                {isDeleting ? "Deleting..." : "Delete"}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              <div className="mt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={quizzesData?.data?.totalPages || 1}
+                  onPageChange={onPageChange}
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="w-full mt-8">
@@ -442,7 +575,12 @@ const QuizContent = () => {
           </div>
         </div>
 
-        {selectedTab === "New Quiz" ? renderNewQuiz() : renderQuestionBank()}
+        {selectedTab === "New Quiz" ? renderNewQuiz() : renderQuizList()}
+        {/* {selectedTab === "New Quiz"
+          ? renderNewQuiz()
+          : selectedTab === "Question bank"
+          ? renderQuestionBank()
+          : renderQuizList()} */}
       </div>
       <CSVQuizParser
         open={open}

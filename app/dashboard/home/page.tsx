@@ -2,6 +2,7 @@
 import React from "react";
 import BarChartComponent from "./components/Bar";
 import { PieChartComponent } from "./components/Pie";
+import LoginActivity from "./components/LoginActivity";
 import { Card } from "@/components/ui/card";
 import { useDashboardMetrics } from "@/hooks/api/queries/users/useDashboardMetrics";
 import { useFetchAppUsers } from "@/hooks/api/queries/users";
@@ -63,6 +64,9 @@ const Page = () => {
             total: metrics?.facilities?.totalFacilities ?? 0,
           }}
         />
+      </div>
+      <div className="mt-8">
+        <LoginActivity />
       </div>
     </div>
   );
