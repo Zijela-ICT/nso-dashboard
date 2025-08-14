@@ -103,8 +103,7 @@ const QuizContent = () => {
     correctOption: "",
   });
 
-  const tabs: TabTypes[] = ["New Quiz", "Quiz List"];
-  // const tabs: TabTypes[] = ["New Quiz", "Question bank", "Quiz List"];
+  const tabs: TabTypes[] = ["New Quiz", "Question bank", "Quiz List"];
   const tab = searchParams.get("tab") as TabTypes;
   const [selectedTab, setSelectedTab] = useState<TabTypes>(tab || "New Quiz");
 
