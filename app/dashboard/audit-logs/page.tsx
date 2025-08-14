@@ -44,7 +44,7 @@ const Page = () => {
         <TableHeader>
           <TableRow>
             <TableHead>User ID</TableHead>
-            <TableHead>Resourse</TableHead>
+            <TableHead>Resource</TableHead>
             <TableHead>IP Address</TableHead>
             <TableHead>Action</TableHead>
             <TableHead>Date</TableHead>

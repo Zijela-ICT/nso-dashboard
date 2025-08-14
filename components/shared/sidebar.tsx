@@ -80,13 +80,13 @@ const routes: RouteItem[] = [
       },
     ],
   },
-  {
-    id: 4,
-    icon: "decisions",
-    label: "Decisions",
-    href: "/decisions",
-    permission: SystemPermissions.READ_ADMIN_FACILITIES,
-  },
+  // {
+  //   id: 4,
+  //   icon: "decisions",
+  //   label: "Decisions",
+  //   href: "/decisions",
+  //   permission: SystemPermissions.READ_ADMIN_FACILITIES,
+  // },
   {
     id: 5,
     icon: "hospital",
