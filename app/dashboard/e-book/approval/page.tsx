@@ -459,6 +459,16 @@ function ApprovalPage() {
                       } else {
                         `?hashId=${getItemId(diff)}`;
                       }
+
+                      // let href = "";
+                      // if (diff.kind === "E") {
+                      //   href =
+                      //     diff.lhs && typeof diff.lhs === "string"
+                      //       ? `#content-${i}`
+                      //       : `#item-${getItemId(diff)}`;
+                      // } else {
+                      //   href = `#item-${getItemId(diff)}`;
+                      // }
                       return (
                         <AccordionItem key={i} value={`item-${i}`}>
                           <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">

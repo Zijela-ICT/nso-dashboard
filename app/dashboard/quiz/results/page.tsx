@@ -73,36 +73,36 @@ const ResultsPage = () => {
   }
 
   const results = completedAssessments?.data?.data || [];
-  const totalCount = completedAssessments?.data?.totalCount || 0;
+  // const totalCount = completedAssessments?.data?.totalCount || 0;
   const totalPages = completedAssessments?.data?.totalPages || 1;
 
   // Calculate summary statistics
-  const totalSubmissions = totalCount;
-  const averageScore =
-    results.length > 0
-      ? (
-          results.reduce(
-            (sum, result) => sum + parseFloat(result.totalScore),
-            0
-          ) / results.length
-        ).toFixed(1)
-      : "0";
-  const passedCount = results.filter(
-    (result) => parseFloat(result.totalScore) >= 60
-  ).length;
-  const passRate =
-    results.length > 0
-      ? ((passedCount / results.length) * 100).toFixed(1)
-      : "0";
+  // const totalSubmissions = totalCount;
+  // const averageScore =
+  //   results.length > 0
+  //     ? (
+  //         results.reduce(
+  //           (sum, result) => sum + parseFloat(result.totalScore),
+  //           0
+  //         ) / results.length
+  //       ).toFixed(1)
+  //     : "0";
+  // const passedCount = results.filter(
+  //   (result) => parseFloat(result.totalScore) >= 60
+  // ).length;
+  // const passRate =
+  //   results.length > 0
+  //     ? ((passedCount / results.length) * 100).toFixed(1)
+  //     : "0";
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex justify-between items-center">
+      {/* <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Quiz Results</h1>
-      </div>
+      </div> */}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
@@ -148,10 +148,10 @@ const ResultsPage = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Results Table */}
-      <Card>
+      <Card className="mt-4">
         <CardHeader>
           <CardTitle>Assessment Results</CardTitle>
         </CardHeader>

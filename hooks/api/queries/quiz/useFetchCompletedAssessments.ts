@@ -35,10 +35,16 @@ const fetchCompletedAssessments = async (
   page: number = 1,
   limit: number = 10
 ): Promise<CompletedAssessmentsResponse> => {
-  return await request("GET", `/quizzes/my_assessments/completed?page=${page}&limit=${limit}`);
+  return await request(
+    "GET",
+    `/quizzes/admin/assessments/completed?page=${page}&limit=${limit}`
+  );
 };
 
-export const useFetchCompletedAssessments = (page: number = 1, limit: number = 10) => {
+export const useFetchCompletedAssessments = (
+  page: number = 1,
+  limit: number = 10
+) => {
   return useQuery<CompletedAssessmentsResponse, Error>(
     [QUERYKEYS.FETCHASSESSMENTS, "completed", page, limit],
     () => fetchCompletedAssessments(page, limit),

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import BarChartComponent from "./components/Bar";
-import { PieChartComponent } from "./components/Pie";
+// import { PieChartComponent } from "./components/Pie";
 import LoginActivity from "./components/LoginActivity";
 import { Card } from "@/components/ui/card";
 import { useDashboardMetrics } from "@/hooks/api/queries/users/useDashboardMetrics";
@@ -17,14 +17,14 @@ const Page = () => {
       title: "App Users.",
       count: users?.data?.totalCount ?? 0,
     },
-    {
-      title: "Total Facilities",
-      count: metrics?.facilities?.totalFacilities ?? 0,
-    },
-    {
-      title: "Total Decisions",
-      count: metrics?.decisions?.totalDecisions ?? 0,
-    },
+    // {
+    //   title: "Total Facilities",
+    //   count: metrics?.facilities?.totalFacilities ?? 0,
+    // },
+    // {
+    //   title: "Total Decisions",
+    //   count: metrics?.decisions?.totalDecisions ?? 0,
+    // },
     {
       title: "E-Book Versions",
       count: metrics?.ebooks?.totalVersions ?? 0,
@@ -37,7 +37,7 @@ const Page = () => {
     </div>
   ) : (
     <div className="px-6 py-20">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {headings?.map((heading, i) => (
           <Card key={i} className="p-4">
             <p className="text-muted-foreground">{heading?.title}</p>
@@ -47,7 +47,7 @@ const Page = () => {
           </Card>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-4 mt-8">
+      <div className="grid grid-cols-1 gap-4 mt-8">
         <BarChartComponent
           graphData={
             metrics?.assessment?.assessmentsByCadre ?? {
@@ -57,13 +57,13 @@ const Page = () => {
             }
           }
         />
-        <PieChartComponent
+        {/* <PieChartComponent
           pieData={{
             private: metrics?.facilities?.facilitiesByType?.private ?? 0,
             public: metrics?.facilities?.facilitiesByType?.public ?? 0,
             total: metrics?.facilities?.totalFacilities ?? 0,
           }}
-        />
+        /> */}
       </div>
       <div className="mt-8">
         <LoginActivity />

@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
   Pagination,
-  Button
+  Button,
 } from "@/components/ui";
 import { useFetchFacilities } from "@/hooks/api/queries/facilities";
 import { usePermissions } from "@/hooks/custom/usePermissions";
@@ -32,11 +32,19 @@ const Page = () => {
   };
   return (
     <div>
-      <div className="flex justify-end items-center mb-4 mt-8">
+      <div className="flex justify-end items-center mb-4 mt-8 gap-4">
         <Button
           className="w-fit flex items-center"
-          onClick={() => setCreateFacilityModal(true)}>
+          onClick={() => setCreateFacilityModal(true)}
+        >
           Create new
+          <Icon name="add-square" className=" text-primary" fill="none" />
+        </Button>
+        <Button
+          className="w-fit flex items-center"
+          onClick={() => setCreateFacilityModal(true)}
+        >
+          Bulk Upload
           <Icon name="add-square" className=" text-primary" fill="none" />
         </Button>
       </div>
@@ -79,9 +87,14 @@ const Page = () => {
                 <TableCell>{facility.location}</TableCell>
                 <TableCell className="flex flex-row items-center justify-start gap-3">
                   {hasPermission(SystemPermissions.READ_FACILITIES_ID) && (
-                    <div className="w-6 h-6" onClick={() => {
-                      router.push(`/dashboard/nearby-facilities/${facility.id}`);
-                    }}>
+                    <div
+                      className="w-6 h-6"
+                      onClick={() => {
+                        router.push(
+                          `/dashboard/nearby-facilities/${facility.id}`
+                        );
+                      }}
+                    >
                       <Icon name="edit-2" className="w-6 h-6" />
                     </div>
                   )}
