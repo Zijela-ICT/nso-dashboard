@@ -37,10 +37,16 @@ const CreateFacility = (
       contact: input.contact,
       longitude: input.longitude,
       latitude: input.latitude,
-      address: input.address
+      address: input.address,
     },
     true
   );
+};
+
+const CreateBulkFacility = (input: {
+  facilities: InputType[];
+}): Promise<AxiosResponse<ResponseType>> => {
+  return request("POST", `/facilities/bulk`, input, true);
 };
 
 const useCreateFacility = () => {
@@ -52,8 +58,23 @@ const useCreateFacility = () => {
   >((input: InputType) => CreateFacility(input), {
     onSuccess: async () => {
       await queryClient.invalidateQueries(QUERYKEYS.FETCHFACILITIES);
-    }
+    },
   });
 };
 
-export { useCreateFacility };
+const useBulkCreateFacility = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AxiosResponse<ResponseType>,
+    AxiosError<ErrorType>,
+    { facilities: InputType[] }
+  >((input) => CreateBulkFacility(input), {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERYKEYS.FETCHFACILITIES],
+      });
+    },
+  });
+};
+
+export { useCreateFacility, useBulkCreateFacility };

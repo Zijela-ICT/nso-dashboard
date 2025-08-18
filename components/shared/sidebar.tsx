@@ -159,6 +159,13 @@ const routes: RouteItem[] = [
     href: "/audit-logs",
     permission: SystemPermissions.READ_APP_SETTINGS,
   },
+  {
+    id: 10,
+    icon: "add-square",
+    label: "Help and Support",
+    href: "/help",
+    permission: SystemPermissions.READ_APP_SETTINGS,
+  },
 ];
 
 const AppSidebar = () => {
