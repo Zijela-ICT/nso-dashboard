@@ -16,18 +16,18 @@ type SubmissionsData = {
   submissionsByAssessment: Record<string, unknown>;
 };
 
-type DecisionsData = {
-  totalDecisions: number;
-  decisionsByPractitioner: Record<string, number>;
-};
+// type DecisionsData = {
+//   totalDecisions: number;
+//   decisionsByPractitioner: Record<string, number>;
+// };
 
-type FacilitiesData = {
-  totalFacilities: number;
-  facilitiesByType: {
-    public: number;
-    private: number;
-  };
-};
+// type FacilitiesData = {
+//   totalFacilities: number;
+//   facilitiesByType: {
+//     public: number;
+//     private: number;
+//   };
+// };
 
 type EBooksData = {
   totalEBooks: number;
@@ -44,8 +44,8 @@ type EBooksData = {
 type DashboardData = {
   assessment: AssessmentData;
   submissions: SubmissionsData;
-  decisions: DecisionsData;
-  facilities: FacilitiesData;
+  // decisions: DecisionsData;
+  // facilities: FacilitiesData;
   ebooks: EBooksData;
 };
 
@@ -58,28 +58,28 @@ export const fetchMetrics = async (): Promise<DashboardData> => {
     "GET",
     `/stats/submissions`
   );
-  const decisionsReques: Promise<DecisionsData> = request(
-    "GET",
-    `/stats/decisions`
-  );
-  const facilitiesReques: Promise<FacilitiesData> = request(
-    "GET",
-    `/stats/facilities`
-  );
+  // const decisionsReques: Promise<DecisionsData> = request(
+  //   "GET",
+  //   `/stats/decisions`
+  // );
+  // const facilitiesReques: Promise<FacilitiesData> = request(
+  //   "GET",
+  //   `/stats/facilities`
+  // );
   const ebooksReques: Promise<EBooksData> = request("GET", `/stats/ebooks`);
   const response = await Promise.all([
     assesmentReques,
     submissionReques,
-    decisionsReques,
-    facilitiesReques,
+    // decisionsReques,
+    // facilitiesReques,
     ebooksReques,
   ]);
   return {
     assessment: response[0],
     submissions: response[1],
-    decisions: response[2],
-    facilities: response[3],
-    ebooks: response[4],
+    // decisions: response[2],
+    // facilities: response[2],
+    ebooks: response[2],
   };
 };
 
