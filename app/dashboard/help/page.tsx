@@ -4,7 +4,7 @@ import React, { useState } from "react";
 const pdfs = [
   {
     title: "User Guide",
-    url: "/pdf/user-guide.pdf",
+    url: "/pdf/NSO-User-Guide.pdf",
   },
 ];
 
