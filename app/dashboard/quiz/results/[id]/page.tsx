@@ -10,20 +10,21 @@ import {
   TableRow,
   Pagination,
 } from "@/components/ui";
-import { useFetchCompletedAssessments } from "@/hooks/api/queries/quiz";
+import { useFetchAssessmentsID } from "@/hooks/api/queries/quiz";
 import { formatToLocalTime } from "@/utils/date-formatter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
+import { useParams } from "next/navigation";
 
 const ResultsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const { id } = useParams();
   const reportsPerPage = 10;
 
-  const {
-    data: completedAssessments,
-    isLoading,
-    error,
-  } = useFetchCompletedAssessments(currentPage, reportsPerPage);
+  const { data, isLoading, error } = useFetchAssessmentsID(
+    currentPage,
+    reportsPerPage,
+    Number(id)
+  );
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -73,36 +74,18 @@ const ResultsPage = () => {
     );
   }
 
-  const results = completedAssessments?.data?.data || [];
+  const results = data?.data?.submissions?.data || [];
   // const totalCount = completedAssessments?.data?.totalCount || 0;
-  const totalPages = completedAssessments?.data?.totalPages || 1;
-
-  // Calculate summary statistics
-  // const totalSubmissions = totalCount;
-  // const averageScore =
-  //   results.length > 0
-  //     ? (
-  //         results.reduce(
-  //           (sum, result) => sum + parseFloat(result.totalScore),
-  //           0
-  //         ) / results.length
-  //       ).toFixed(1)
-  //     : "0";
-  // const passedCount = results.filter(
-  //   (result) => parseFloat(result.totalScore) >= 60
-  // ).length;
-  // const passRate =
-  //   results.length > 0
-  //     ? ((passedCount / results.length) * 100).toFixed(1)
-  //     : "0";
+  const totalPages = data?.data?.submissions?.totalPages || 1;
 
   return (
     <div className="w-full space-y-6">
-      {/* Summary Cards */}
       {/* Results Table */}
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>Assessment Results</CardTitle>
+          <CardTitle>{`${
+            data?.data?.assessment?.name || "Assessment Results"
+          }`}</CardTitle>
         </CardHeader>
         <CardContent>
           {results.length === 0 ? (
@@ -116,7 +99,8 @@ const ResultsPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Assessment Name</TableHead>
+                    <TableHead>User Name</TableHead>
+                    <TableHead>User Cadre</TableHead>
                     <TableHead>Score</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Submission Date</TableHead>
@@ -127,14 +111,18 @@ const ResultsPage = () => {
                 <TableBody>
                   {results.map((result) => (
                     <TableRow key={result.id}>
-                      <TableCell className="font-medium hover:text-blue-500">
-                        <Link href={`/dashboard/quiz/results/${result.id}`}>
-                          {result.assessment.name}
-                        </Link>
+                      <TableCell className="font-medium">
+                        {result.user.firstName || ""}{" "}
+                        {result.user.lastName || ""}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {result.user.cadre || ""}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getScoreColor(result.totalScore)}>
-                          {result.totalScore}%
+                        <Badge
+                          variant={getScoreColor(String(result.totalScore))}
+                        >
+                          {result.totalScore ? `${result.totalScore}%` : "N/A"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -165,11 +153,9 @@ const ResultsPage = () => {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={
-                            result.isLateSubmission ? "failed" : "success"
-                          }
+                          variant={result.isCompleted ? "failed" : "success"}
                         >
-                          {result.isLateSubmission ? "Late" : "On Time"}
+                          {result.isCompleted ? "Late" : "On Time"}
                         </Badge>
                       </TableCell>
                     </TableRow>

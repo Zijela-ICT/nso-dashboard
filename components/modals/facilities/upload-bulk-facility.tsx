@@ -56,11 +56,10 @@ export const UploadBulkFacility = ({
   ];
 
   const handleSampleDownload = () => {
-    const sampleUrl =
-      "https://res.cloudinary.com/dl78ezj6d/raw/upload/v1752600000/sample_facilities.xlsx";
+    const sampleUrl = "/bulk-samples/bulk_facilities.csv";
     const link = document.createElement("a");
     link.href = sampleUrl;
-    link.download = "sample_facilities.xlsx";
+    link.download = "sample_facilities.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -95,7 +94,7 @@ export const UploadBulkFacility = ({
 
       const parsedFacilities: Facility[] = rows
         .filter((row) => row.some((cell) => cell !== ""))
-        .map((row, index) => {
+        .map((row) => {
           const facility: Partial<Facility> = {};
           (headers as string[]).forEach((header, i) => {
             const key = header as keyof Facility;
@@ -109,7 +108,7 @@ export const UploadBulkFacility = ({
             (facility as any)[key] = value;
           });
 
-          return { ...facility, id: index + 1 } as Facility;
+          return { ...facility } as Facility;
         });
 
       setFacilities(parsedFacilities);

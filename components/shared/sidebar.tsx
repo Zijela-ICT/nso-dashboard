@@ -162,7 +162,7 @@ const routes: RouteItem[] = [
   {
     id: 10,
     icon: "add-square",
-    label: "Help and Support",
+    label: "Help",
     href: "/help",
     permission: SystemPermissions.READ_APP_SETTINGS,
   },

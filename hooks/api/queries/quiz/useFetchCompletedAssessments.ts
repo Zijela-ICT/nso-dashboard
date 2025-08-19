@@ -31,6 +31,47 @@ export interface CompletedAssessmentsResponse {
   };
 }
 
+export interface SubmissionUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  cadre: string;
+}
+
+export interface Submission {
+  id: number;
+  startDate: string;
+  submissionDate: string;
+  totalScore: number | null;
+  isCompleted: boolean;
+  user: SubmissionUser;
+}
+
+export interface AssessmentDetails {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface AssessmentID {
+  status: string;
+  message: string;
+  data: {
+    assessment: AssessmentDetails;
+    submissions: {
+      data: Submission[];
+      totalCount: number;
+      currentPage: number;
+      totalPages: number;
+      pageSize: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
+}
+
 const fetchCompletedAssessments = async (
   page: number = 1,
   limit: number = 10
@@ -38,6 +79,17 @@ const fetchCompletedAssessments = async (
   return await request(
     "GET",
     `/quizzes/admin/assessments/completed?page=${page}&limit=${limit}`
+  );
+};
+
+const fetchAssessmentsID = async (
+  page: number = 1,
+  limit: number = 10,
+  assessmentId: number
+): Promise<AssessmentID> => {
+  return await request(
+    "GET",
+    `/quizzes/admin/assessments/${assessmentId}/submissions?page=${page}&limit=${limit}`
   );
 };
 
@@ -51,6 +103,22 @@ export const useFetchCompletedAssessments = (
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
       refetchOnWindowFocus: false,
+    }
+  );
+};
+
+export const useFetchAssessmentsID = (
+  page: number = 1,
+  limit: number = 10,
+  assessmentId: number
+) => {
+  return useQuery<AssessmentID, Error>(
+    [QUERYKEYS.FETCHASSESSMENTS, "completed", page, limit, assessmentId],
+    () => fetchAssessmentsID(page, limit, assessmentId),
+    {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false,
+      enabled: !!assessmentId,
     }
   );
 };
