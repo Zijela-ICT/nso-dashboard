@@ -7,14 +7,7 @@ import {
   Button,
   FileUploader,
   Icon,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
 } from "@/components/ui";
-import { useFormik } from "formik";
 import React from "react";
 
 type UploadBulkUserModal = {

@@ -1,5 +1,6 @@
 "use client";
 import { CreateFacility } from "@/components/modals/facilities/create-facility";
+import { UploadBulkFacility } from "@/components/modals/facilities/upload-bulk-facility";
 import {
   Icon,
   Table,
@@ -11,6 +12,7 @@ import {
   Pagination,
   Button,
 } from "@/components/ui";
+import { useBulkCreateFacility } from "@/hooks/api/mutations/facility";
 import { useFetchFacilities } from "@/hooks/api/queries/facilities";
 import { usePermissions } from "@/hooks/custom/usePermissions";
 import { SystemPermissions } from "@/utils/permission-enums";
@@ -21,15 +23,30 @@ const Page = () => {
   const router = useRouter();
   const { hasPermission } = usePermissions();
   const [createFacilityModal, setCreateFacilityModal] = useState(false);
+  const [bulkUploadModal, setBulkUploadModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
 
   // const { data } = useFetchAppUsers(currentPage, reportsPerPage);
   const { data } = useFetchFacilities(currentPage, reportsPerPage);
+  const { mutate: createBulkFacility, isLoading: bulkLoading } =
+    useBulkCreateFacility();
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
+
+  const handleFacilitysUpload = (facilities) => {
+    createBulkFacility(
+      { facilities },
+      {
+        onSuccess: () => {
+          setBulkUploadModal(false);
+        },
+      }
+    );
+  };
+
   return (
     <div>
       <div className="flex justify-end items-center mb-4 mt-8 gap-4">
@@ -42,7 +59,7 @@ const Page = () => {
         </Button>
         <Button
           className="w-fit flex items-center"
-          onClick={() => setCreateFacilityModal(true)}
+          onClick={() => setBulkUploadModal(true)}
         >
           Bulk Upload
           <Icon name="add-square" className=" text-primary" fill="none" />
@@ -123,6 +140,12 @@ const Page = () => {
         <CreateFacility
           openModal={createFacilityModal}
           setOpenModal={setCreateFacilityModal}
+        />
+        <UploadBulkFacility
+          openModal={bulkUploadModal}
+          setOpenModal={setBulkUploadModal}
+          proceed={(facilities) => handleFacilitysUpload(facilities)}
+          loading={bulkLoading}
         />
       </div>
     </div>

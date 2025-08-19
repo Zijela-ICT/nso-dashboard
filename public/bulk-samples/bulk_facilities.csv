@@ -1,0 +1,3 @@
+name,type,address,contact,status,location,careLevel,longitude,latitude
+bulk fac 1,public,55 zoo lane,2348024567890,active,urban,primary,3.3792,6.5244
+bulk fac 2,private,56 zoo lane,2349045623412,inactive,rural,secondary,3.3793,6.5245

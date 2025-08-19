@@ -10,38 +10,50 @@ import {
   TableRow,
   Pagination,
 } from "@/components/ui";
-import { useFetchCompletedAssessments } from "@/hooks/api/queries/quiz";
+import { useFetchAssessmentsID } from "@/hooks/api/queries/quiz";
 import { formatToLocalTime } from "@/utils/date-formatter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const ResultsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const { id } = useParams();
+  const router = useRouter();
   const reportsPerPage = 10;
 
-  const {
-    data: completedAssessments,
-    isLoading,
-    error,
-  } = useFetchCompletedAssessments(currentPage, reportsPerPage);
+  const { data, isLoading, error } = useFetchAssessmentsID(
+    currentPage,
+    reportsPerPage,
+    Number(id)
+  );
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // const getScoreColor = (
-  //   score: string
-  // ): "success" | "pending" | "failed" | "overdue" => {
-  //   const numScore = parseFloat(score);
-  //   if (numScore >= 80) return "success";
-  //   if (numScore >= 60) return "pending";
-  //   return "failed";
-  // };
+  const getScoreColor = (
+    score: string
+  ): "success" | "pending" | "failed" | "overdue" => {
+    const numScore = parseFloat(score);
+    if (numScore >= 80) return "success";
+    if (numScore >= 60) return "pending";
+    return "failed";
+  };
 
   if (isLoading) {
     return (
       <div className="w-full space-y-4">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center">
+          <Button
+            onClick={() => router.back()}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
           <h1 className="text-2xl font-bold">Quiz Results</h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -62,6 +74,14 @@ const ResultsPage = () => {
     return (
       <div className="w-full">
         <div className="flex justify-between items-center mb-6">
+          <Button
+            onClick={() => router.back()}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
           <h1 className="text-2xl font-bold">Quiz Results</h1>
         </div>
         <div className="flex items-center justify-center py-8">
@@ -73,36 +93,30 @@ const ResultsPage = () => {
     );
   }
 
-  const results = completedAssessments?.data?.data || [];
-  // const totalCount = completedAssessments?.data?.totalCount || 0;
-  const totalPages = completedAssessments?.data?.totalPages || 1;
-
-  // Calculate summary statistics
-  // const totalSubmissions = totalCount;
-  // const averageScore =
-  //   results.length > 0
-  //     ? (
-  //         results.reduce(
-  //           (sum, result) => sum + parseFloat(result.totalScore),
-  //           0
-  //         ) / results.length
-  //       ).toFixed(1)
-  //     : "0";
-  // const passedCount = results.filter(
-  //   (result) => parseFloat(result.totalScore) >= 60
-  // ).length;
-  // const passRate =
-  //   results.length > 0
-  //     ? ((passedCount / results.length) * 100).toFixed(1)
-  //     : "0";
+  const results = data?.data?.submissions?.data || [];
+  const totalPages = data?.data?.submissions?.totalPages || 1;
 
   return (
     <div className="w-full space-y-6">
-      {/* Summary Cards */}
+      {/* Back button */}
+      <div className="flex items-center gap-4 pt-4">
+        <Button
+          onClick={() => router.back()}
+          variant="outline"
+          className="flex items-center gap-2 w-32"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+        <h1 className="text-xl font-bold">Quiz Results</h1>
+      </div>
+
       {/* Results Table */}
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>Assessment Results</CardTitle>
+          <CardTitle>
+            {data?.data?.assessment?.name || "Assessment Results"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {results.length === 0 ? (
@@ -116,8 +130,9 @@ const ResultsPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Assessment Name</TableHead>
-                    {/* <TableHead>Score</TableHead> */}
+                    <TableHead>User Name</TableHead>
+                    <TableHead>User Cadre</TableHead>
+                    <TableHead>Score</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Submission Date</TableHead>
                     <TableHead>Duration</TableHead>
@@ -127,16 +142,20 @@ const ResultsPage = () => {
                 <TableBody>
                   {results.map((result) => (
                     <TableRow key={result.id}>
-                      <TableCell className="font-medium hover:text-blue-500">
-                        <Link href={`/dashboard/quiz/results/${result.id}`}>
-                          {result.assessment.name}
-                        </Link>
+                      <TableCell className="font-medium">
+                        {result.user.firstName || ""}{" "}
+                        {result.user.lastName || ""}
                       </TableCell>
-                      {/* <TableCell>
-                        <Badge variant={getScoreColor(result.totalScore)}>
-                          {result.totalScore}%
+                      <TableCell className="font-medium">
+                        {result.user.cadre || ""}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={getScoreColor(String(result.totalScore))}
+                        >
+                          {result.totalScore ? `${result.totalScore}%` : "N/A"}
                         </Badge>
-                      </TableCell> */}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={result.isCompleted ? "success" : "pending"}
@@ -165,11 +184,9 @@ const ResultsPage = () => {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={
-                            result.isLateSubmission ? "failed" : "success"
-                          }
+                          variant={result.isCompleted ? "failed" : "success"}
                         >
-                          {result.isLateSubmission ? "Late" : "On Time"}
+                          {result.isCompleted ? "Late" : "On Time"}
                         </Badge>
                       </TableCell>
                     </TableRow>
