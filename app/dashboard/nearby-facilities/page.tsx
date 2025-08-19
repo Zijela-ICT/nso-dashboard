@@ -97,6 +97,7 @@ const Page = () => {
               <TableHead>Names</TableHead>
               <TableHead>Facility type</TableHead>
               <TableHead>Coordinates</TableHead>
+              <TableHead>Address</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -109,6 +110,7 @@ const Page = () => {
                 <TableCell>
                   {facility.latitude}, {facility.longitude}
                 </TableCell>
+                <TableCell>{facility.address}</TableCell>
                 <TableCell>{facility.location}</TableCell>
                 <TableCell className="flex flex-row items-center justify-start gap-3">
                   {hasPermission(SystemPermissions.READ_FACILITIES_ID) && (

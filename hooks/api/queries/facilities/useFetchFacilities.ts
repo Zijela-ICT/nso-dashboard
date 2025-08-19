@@ -7,6 +7,7 @@ export type FacilitiesDataResponse = {
   name: string;
   type: string;
   location: string;
+  address: string;
   status: string | null;
   longitude: string;
   latitude: string;
@@ -39,6 +40,6 @@ export const useFetchFacilities = (page: number = 1, perPage: number = 10) => {
   const queryKey = [QUERYKEYS.FETCHFACILITIES, page, perPage];
   return useQuery(queryKey, () => FetchFacilities(page, perPage), {
     retry: 1,
-    keepPreviousData: true
+    keepPreviousData: true,
   });
 };
