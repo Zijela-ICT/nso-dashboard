@@ -13,11 +13,14 @@ import {
 import { useFetchAssessmentsID } from "@/hooks/api/queries/quiz";
 import { formatToLocalTime } from "@/utils/date-formatter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const ResultsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { id } = useParams();
+  const router = useRouter();
   const reportsPerPage = 10;
 
   const { data, isLoading, error } = useFetchAssessmentsID(
@@ -42,7 +45,15 @@ const ResultsPage = () => {
   if (isLoading) {
     return (
       <div className="w-full space-y-4">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center">
+          <Button
+            onClick={() => router.back()}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
           <h1 className="text-2xl font-bold">Quiz Results</h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -63,6 +74,14 @@ const ResultsPage = () => {
     return (
       <div className="w-full">
         <div className="flex justify-between items-center mb-6">
+          <Button
+            onClick={() => router.back()}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
           <h1 className="text-2xl font-bold">Quiz Results</h1>
         </div>
         <div className="flex items-center justify-center py-8">
@@ -75,17 +94,29 @@ const ResultsPage = () => {
   }
 
   const results = data?.data?.submissions?.data || [];
-  // const totalCount = completedAssessments?.data?.totalCount || 0;
   const totalPages = data?.data?.submissions?.totalPages || 1;
 
   return (
     <div className="w-full space-y-6">
+      {/* Back button */}
+      <div className="flex items-center gap-4 pt-4">
+        <Button
+          onClick={() => router.back()}
+          variant="outline"
+          className="flex items-center gap-2 w-32"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+        <h1 className="text-xl font-bold">Quiz Results</h1>
+      </div>
+
       {/* Results Table */}
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>{`${
-            data?.data?.assessment?.name || "Assessment Results"
-          }`}</CardTitle>
+          <CardTitle>
+            {data?.data?.assessment?.name || "Assessment Results"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {results.length === 0 ? (

@@ -29,14 +29,14 @@ const ResultsPage = () => {
     setCurrentPage(page);
   };
 
-  const getScoreColor = (
-    score: string
-  ): "success" | "pending" | "failed" | "overdue" => {
-    const numScore = parseFloat(score);
-    if (numScore >= 80) return "success";
-    if (numScore >= 60) return "pending";
-    return "failed";
-  };
+  // const getScoreColor = (
+  //   score: string
+  // ): "success" | "pending" | "failed" | "overdue" => {
+  //   const numScore = parseFloat(score);
+  //   if (numScore >= 80) return "success";
+  //   if (numScore >= 60) return "pending";
+  //   return "failed";
+  // };
 
   if (isLoading) {
     return (
@@ -117,7 +117,7 @@ const ResultsPage = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Assessment Name</TableHead>
-                    <TableHead>Score</TableHead>
+                    {/* <TableHead>Score</TableHead> */}
                     <TableHead>Status</TableHead>
                     <TableHead>Submission Date</TableHead>
                     <TableHead>Duration</TableHead>
@@ -132,11 +132,11 @@ const ResultsPage = () => {
                           {result.assessment.name}
                         </Link>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <Badge variant={getScoreColor(result.totalScore)}>
                           {result.totalScore}%
                         </Badge>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <Badge
                           variant={result.isCompleted ? "success" : "pending"}
