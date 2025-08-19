@@ -1,6 +1,7 @@
 "use client";
 import { CreateFacility } from "@/components/modals/facilities/create-facility";
 import { UploadBulkFacility } from "@/components/modals/facilities/upload-bulk-facility";
+import { DeleteModal } from "@/components/modals/users";
 import {
   Icon,
   Table,
@@ -12,7 +13,10 @@ import {
   Pagination,
   Button,
 } from "@/components/ui";
-import { useBulkCreateFacility } from "@/hooks/api/mutations/facility";
+import {
+  useBulkCreateFacility,
+  useDeleteFacility,
+} from "@/hooks/api/mutations/facility";
 import { useFetchFacilities } from "@/hooks/api/queries/facilities";
 import { usePermissions } from "@/hooks/custom/usePermissions";
 import { SystemPermissions } from "@/utils/permission-enums";
@@ -24,13 +28,17 @@ const Page = () => {
   const { hasPermission } = usePermissions();
   const [createFacilityModal, setCreateFacilityModal] = useState(false);
   const [bulkUploadModal, setBulkUploadModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [facility, setFacility] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
 
   // const { data } = useFetchAppUsers(currentPage, reportsPerPage);
-  const { data } = useFetchFacilities(currentPage, reportsPerPage);
+  const { data, refetch } = useFetchFacilities(currentPage, reportsPerPage);
   const { mutate: createBulkFacility, isLoading: bulkLoading } =
     useBulkCreateFacility();
+  const { mutate: mutateDelete, isLoading: isLoadingDelete } =
+    useDeleteFacility();
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -117,7 +125,13 @@ const Page = () => {
                   )}
 
                   {hasPermission(SystemPermissions.DELETE_ADMIN_FACILITIES) && (
-                    <div className="w-6 h-6">
+                    <div
+                      className="w-6 h-6"
+                      onClick={() => {
+                        setFacility(facility);
+                        setDeleteModal(true);
+                      }}
+                    >
                       <Icon
                         name="trash-2"
                         className="text-[#F04438] w-6 h-6"
@@ -146,6 +160,26 @@ const Page = () => {
           setOpenModal={setBulkUploadModal}
           proceed={(facilities) => handleFacilitysUpload(facilities)}
           loading={bulkLoading}
+        />
+        <DeleteModal
+          openModal={deleteModal}
+          setOpenModal={setDeleteModal}
+          header="Delete Facility"
+          subText={`Are you sure you want to delete ${facility?.name}?`}
+          loading={isLoadingDelete}
+          handleConfirm={() => {
+            mutateDelete(
+              {
+                id: facility.id,
+              },
+              {
+                onSuccess: () => {
+                  setDeleteModal(false);
+                  refetch();
+                },
+              }
+            );
+          }}
         />
       </div>
     </div>
