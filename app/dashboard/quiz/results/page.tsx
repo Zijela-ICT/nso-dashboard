@@ -128,7 +128,9 @@ const ResultsPage = () => {
                   {results.map((result) => (
                     <TableRow key={result.id}>
                       <TableCell className="font-medium hover:text-blue-500">
-                        <Link href={`/dashboard/quiz/results/${result.id}`}>
+                        <Link
+                          href={`/dashboard/quiz/results/${result.assessment.id}`}
+                        >
                           {result.assessment.name}
                         </Link>
                       </TableCell>
