@@ -23,10 +23,10 @@ export function QuestionModal({ assessment, open, setOpen }) {
               Taken by {assessment.user.firstName} {assessment.user.lastName} (
               {assessment.user.email})
             </p>
-            <p className="text-gray-500 text-sm">
+            {/* <p className="text-gray-500 text-sm">
               Score: {assessment.totalScore} •{" "}
               {assessment.isCompleted ? "Completed" : "Not Completed"}
-            </p>
+            </p> */}
           </div>
         </DialogTitle>
 
@@ -35,7 +35,8 @@ export function QuestionModal({ assessment, open, setOpen }) {
             <div key={quiz.id} className="mb-8">
               <h2 className="text-lg font-semibold text-gray-800 flex items-center mb-4">
                 <FileText className="h-5 w-5 mr-2 text-blue-600" />
-                {quiz.quizName} – Score: {quiz.quizScore}
+                {quiz.quizName}
+                {/* {quiz.quizName} – Score: {quiz.quizScore} */}
               </h2>
 
               <div className="space-y-6">
