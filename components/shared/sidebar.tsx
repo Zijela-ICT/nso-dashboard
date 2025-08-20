@@ -76,7 +76,7 @@ const routes: RouteItem[] = [
       {
         label: "Standing Order Admins",
         href: "/e-book/assign-editors-approvers",
-        permission: SystemPermissions.UPDATE_ADMIN_EBOOKS_APPROVE,
+        permission: SystemPermissions.UPDATE_ADMIN_EDITOR_APPROVE,
       },
     ],
   },
@@ -99,22 +99,27 @@ const routes: RouteItem[] = [
     icon: "message-question",
     label: "Quiz",
     href: "/quiz",
-    permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+    permission: [
+      "read_quizzes:questions",
+      "read_quizzes",
+      "read_quizzes:assessments",
+      "read_quizzes:my_assessments/completed",
+    ],
     subItems: [
       {
         label: "Quiz",
         href: "/quiz/quiz",
-        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+        permission: ["read_quizzes"],
       },
       {
         label: "Assessments",
         href: "/quiz/assessments",
-        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+        permission: ["read_quizzes:assessments"],
       },
       {
         label: "Results",
         href: "/quiz/results",
-        permission: [SystemPermissions.READ_ADMIN_USERS_APP],
+        permission: ["read_quizzes:my_assessments/completed"],
       },
       // {
       //   label: "Submissions",

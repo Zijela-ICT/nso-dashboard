@@ -64,6 +64,7 @@ export enum SystemPermissions {
   UPDATE_ADMIN_EBOOKS = "update_admin/ebooks:ebookId",
   READ_ADMIN_EBOOKS = "read_admin/ebooks",
   UPDATE_ADMIN_EBOOKS_APPROVE = "update_admin/ebooks:approve/versionId",
+  UPDATE_ADMIN_EDITOR_APPROVE = "update_admin/ebooks:ebookId/assign-editor",
   READ_ADMIN_EBOOKS_VERSIONS = "read_admin/ebooks:ebookId/versions",
   READ_ADMIN_EBOOKS_HISTORY = "read_admin/ebooks:ebookId/versions/history",
   DELETE_ADMIN_EBOOKS = "delete_admin/ebooks:ebookId",
@@ -80,7 +81,7 @@ export enum SystemPermissions {
   READ_ADMIN_FACILITIES_ID = "read_admin/facilities:facilityId",
   DELETE_ADMIN_FACILITIES = "delete_admin/facilities:facilityId",
   READ_FACILITIES = "read_facilities",
-  READ_FACILITIES_ID = "read_facilities:facilityId"
+  READ_FACILITIES_ID = "read_facilities:facilityId",
 }
 
 // Type to use in function parameters and hooks

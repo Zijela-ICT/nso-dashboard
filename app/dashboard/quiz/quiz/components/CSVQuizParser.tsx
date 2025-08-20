@@ -25,11 +25,10 @@ export default function CSVQuizParser({
   const [error, setError] = useState("");
 
   const handleDownload = () => {
-    const fileUrl =
-      "https://res.cloudinary.com/dl78ezj6d/raw/upload/v1752518522/sample_tlnaaa.xlsx"; // Path to file in public directory
+    const fileUrl = "/bulk-samples/bulk_quiz.xlsx"; // Path to file in public directory
     const link = document.createElement("a");
     link.href = fileUrl;
-    link.download = "sample.xlsx"; // Name of the file when downloaded
+    link.download = "sample-quiz.xlsx"; // Name of the file when downloaded
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link); // Clean up
@@ -170,23 +169,20 @@ export default function CSVQuizParser({
           {questions.length === 0 && (
             <>
               <div className="p-1">
-                <a
-                  href="https://res.cloudinary.com/dl78ezj6d/raw/upload/v1752518522/sample_tlnaaa.xlsx"
-                  target="_blank"
-                  download
+                <div
+                  onClick={handleDownload}
+                  className="flex flex-row items-center justify-between py-2.5 px-5 shadow-md rounded-md mb-4 cursor-pointer"
                 >
-                  <div className="flex flex-row items-center justify-between py-2.5 px-5 shadow-md rounded-md mb-4 cursor-pointer">
-                    <div className="flex flex-row items-center gap-5">
-                      <div className="w-11 h-11">
-                        <Icon name="file" className="w-11 h-11" />
-                      </div>
-                      <p className="text-[#637381] text-sm font-normal">
-                        Download Sample file format for uploading
-                      </p>
+                  <div className="flex flex-row items-center gap-5">
+                    <div className="w-11 h-11">
+                      <Icon name="file" className="w-11 h-11" />
                     </div>
-                    <Icon name="download" className="w-6 h-6" />
+                    <p className="text-[#637381] text-sm font-normal">
+                      Download Sample file format for uploading
+                    </p>
                   </div>
-                </a>
+                  <Icon name="download" className="w-6 h-6" />
+                </div>
 
                 <div className="mb-8">
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors">

@@ -16,9 +16,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { QuestionModal } from "./question-modal";
 
 const ResultsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [questions, setQuestions] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const { id } = useParams();
   const router = useRouter();
   const reportsPerPage = 10;
@@ -142,7 +145,13 @@ const ResultsPage = () => {
                 <TableBody>
                   {results.map((result) => (
                     <TableRow key={result.id}>
-                      <TableCell className="font-medium">
+                      <TableCell
+                        className="font-medium hover:text-blue-500"
+                        onClick={() => {
+                          setModalOpen(true);
+                          setQuestions(result);
+                        }}
+                      >
                         {result.user.firstName || ""}{" "}
                         {result.user.lastName || ""}
                       </TableCell>
@@ -205,6 +214,11 @@ const ResultsPage = () => {
           )}
         </CardContent>
       </Card>
+      <QuestionModal
+        assessment={questions}
+        open={modalOpen}
+        setOpen={setModalOpen}
+      />
     </div>
   );
 };
