@@ -30,7 +30,7 @@ const useDeleteFacility = () => {
       onSuccess: () => {
         // Invalidate teams query to refetch the list
         queryClient.invalidateQueries(QUERYKEYS.FETCHFACILITIES);
-      }
+      },
     }
   );
 };

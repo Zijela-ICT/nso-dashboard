@@ -27,7 +27,7 @@ const Page = () => {
     "⁠Facility Level of Care": facility?.careLevel,
     Coordinates: `${facility?.latitude}, ${facility?.longitude}`,
     Location: facility?.location,
-    Address: facility?.address
+    Address: facility?.address,
   };
 
   const [deleteModal, setDeleteModal] = useState(false);
@@ -45,7 +45,10 @@ const Page = () => {
         </div>
         <div className="flex flex-row items-center gap-4 mt-4">
           {hasPermission(SystemPermissions.DELETE_ADMIN_FACILITIES) && (
-            <Button className="bg-[#FEF3F2] border border-[#F04438] w-fit text-[#912018] hover:bg-[#FEF3F2]" onClick={() => setDeleteModal(true)}>
+            <Button
+              className="bg-[#FEF3F2] border border-[#F04438] w-fit text-[#912018] hover:bg-[#FEF3F2]"
+              onClick={() => setDeleteModal(true)}
+            >
               Delete facility
               <Icon
                 name="trash-2"
@@ -55,9 +58,10 @@ const Page = () => {
             </Button>
           )}
           {hasPermission(SystemPermissions.UPDATE_ADMIN_FACILITIES) && (
-            <Button className="w-fit flex items-center" onClick={
-              () => setEditModal(true)
-            }>
+            <Button
+              className="w-fit flex items-center"
+              onClick={() => setEditModal(true)}
+            >
               Edit facility
               <Icon
                 name="edit-2"
@@ -95,7 +99,8 @@ const Page = () => {
           {Object.entries(faciltyDetails).map(([key, value], index) => (
             <div
               key={index}
-              className="flex flex-col items-start gap-2 justify-start w-full mb-4">
+              className="flex flex-col items-start gap-2 justify-start w-full mb-4"
+            >
               <h3 className="text-[#101828] font-medium text-base">{key}</h3>
               <div className="border border-[#D0D5DD] rounded-[4px] p-4 text-base font-normal w-full">
                 {value}
@@ -114,13 +119,13 @@ const Page = () => {
         handleConfirm={() => {
           mutateDelete(
             {
-              id: params.id
+              id: params.id,
             },
             {
               onSuccess: () => {
                 setDeleteModal(false);
                 router.push("/dashboard/nearby-facilities");
-              }
+              },
             }
           );
         }}

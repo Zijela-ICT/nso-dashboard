@@ -50,6 +50,6 @@ export const useFetchFacilities = (
   const queryKey = [QUERYKEYS.FETCHFACILITIES, page, perPage, search];
   return useQuery(queryKey, () => FetchFacilities(page, perPage, search), {
     retry: 1,
-    keepPreviousData: true,
+    refetchOnMount: "always",
   });
 };
