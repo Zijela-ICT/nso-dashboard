@@ -31,10 +31,14 @@ const Page = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [facility, setFacility] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState("");
   const reportsPerPage = 20; // Adjust as needed
 
-  // const { data } = useFetchAppUsers(currentPage, reportsPerPage);
-  const { data, refetch } = useFetchFacilities(currentPage, reportsPerPage);
+  const { data, refetch } = useFetchFacilities(
+    currentPage,
+    reportsPerPage,
+    search
+  );
   const { mutate: createBulkFacility, isLoading: bulkLoading } =
     useBulkCreateFacility();
   const { mutate: mutateDelete, isLoading: isLoadingDelete } =
@@ -75,21 +79,23 @@ const Page = () => {
       </div>
       <div className="bg-white p-4 rounded-2xl">
         <div className="gap-4 flex flex-row items-center justify-end w-full mb-3">
-          {/* <div className="relative w-full">
+          <div className="relative w-full">
             <input
               className="border border-[#919EAB33] px-12 py-4 rounded-lg w-full text-[#637381] placeholder:text-[#637381] text-sm"
               placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
             <Icon
               name="search"
               className="absolute top-4 left-4 "
               fill="none"
             />
-          </div> */}
-          <Button className="w-fit" variant="outline">
+          </div>
+          {/* <Button className="w-fit" variant="outline">
             Sort
           </Button>
-          <Button className="w-fit">Filter</Button>
+          <Button className="w-fit">Filter</Button> */}
         </div>
         <Table>
           <TableHeader>

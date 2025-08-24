@@ -31,14 +31,24 @@ type FacilitesResp = {
 
 export const FetchFacilities = async (
   page: number = 1,
-  perPage: number = 10
+  perPage: number = 10,
+  search: string
 ): Promise<FacilitesResp> => {
-  return request("GET", `/facilities?page=${page}&limit=${perPage}`);
+  return request(
+    "GET",
+    `/facilities?page=${page}&limit=${perPage}${
+      search && search.length > 3 ? `&search=${search}` : ""
+    }`
+  );
 };
 
-export const useFetchFacilities = (page: number = 1, perPage: number = 10) => {
-  const queryKey = [QUERYKEYS.FETCHFACILITIES, page, perPage];
-  return useQuery(queryKey, () => FetchFacilities(page, perPage), {
+export const useFetchFacilities = (
+  page: number = 1,
+  perPage: number = 10,
+  search: string
+) => {
+  const queryKey = [QUERYKEYS.FETCHFACILITIES, page, perPage, search];
+  return useQuery(queryKey, () => FetchFacilities(page, perPage, search), {
     retry: 1,
     keepPreviousData: true,
   });
