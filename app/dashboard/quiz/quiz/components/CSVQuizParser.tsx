@@ -25,7 +25,7 @@ export default function CSVQuizParser({
   const [error, setError] = useState("");
 
   const handleDownload = () => {
-    const fileUrl = "/bulk-samples/bulk_quiz.xlsx"; // Path to file in public directory
+    const fileUrl = "/bulk-samples/bulk_questions.xlsx"; // Path to file in public directory
     const link = document.createElement("a");
     link.href = fileUrl;
     link.download = "sample-quiz.xlsx"; // Name of the file when downloaded

@@ -44,6 +44,7 @@ import {
 } from "@/components/ui";
 import { deleteQuizQuestion } from "@/utils/quiz.service";
 import CSVQuizParser from "./components/CSVQuizParser";
+import { QuestionModal } from "./components/question-modal";
 
 type TabTypes = "New Quiz" | "Question bank" | "Quiz List";
 
@@ -69,6 +70,7 @@ const QuizContent = () => {
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState("");
   const {
     data: fetchedQuestions,
     isLoading: questionsLoading,
@@ -79,7 +81,7 @@ const QuizContent = () => {
     data: quizzesData,
     isLoading: quizzesLoading,
     error: quizzesError,
-  } = useFetchQuizzes(currentPage, reportsPerPage);
+  } = useFetchQuizzes(currentPage, reportsPerPage, search);
   const { mutate: createQuestion } = useCreateQuestion();
   const { mutate: createBulkQuestion, isLoading: bulkLoading } =
     useBulkCreateQuestion();
@@ -106,6 +108,8 @@ const QuizContent = () => {
   const tabs: TabTypes[] = ["New Quiz", "Question bank", "Quiz List"];
   const tab = searchParams.get("tab") as TabTypes;
   const [selectedTab, setSelectedTab] = useState<TabTypes>(tab || "New Quiz");
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleTabClick = (tab: TabTypes) => {
     setSelectedTab(tab);
@@ -177,6 +181,14 @@ const QuizContent = () => {
         onSuccess: () => {
           getQuestions();
           setOpen(false);
+          setNewQuestion({
+            question: "",
+            option1: "",
+            option2: "",
+            option3: "",
+            option4: "",
+            correctOption: "",
+          });
         },
       }
     );
@@ -456,6 +468,14 @@ const QuizContent = () => {
   const renderQuizList = () => {
     return (
       <div className="space-y-4 bg-white p-6 rounded-lg">
+        <div className="px-4">
+          <input
+            className="border border-[#919EAB33] px-12 py-4 rounded-lg w-full text-[#637381] placeholder:text-[#637381] text-sm"
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <div className="bg-white p-4 rounded-2xl">
           {quizzesLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -474,6 +494,7 @@ const QuizContent = () => {
                   <TableRow>
                     <TableHead>Quiz Name</TableHead>
                     <TableHead>Description</TableHead>
+                    <TableHead>No of Questions</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Last Updated</TableHead>
                     <TableHead>Actions</TableHead>
@@ -482,12 +503,23 @@ const QuizContent = () => {
                 <TableBody>
                   {quizzesData?.data?.data?.map((quiz) => (
                     <TableRow className="cursor-pointer" key={quiz.id}>
-                      <TableCell className="font-medium">{quiz.name}</TableCell>
+                      <TableCell
+                        className="font-medium hover:text-blue-500 cursor-pointer"
+                        onClick={() => {
+                          setSelectedQuiz(quiz);
+                          setModalOpen(true);
+                        }}
+                      >
+                        {quiz.name}
+                      </TableCell>
                       <TableCell
                         className="max-w-xs truncate"
                         title={quiz.description}
                       >
                         {quiz.description}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {quiz.questions?.length}
                       </TableCell>
                       <TableCell>
                         {new Date(quiz.createdAt).toLocaleDateString()}
@@ -578,6 +610,11 @@ const QuizContent = () => {
           ? renderQuestionBank()
           : renderQuizList()}
       </div>
+      <QuestionModal
+        quiz={selectedQuiz}
+        open={modalOpen}
+        setOpen={setModalOpen}
+      />
       <CSVQuizParser
         open={open}
         setOpen={() => setOpen(false)}

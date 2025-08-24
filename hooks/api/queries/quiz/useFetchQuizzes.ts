@@ -39,14 +39,24 @@ type QuizResp = {
 
 export const FetchQuizzes = async (
   page: number = 1,
-  perPage: number = 50
+  perPage: number = 50,
+  search?: string
 ): Promise<QuizResp> => {
-  return request("GET", `/quizzes?page=${page}&limit=${perPage}`);
+  return request(
+    "GET",
+    `/quizzes?page=${page}&limit=${perPage}${
+      search && search.length > 3 ? `&search=${search}` : ""
+    }`
+  );
 };
 
-export const useFetchQuizzes = (page: number = 1, perPage: number = 50) => {
-  const queryKey = [QUERYKEYS.FETCHQUIZZES, page, perPage];
-  return useQuery(queryKey, () => FetchQuizzes(page, perPage), {
+export const useFetchQuizzes = (
+  page: number = 1,
+  perPage: number = 50,
+  search?: string
+) => {
+  const queryKey = [QUERYKEYS.FETCHQUIZZES, page, perPage, search];
+  return useQuery(queryKey, () => FetchQuizzes(page, perPage, search), {
     retry: 1,
     keepPreviousData: true,
   });
