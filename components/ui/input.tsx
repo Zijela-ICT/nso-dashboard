@@ -5,13 +5,16 @@ import { Icon } from "./icon";
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  name: string;
+  name?: string;
   errorMessage?: string;
   containerClassName?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, type, containerClassName, errorMessage, ...props }, ref) => {
+  (
+    { className, label, type, containerClassName, errorMessage, ...props },
+    ref
+  ) => {
     const [showPassword, setShowPassword] = React.useState(false);
     const isPassword = type === "password";
 
@@ -20,12 +23,20 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     };
 
     return (
-      <div className={cn("w-full flex flex-col gap-1 relative", containerClassName &&containerClassName )}>
-        {label && <label
-          htmlFor={props.name}
-          className="text-[#637381] font-semibold text-sm">
-          {label}
-        </label>}
+      <div
+        className={cn(
+          "w-full flex flex-col gap-1 relative",
+          containerClassName && containerClassName
+        )}
+      >
+        {label && (
+          <label
+            htmlFor={props.name}
+            className="text-[#637381] font-semibold text-sm"
+          >
+            {label}
+          </label>
+        )}
 
         <input
           type={isPassword ? (showPassword ? "text" : "password") : type}
@@ -42,7 +53,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <button
             type="button"
             onClick={togglePasswordVisibility}
-            className="absolute right-3 bottom-0 top-7">
+            className="absolute right-3 bottom-0 top-7"
+          >
             <Icon
               name={showPassword ? "eye-closed" : "eye-closed"}
               className="w-5 h-5"
@@ -50,7 +62,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             />
           </button>
         )}
-        {errorMessage && <p className="text-[#F97066] text-xs bottom-[-1rem]">{errorMessage}</p>}
+        {errorMessage && (
+          <p className="text-[#F97066] text-xs bottom-[-1rem]">
+            {errorMessage}
+          </p>
+        )}
       </div>
     );
   }

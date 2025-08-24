@@ -11,6 +11,8 @@ import {
   ChevronUp,
   Search,
   Trash,
+  Edit2,
+  Save,
 } from "lucide-react";
 import {
   useBulkCreateQuestion,
@@ -46,6 +48,7 @@ import { deleteQuizQuestion } from "@/utils/quiz.service";
 import CSVQuizParser from "./components/CSVQuizParser";
 import { QuestionModal } from "./components/question-modal";
 import { useApproveQuiz } from "@/hooks/api/mutations/quiz/useApproveQuiz";
+import { useUpdateQuiz } from "@/hooks/api/mutations/quiz/useUpdateQuestion";
 
 type TabTypes = "New Quiz" | "Question bank" | "Quiz List";
 
@@ -87,6 +90,7 @@ const QuizContent = () => {
   const { mutate: createBulkQuestion, isLoading: bulkLoading } =
     useBulkCreateQuestion();
   const { mutate: submitQuiz } = useCreateQuiz();
+  const { mutate: updateQuiz } = useUpdateQuiz();
   const { mutate: approveQuiz, isLoading: isApproving } = useApproveQuiz();
   const { mutate: deleteQuiz, isLoading: isDeleting } = useDeleteQuiz();
 
@@ -98,6 +102,7 @@ const QuizContent = () => {
     number | null
   >(null);
   const [isAddingNewQuestion, setIsAddingNewQuestion] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<number | null>(null);
   const [newQuestion, setNewQuestion] = useState<Question>({
     question: "",
     option1: "",
@@ -106,6 +111,61 @@ const QuizContent = () => {
     option4: "",
     correctOption: "",
   });
+
+  const startEditingQuestion = (question: QuestionsDataResponse) => {
+    setEditingQuestion(question.id);
+    setNewQuestion({
+      question: question.question,
+      option1: question.option1,
+      option2: question.option2,
+      option3: question.option3,
+      option4: question.option4,
+      correctOption: question.correctOption,
+    });
+  };
+
+  // Helper function to cancel editing
+  const cancelEditing = () => {
+    setEditingQuestion(null);
+    setNewQuestion({
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      correctOption: "",
+    });
+  };
+
+  // Helper function to save edited question
+  const saveEditedQuestion = (questionId: number) => {
+    if (!isQuestionComplete(newQuestion)) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    updateQuiz(
+      { id: questionId, ...newQuestion },
+      {
+        onSuccess: () => {
+          getQuestions();
+          cancelEditing();
+          setNewQuestion({
+            question: "",
+            option1: "",
+            option2: "",
+            option3: "",
+            option4: "",
+            correctOption: "",
+          });
+        },
+      }
+    );
+
+    // Temporary mock update - replace with actual API call
+    getQuestions();
+    cancelEditing();
+  };
 
   const tabs: TabTypes[] = ["New Quiz", "Question bank", "Quiz List"];
   const tab = searchParams.get("tab") as TabTypes;
@@ -336,7 +396,10 @@ const QuizContent = () => {
         </div>
 
         {isAddingNewQuestion && (
-          <div className="border rounded-lg p-4 space-y-4">
+          <div className="border rounded-lg p-4 space-y-4 bg-blue-50">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-blue-900">Add New Question</h3>
+            </div>
             <Input
               name="question"
               placeholder="Enter question"
@@ -396,56 +459,176 @@ const QuizContent = () => {
         )}
 
         {filteredQuestions?.map((question: QuestionsDataResponse) => (
-          <div key={question.id} className="border rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  checked={selectedQuestions.includes(question.id)}
-                  onCheckedChange={() => handleQuestionSelect(question.id)}
-                />
-                <span className="flex-1">{question.question}</span>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeleteQuestion(question.id)}
-                >
-                  <Trash className="h-4 w-4 text-destructive" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() =>
-                    setExpandedBankQuestion(
-                      expandedBankQuestion === question.id ? null : question.id
-                    )
-                  }
-                >
-                  {expandedBankQuestion === question.id ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {expandedBankQuestion === question.id && (
-              <div className="mt-4 space-y-2 pl-8">
-                <div>Option 1: {question.option1}</div>
-                <div>Option 2: {question.option2}</div>
-                <div>Option 3: {question.option3}</div>
-                <div>Option 4: {question.option4}</div>
-                <div className="text-green-600">
-                  Correct Option:{" "}
-                  {
-                    question[
-                      question.correctOption as keyof QuestionsDataResponse
-                    ]
-                  }
+          <div
+            key={question.id}
+            className={`border rounded-lg p-4 ${
+              editingQuestion === question.id
+                ? "bg-yellow-50 border-yellow-300"
+                : ""
+            }`}
+          >
+            {editingQuestion === question.id ? (
+              // Edit Mode
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-yellow-900">Edit Question</h3>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => saveEditedQuestion(question.id)}
+                      className="h-8 w-8 text-green-600 hover:bg-green-100"
+                      title="Save changes"
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={cancelEditing}
+                      className="h-8 w-8 text-red-600 hover:bg-red-100"
+                      title="Cancel editing"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
+
+                <Input
+                  placeholder="Enter question"
+                  value={newQuestion.question}
+                  onChange={(e) =>
+                    setNewQuestion((prev) => ({
+                      ...prev,
+                      question: e.target.value,
+                    }))
+                  }
+                  className="font-medium"
+                />
+
+                {[1, 2, 3, 4].map((num) => (
+                  <div key={num} className="flex items-center gap-2">
+                    <Input
+                      placeholder={`Option ${num}`}
+                      value={newQuestion[`option${num}` as keyof Question]}
+                      onChange={(e) =>
+                        setNewQuestion((prev) => ({
+                          ...prev,
+                          [`option${num}`]: e.target.value,
+                        }))
+                      }
+                      className="flex-1"
+                    />
+                    <Button
+                      variant={
+                        newQuestion.correctOption === `option${num}`
+                          ? "default"
+                          : "outline"
+                      }
+                      size="icon"
+                      onClick={() =>
+                        setNewQuestion((prev) => ({
+                          ...prev,
+                          correctOption: `option${num}`,
+                        }))
+                      }
+                    >
+                      {newQuestion.correctOption === `option${num}` ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        <X className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                ))}
               </div>
+            ) : (
+              // View Mode
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <Checkbox
+                      checked={selectedQuestions.includes(question.id)}
+                      onCheckedChange={() => handleQuestionSelect(question.id)}
+                    />
+                    <span className="flex-1 font-medium">
+                      {question.question}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => startEditingQuestion(question)}
+                      className="h-8 w-8 text-blue-600 hover:bg-blue-100"
+                      title="Edit question"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteQuestion(question.id)}
+                      className="h-8 w-8 text-red-600 hover:bg-red-100"
+                      title="Delete question"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() =>
+                        setExpandedBankQuestion(
+                          expandedBankQuestion === question.id
+                            ? null
+                            : question.id
+                        )
+                      }
+                    >
+                      {expandedBankQuestion === question.id ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {expandedBankQuestion === question.id && (
+                  <div className="mt-4 space-y-2 pl-8 bg-gray-50 p-3 rounded">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <div className="p-2 bg-white rounded border">
+                        <span className="text-sm text-gray-600">Option 1:</span>
+                        <div className="font-medium">{question.option1}</div>
+                      </div>
+                      <div className="p-2 bg-white rounded border">
+                        <span className="text-sm text-gray-600">Option 2:</span>
+                        <div className="font-medium">{question.option2}</div>
+                      </div>
+                      <div className="p-2 bg-white rounded border">
+                        <span className="text-sm text-gray-600">Option 3:</span>
+                        <div className="font-medium">{question.option3}</div>
+                      </div>
+                      <div className="p-2 bg-white rounded border">
+                        <span className="text-sm text-gray-600">Option 4:</span>
+                        <div className="font-medium">{question.option4}</div>
+                      </div>
+                    </div>
+                    <div className="p-2 bg-green-50 rounded border border-green-200 mt-3">
+                      <span className="text-sm text-green-600">
+                        Correct Answer:
+                      </span>
+                      <div className="text-green-800 font-medium">
+                        {
+                          question[
+                            question.correctOption as keyof QuestionsDataResponse
+                          ]
+                        }
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}
@@ -454,7 +637,7 @@ const QuizContent = () => {
           <div className="fixed bottom-6 right-6 space-x-4">
             <Button
               onClick={() => handleTabClick("New Quiz")}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
             >
               Return to Quiz ({selectedQuestions.length} selected)
             </Button>
@@ -462,8 +645,8 @@ const QuizContent = () => {
         )}
 
         <Pagination
-          currentPage={fetchedQuestions.data.currentPage}
-          totalPages={fetchedQuestions?.data?.totalPages}
+          currentPage={fetchedQuestions?.data?.currentPage || 1}
+          totalPages={fetchedQuestions?.data?.totalPages || 1}
           onPageChange={onPageChange}
         />
       </div>
