@@ -7,6 +7,16 @@ import BookHeader from "./BookHeader";
 import { useParams } from "next/navigation";
 import { IChprbnBook } from "../hooks/useEBooks";
 import { useBookContext } from "../context/bookContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui";
 
 function RenderBook({
   flattenBookData,
@@ -29,7 +39,7 @@ function RenderBook({
   currentBook: Book;
   updateElementAtPath?: (e, f) => void;
   addNewElement?: (e, f, g) => void;
-  removeElement?: () => void;
+  removeElement?: (e) => void;
   createNewItem?: (e, f) => void;
   addNewPageElement?: (e, f) => void;
   setBookTitle?: (e) => void;
@@ -42,6 +52,8 @@ function RenderBook({
   const { isEditting } = useBookContext();
   const params = useParams();
   const [foldedSection, setFoldedSection] = useState<Array<number[]>>([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [headerToDelete, setHeaderToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     if (!foldBook) {
@@ -93,10 +105,28 @@ function RenderBook({
         return "🔖";
       case 4:
         return "📄";
-
       default:
         return "📄";
     }
+  };
+
+  // Handler for header deletion confirmation
+  const handleHeaderDelete = (e: number) => {
+    setHeaderToDelete(e);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmHeaderDelete = () => {
+    if (headerToDelete) {
+      removeElement(headerToDelete);
+      setHeaderToDelete(null);
+    }
+    setShowDeleteConfirm(false);
+  };
+
+  const cancelHeaderDelete = () => {
+    setHeaderToDelete(null);
+    setShowDeleteConfirm(false);
   };
 
   return (
@@ -120,7 +150,6 @@ function RenderBook({
           const isHeader = typeof chapter.data === "string";
           const indices = [...chapter.parentIndex];
           indices.pop();
-          // console.log("chapter.data", chapter.data);
 
           if (parentFolded(indices)) {
             return null;
@@ -153,7 +182,7 @@ function RenderBook({
                       index={index}
                       chapter={chapter}
                       flattenBookData={flattenBookData}
-                      removeElement={removeElement}
+                      removeElement={handleHeaderDelete}
                       addNewPageElement={addNewPageElement}
                       addNewElement={addNewElement}
                     />
@@ -182,6 +211,30 @@ function RenderBook({
           );
         })}
       </div>
+
+      {/* Header Deletion Confirmation Modal */}
+      <AlertDialog open={showDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Header</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this header ? This action will
+              also remove all content within this section and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelHeaderDelete}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmHeaderDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
