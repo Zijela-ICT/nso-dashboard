@@ -45,6 +45,7 @@ import {
 import { deleteQuizQuestion } from "@/utils/quiz.service";
 import CSVQuizParser from "./components/CSVQuizParser";
 import { QuestionModal } from "./components/question-modal";
+import { useApproveQuiz } from "@/hooks/api/mutations/quiz/useApproveQuiz";
 
 type TabTypes = "New Quiz" | "Question bank" | "Quiz List";
 
@@ -86,6 +87,7 @@ const QuizContent = () => {
   const { mutate: createBulkQuestion, isLoading: bulkLoading } =
     useBulkCreateQuestion();
   const { mutate: submitQuiz } = useCreateQuiz();
+  const { mutate: approveQuiz, isLoading: isApproving } = useApproveQuiz();
   const { mutate: deleteQuiz, isLoading: isDeleting } = useDeleteQuiz();
 
   const [title, setTitle] = useState("");
@@ -237,6 +239,9 @@ const QuizContent = () => {
 
   const handleDeleteQuiz = (quizId: number) => {
     deleteQuiz(quizId);
+  };
+  const handleApproveQuiz = (quizId: number) => {
+    approveQuiz({ id: quizId });
   };
 
   const renderNewQuiz = () => {
@@ -495,6 +500,7 @@ const QuizContent = () => {
                     <TableHead>Quiz Name</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>No of Questions</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Last Updated</TableHead>
                     <TableHead>Actions</TableHead>
@@ -522,48 +528,101 @@ const QuizContent = () => {
                         {quiz.questions?.length}
                       </TableCell>
                       <TableCell>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            quiz.isApproved
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {quiz.isApproved ? "Approved" : "Pending"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
                         {new Date(quiz.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
                         {new Date(quiz.updatedAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete &quot;
-                                {quiz.name}&quot;? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteQuiz(quiz.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                disabled={isDeleting}
+                        <div className="flex items-center gap-1">
+                          {/* Approval Action - only show if not approved */}
+                          {!quiz.isApproved && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-green-600 hover:text-green-600 hover:bg-green-100"
+                                  title="Approve Quiz"
+                                >
+                                  <Check className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Approve Quiz
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to approve &quot;
+                                    {quiz.name}&quot;? Once approved, this quiz
+                                    will be available for use.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleApproveQuiz(quiz.id)}
+                                    className="bg-green-600 text-white hover:bg-green-700"
+                                    disabled={isApproving}
+                                  >
+                                    {isApproving ? "Approving..." : "Approve"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+
+                          {/* Delete Action */}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                title="Delete Quiz"
                               >
-                                {isDeleting ? "Deleting..." : "Delete"}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete &quot;
+                                  {quiz.name}&quot;? This action cannot be
+                                  undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteQuiz(quiz.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  disabled={isDeleting}
+                                >
+                                  {isDeleting ? "Deleting..." : "Delete"}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-
               <div className="mt-6">
                 <Pagination
                   currentPage={currentPage}

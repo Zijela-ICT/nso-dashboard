@@ -18,6 +18,7 @@ type QuizDataResponse = {
   id: number;
   name: string;
   description: string;
+  isApproved: boolean;
   createdAt: string;
   updatedAt: string;
   questions: QuizQuestion[];
