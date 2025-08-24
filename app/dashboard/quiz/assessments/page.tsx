@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
   Input,
-  DateTimePicker
+  DateTimePicker,
 } from "@/components/ui";
 import { useFetchAssessments, useFetchQuizzes } from "@/hooks/api/queries/quiz";
 import { useFetchAppUsers } from "@/hooks/api/queries/users";
@@ -31,7 +31,7 @@ const MultiSelect = dynamic(
     ssr: false,
     loading: () => (
       <div className="w-full h-10 bg-gray-100 animate-pulse rounded-lg" />
-    )
+    ),
   }
 );
 
@@ -68,28 +68,28 @@ const Page = () => {
     if (!quizData?.data) return [];
     return quizData?.data?.data.map((role) => ({
       label: role.name,
-      value: role.id
+      value: role.id,
     }));
   }, [quizData?.data]);
 
   const cadreOptions = [
     { label: "CHO", value: "CHO" },
     { label: "CHEW", value: "CHEW" },
-    { label: "JCHEW", value: "JCHEW" }
+    { label: "JCHEW", value: "JCHEW" },
   ];
 
   const userList = React.useMemo(() => {
     if (!usersData?.data) return [];
     return usersData?.data?.data?.map((user) => ({
       label: `${user.firstName} ${user.lastName}`,
-      value: user.id
+      value: user.id,
     }));
   }, [usersData?.data]);
 
   const notificationDays = React.useMemo(() => {
     return Array.from({ length: 30 }, (_, i) => ({
       value: Number(i + 1),
-      label: `${i + 1} ${i + 1 === 1 ? "day" : "days"}`
+      label: `${i + 1} ${i + 1 === 1 ? "day" : "days"}`,
     }));
   }, []);
 
@@ -151,7 +151,7 @@ const Page = () => {
       selectedDays,
       assignmentType,
       selectedUsers,
-      selectedCadre
+      selectedCadre,
     ]);
 
     return isValid;
@@ -175,19 +175,19 @@ const Page = () => {
       startDate: formattedStartDate,
       endDate: formattedEndDate,
       duration: Number(duration),
-      dayReminderSchedule: selectedDays
+      dayReminderSchedule: selectedDays,
     };
 
     try {
       if (assignmentType === "cadre") {
         await createAssessment.mutateAsync({
           ...payload,
-          cadre: selectedCadre as "JCHEW" | "CHEW" | "CHO"
+          cadre: selectedCadre as "JCHEW" | "CHEW" | "CHO",
         });
       } else {
         await createAssessment.mutateAsync({
           ...payload,
-          audience: selectedUsers
+          audience: selectedUsers,
         });
       }
 
@@ -263,11 +263,6 @@ const Page = () => {
             </div>
 
             <div className="w-full">
-              {/* <DatePicker
-                value={startDate}
-                onChange={setStartDate}
-                placeholder="Select start date"
-              /> */}
               <DateTimePicker
                 value={startDate}
                 onChange={setStartDate}
@@ -276,12 +271,6 @@ const Page = () => {
             </div>
 
             <div className="w-full">
-              {/* <DatePicker
-                value={endDate}
-                fromDate={startDate || undefined}
-                onChange={setEndDate}
-                placeholder="Select end date"
-              /> */}
               <DateTimePicker
                 value={endDate}
                 fromDate={startDate || undefined}
@@ -338,14 +327,16 @@ const Page = () => {
                 <Button
                   variant="outline"
                   className="w-40"
-                  onClick={() => handleAssignmentTypeSelect("user")}>
+                  onClick={() => handleAssignmentTypeSelect("user")}
+                >
                   Add to Individuals
                 </Button>
 
                 <Button
                   className="w-40"
                   disabled={!isFormValid || createAssessment.isLoading}
-                  onClick={handleCreateAssessment}>
+                  onClick={handleCreateAssessment}
+                >
                   Create Assessment
                 </Button>
               </>
@@ -354,13 +345,15 @@ const Page = () => {
                 <Button
                   variant="outline"
                   className="w-40"
-                  onClick={() => handleAssignmentTypeSelect("cadre")}>
+                  onClick={() => handleAssignmentTypeSelect("cadre")}
+                >
                   Assign to Cadre
                 </Button>
                 <Button
                   className="w-40"
                   onClick={handleCreateAssessment}
-                  isLoading={createAssessment.isLoading}>
+                  isLoading={createAssessment.isLoading}
+                >
                   Create Assessment
                 </Button>
               </>
@@ -369,12 +362,14 @@ const Page = () => {
                 <Button
                   variant="outline"
                   className="w-40"
-                  onClick={() => handleAssignmentTypeSelect("user")}>
+                  onClick={() => handleAssignmentTypeSelect("user")}
+                >
                   Add to Individuals
                 </Button>
                 <Button
                   className="w-40"
-                  onClick={() => handleAssignmentTypeSelect("cadre")}>
+                  onClick={() => handleAssignmentTypeSelect("cadre")}
+                >
                   Assign to Cadre
                 </Button>
               </>
@@ -410,7 +405,8 @@ const Page = () => {
                       onClick={() => {
                         setOpenModal(true);
                         setAssessmentId(assessment.id);
-                      }}>
+                      }}
+                    >
                       <span>View audiences</span>
                       <Icon name="chevron-down" className="h-4 w-4 ml-1" />
                     </button>
