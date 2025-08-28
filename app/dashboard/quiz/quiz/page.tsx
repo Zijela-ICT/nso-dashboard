@@ -49,6 +49,7 @@ import CSVQuizParser from "./components/CSVQuizParser";
 import { QuestionModal } from "./components/question-modal";
 import { useApproveQuiz } from "@/hooks/api/mutations/quiz/useApproveQuiz";
 import { useUpdateQuiz } from "@/hooks/api/mutations/quiz/useUpdateQuestion";
+import { CancelIcon } from "@/utils/svg";
 
 type TabTypes = "New Quiz" | "Question bank" | "Quiz List";
 
@@ -300,8 +301,14 @@ const QuizContent = () => {
   const handleDeleteQuiz = (quizId: number) => {
     deleteQuiz(quizId);
   };
-  const handleApproveQuiz = (quizId: number) => {
-    approveQuiz({ id: quizId });
+  const handleApproveQuiz = (
+    quizId: number,
+    status: "APPROVED" | "UNAPPROVED"
+  ) => {
+    approveQuiz({
+      id: quizId,
+      status: status === "APPROVED" ? "UNAPPROVED" : "APPROVED",
+    });
   };
 
   const renderNewQuiz = () => {
@@ -565,7 +572,38 @@ const QuizContent = () => {
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          title="Delete Quiz"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this question ? This
+                            action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteQuestion(question.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            disabled={isDeleting}
+                          >
+                            {isDeleting ? "Deleting..." : "Delete"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    {/* <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDeleteQuestion(question.id)}
@@ -573,7 +611,8 @@ const QuizContent = () => {
                       title="Delete question"
                     >
                       <Trash className="h-4 w-4" />
-                    </Button>
+                    </Button> */}
+
                     <Button
                       variant="ghost"
                       size="icon"
@@ -713,12 +752,14 @@ const QuizContent = () => {
                       <TableCell>
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            quiz.isApproved
+                            quiz.status === "APPROVED"
                               ? "bg-green-100 text-green-800"
                               : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {quiz.isApproved ? "Approved" : "Pending"}
+                          {quiz.status === "APPROVED"
+                            ? "Approved"
+                            : "Unapproved"}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -730,42 +771,50 @@ const QuizContent = () => {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           {/* Approval Action - only show if not approved */}
-                          {!quiz.isApproved && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-green-600 hover:text-green-600 hover:bg-green-100"
-                                  title="Approve Quiz"
-                                >
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-green-600 hover:text-green-600 hover:bg-green-100"
+                                title="Approve Quiz"
+                              >
+                                {quiz.status === "UNAPPROVED" ? (
                                   <Check className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Approve Quiz
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to approve &quot;
-                                    {quiz.name}&quot;? Once approved, this quiz
-                                    will be available for use.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleApproveQuiz(quiz.id)}
-                                    className="bg-green-600 text-white hover:bg-green-700"
-                                    disabled={isApproving}
-                                  >
-                                    {isApproving ? "Approving..." : "Approve"}
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          )}
+                                ) : (
+                                  <CancelIcon />
+                                )}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Approve Quiz
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to{" "}
+                                  {quiz.status === "UNAPPROVED"
+                                    ? "approve"
+                                    : "unapprove"}{" "}
+                                  &quot;
+                                  {quiz.name}&quot;? Once approved, this quiz
+                                  will be available for use.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    handleApproveQuiz(quiz.id, quiz.status)
+                                  }
+                                  className="bg-green-600 text-white hover:bg-green-700"
+                                  disabled={isApproving}
+                                >
+                                  {isApproving ? "Approving..." : "Approve"}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
 
                           {/* Delete Action */}
                           <AlertDialog>

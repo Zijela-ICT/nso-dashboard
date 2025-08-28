@@ -22,6 +22,7 @@ type QuizDataResponse = {
   createdAt: string;
   updatedAt: string;
   questions: QuizQuestion[];
+  status: "APPROVED" | "UNAPPROVED";
 };
 
 type QuizResp = {

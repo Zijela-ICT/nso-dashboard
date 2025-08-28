@@ -11,6 +11,7 @@ type ResponseType = {
 
 type InputType = {
   id: number;
+  status: "APPROVED" | "UNAPPROVED";
 };
 
 type ErrorType = { error: string; success: boolean };
@@ -18,7 +19,12 @@ type ErrorType = { error: string; success: boolean };
 const ApproveQuiz = (
   input: InputType
 ): Promise<AxiosResponse<ResponseType>> => {
-  return request("PATCH", `/quizzes/${input.id}/approval`, {}, true);
+  return request(
+    "PATCH",
+    `/quizzes/${input.id}/approval`,
+    { status: input.status },
+    true
+  );
 };
 
 const useApproveQuiz = () => {
