@@ -81,6 +81,8 @@ const QuizContent = () => {
     isLoading: questionsLoading,
     refetch: getQuestions,
   } = useFetchQuestions(currentPage);
+  const { data: fetchedAllQuestions, refetch: getAllQuestions } =
+    useFetchQuestions(1, 200);
   const reportsPerPage = 10;
   const {
     data: quizzesData,
@@ -150,6 +152,7 @@ const QuizContent = () => {
       {
         onSuccess: () => {
           getQuestions();
+          getAllQuestions();
           cancelEditing();
           setNewQuestion({
             question: "",
@@ -165,6 +168,7 @@ const QuizContent = () => {
 
     // Temporary mock update - replace with actual API call
     getQuestions();
+    getAllQuestions();
     cancelEditing();
   };
 
@@ -210,6 +214,7 @@ const QuizContent = () => {
           correctOption: "",
         });
         getQuestions();
+        getAllQuestions();
         setIsAddingNewQuestion(false); // Close the form
       },
     });
@@ -243,6 +248,7 @@ const QuizContent = () => {
       {
         onSuccess: () => {
           getQuestions();
+          getAllQuestions();
           setOpen(false);
           setNewQuestion({
             question: "",
@@ -293,6 +299,7 @@ const QuizContent = () => {
     try {
       await deleteQuizQuestion(questionId.toString());
       getQuestions();
+      getAllQuestions();
     } catch (error) {
       console.log(error);
     }
@@ -311,9 +318,15 @@ const QuizContent = () => {
     });
   };
 
+  console.log("ln 321", selectedQuestions);
+  console.log(
+    "ln 322",
+    fetchedAllQuestions?.data?.data?.map((q) => q.id)
+  );
+
   const renderNewQuiz = () => {
     const selectedQuestionsList =
-      fetchedQuestions?.data?.data?.filter((q) =>
+      fetchedAllQuestions?.data?.data?.filter((q) =>
         selectedQuestions.includes(q.id)
       ) || [];
 
