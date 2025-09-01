@@ -114,7 +114,10 @@ const Page = () => {
                 <TableCell>{facility.name}</TableCell>
                 <TableCell>{facility.type}</TableCell>
                 <TableCell>
-                  {facility.latitude}, {facility.longitude}
+                  <div className="text-xs text-muted-foreground">
+                    <p>Long: {facility.longitude} </p>
+                    <p>Lat: {facility.latitude}</p>
+                  </div>
                 </TableCell>
                 <TableCell>{facility.address}</TableCell>
                 <TableCell>{facility.location}</TableCell>
