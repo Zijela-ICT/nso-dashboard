@@ -26,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui";
+import { useGetBookStatus } from "@/hooks/api/queries/ebook/useGetBookStatus";
 
 function Ebook() {
   const {
@@ -54,9 +55,13 @@ function Ebook() {
   const { isEditting, setIsEditting } = useBookContext();
   const [pickedversion, setPickedVersion] = useState<string | null>(null);
   const [showAlert, setShowAlert] = useState<boolean>(false);
+  const { data: bookStatus } = useGetBookStatus(String(currentBook?.id));
+
   const hasEditAccess = useMemo(() => {
+    if (!currentBook || !user?.data?.id) return false;
+
     return !!currentBook?.editors.find((u) => u.id === user?.data?.id);
-  }, [currentBook, user]);
+  }, [currentBook, user?.data?.id]);
 
   useEffect(() => {
     if (!isEditting) {
@@ -108,6 +113,30 @@ function Ebook() {
       }) || []
     );
   }, [currentBook]);
+
+  const isLocked = useMemo(() => {
+    if (!bookStatus?.data) return false;
+
+    // // auto-unlock if lock is expired
+    // const now = new Date();
+    // const lockExpiresAt = bookStatus.data.lockExpiresAt
+    //   ? new Date(bookStatus.data.lockExpiresAt)
+    //   : null;
+
+    // const lockExpired = lockExpiresAt && now > lockExpiresAt;
+
+    // if (lockExpired) return false;
+
+    // if locked but by the same user → treat as unlocked
+    if (
+      bookStatus.data.isLocked &&
+      bookStatus.data.lockedByUserId === user?.data?.id
+    ) {
+      return false;
+    }
+
+    return bookStatus.data.isLocked;
+  }, [bookStatus, user]);
 
   if (loadingBook) {
     return (
@@ -179,7 +208,7 @@ function Ebook() {
             saveBookUpdates={saveBookUpdates}
             currentBook={data?.book}
             bookInfo={currentBook}
-            canEdit={true}
+            canEdit={!isLocked}
             fixDecisionTree={fixDecisionTree}
           />
 

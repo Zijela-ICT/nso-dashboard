@@ -14,6 +14,7 @@ import { useFetchProfile } from "@/hooks/api/queries/settings";
 import { IChprbnBook } from "../hooks/useEBooks";
 import { useSearchParams } from "next/navigation";
 import clsx from "clsx";
+import { useLockBook } from "@/hooks/api/mutations/ebook/useBookLocked";
 
 function BookHeader({
   setBookTitle,
@@ -32,6 +33,7 @@ function BookHeader({
 }) {
   const { data: user } = useFetchProfile();
   const { isEditting, setIsEditting, savingBook } = useBookContext();
+  const { mutate: lockBook } = useLockBook();
   const headerRef = React.useRef<HTMLHeadingElement>(null);
   const searchParams = useSearchParams();
   const content = searchParams.get("content")?.replace(/\n/g, " ") || "";
@@ -48,6 +50,11 @@ function BookHeader({
       }
     }
   }, [content]);
+
+  const handleEdit = () => {
+    setIsEditting(!isEditting);
+    lockBook({ id: String(bookInfo?.id) });
+  };
 
   return (
     <div className="container mx-auto mt-[20px] w-full md:w-[900px]">
@@ -72,7 +79,8 @@ function BookHeader({
             {hasEditAccess && !isEditting && (
               <Button
                 variant={isEditting ? "outline" : "default"}
-                onClick={() => setIsEditting(!isEditting)}
+                onClick={handleEdit}
+                // onClick={() =>  setIsEditting(!isEditting)}
                 className="h-8 text-[14px]"
               >
                 Start Edit

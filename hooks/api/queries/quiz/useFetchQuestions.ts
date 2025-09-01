@@ -39,6 +39,6 @@ export const useFetchQuestions = (page: number = 1, perPage: number = 10) => {
   const queryKey = [QUERYKEYS.FETCHQUIZQUESTIONS, page, perPage];
   return useQuery(queryKey, () => FetchQuestions(page, perPage), {
     retry: 1,
-    keepPreviousData: true
+    keepPreviousData: true,
   });
 };

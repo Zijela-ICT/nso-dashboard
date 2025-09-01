@@ -44,8 +44,6 @@ const Navbar = () => {
   const hasUnreadMessages =
     notificationsData?.data?.data.filter((notif) => notif.unread).length > 0;
 
-  console.log("hasUnreadMessages:", data);
-
   return (
     <div className="w-full flex flex-row justify-between md:justify-end px-4 md:px-10 py-4 bg-white border-b border-b-[#EAEDFF]">
       {isMobile && (

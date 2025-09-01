@@ -50,6 +50,18 @@ export const getFile = (url: string) => {
   return request("GET", `/uploads/${url.split("/uploads/")[1]}`);
 };
 
+export const getStatus = (id: string) => {
+  return request("GET", `/admin/ebooks/${id}/lock`);
+};
+
+export const lockBook = (id: string) => {
+  return request("POST", `/admin/ebooks/${id}/lock`);
+};
+
+export const adminUnlockBook = (id: string) => {
+  return request("DELETE", `/admin/ebooks/${id}/lock`);
+};
+
 export const streamFile = (url: string) => {
   return request("GET", `/uploads/${url.split("/uploads/")[1]}/binary`);
 };
