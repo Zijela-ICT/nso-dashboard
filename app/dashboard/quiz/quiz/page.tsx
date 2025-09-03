@@ -92,7 +92,7 @@ const QuizContent = () => {
   const { mutate: createQuestion } = useCreateQuestion();
   const { mutate: createBulkQuestion, isLoading: bulkLoading } =
     useBulkCreateQuestion();
-  const { mutate: submitQuiz } = useCreateQuiz();
+  const { mutateAsync: submitQuiz } = useCreateQuiz();
   const { mutate: updateQuiz } = useUpdateQuiz();
   const { mutate: approveQuiz, isLoading: isApproving } = useApproveQuiz();
   const { mutate: deleteQuiz, isLoading: isDeleting } = useDeleteQuiz();
@@ -271,7 +271,7 @@ const QuizContent = () => {
     );
   };
 
-  const handleCreateQuiz = () => {
+  const handleCreateQuiz = async () => {
     if (!title || !description) {
       alert("Please fill in quiz title and description");
       return;
@@ -280,13 +280,15 @@ const QuizContent = () => {
       alert("Please select at least one question");
       return;
     }
-    submitQuiz({
+    await submitQuiz({
       name: title,
       description,
       questionIds: selectedQuestions,
     });
+    setTitle("");
+    setDescription("");
+    setSelectedQuestions([]);
   };
-
   const updateNewQuestion = (field: keyof Question, value: string) => {
     setNewQuestion((prev) => ({ ...prev, [field]: value }));
   };
@@ -317,12 +319,6 @@ const QuizContent = () => {
       status: status === "APPROVED" ? "UNAPPROVED" : "APPROVED",
     });
   };
-
-  console.log("ln 321", selectedQuestions);
-  console.log(
-    "ln 322",
-    fetchedAllQuestions?.data?.data?.map((q) => q.id)
-  );
 
   const renderNewQuiz = () => {
     const selectedQuestionsList =
