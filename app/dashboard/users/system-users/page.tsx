@@ -73,7 +73,9 @@ const Page = () => {
 
   if (availableTabs.length === 0) {
     return (
-      <div className="p-4">You don&apos;t have permission to view any tabs.</div>
+      <div className="p-4">
+        You don&apos;t have permission to view any tabs.
+      </div>
     );
   }
 

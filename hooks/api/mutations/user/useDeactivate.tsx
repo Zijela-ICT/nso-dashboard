@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "react-query";
 
 import request from "@/utils/api";
@@ -16,12 +16,18 @@ type ResponseType = {
 
 type InputType = {
   id: number;
+  status: "activate" | "deactivate";
 };
 
 type ErrorType = { error: string; success: boolean };
 
 const Deactivate = (input: InputType): Promise<ResponseType> => {
-  return request("PATCH", `/admin/users/${input.id}/deactivate`, null, true);
+  return request(
+    "PATCH",
+    `/admin/users/${input.id}/${input.status}`,
+    null,
+    true
+  );
 };
 
 const useDeactivate = () => {
@@ -32,9 +38,9 @@ const useDeactivate = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: [QUERYKEYS.FETCHSYSTEMUSERS]
+          queryKey: [QUERYKEYS.FETCHSYSTEMUSERS],
         });
-      }
+      },
     }
   );
 };

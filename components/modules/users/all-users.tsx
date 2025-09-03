@@ -52,8 +52,8 @@ const AllUsers = () => {
   const { data } = useFetchSystemUsers(currentPage, reportsPerPage);
 
   const formatRoles = (roles) => {
-    if (!roles || roles.length === 0) return '-';
-    return roles.map(role => role.name).join(', ');
+    if (!roles || roles.length === 0) return "-";
+    return roles.map((role) => role.name).join(", ");
   };
 
   return (
@@ -224,6 +224,7 @@ const AllUsers = () => {
             mutateDeactivate(
               {
                 id: selectedUser.id,
+                status: selectedUser.isDeactivated ? "activate" : "deactivate",
               },
               {
                 onSuccess: () => {
