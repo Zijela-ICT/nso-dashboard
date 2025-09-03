@@ -41,12 +41,6 @@ const Page = () => {
   const reportsPerPage = 20; // Adjust as needed
 
   const createAssessment = useCreateAssessment();
-  const { data: assessmentData } = useFetchAssessments(
-    currentPage,
-    reportsPerPage
-  );
-  const { data: usersData } = useFetchAppUsers(1, reportsUserPerPage);
-  const { data: quizData } = useFetchQuizzes();
 
   // Existing state
   const [isMounted, setIsMounted] = useState(false);
@@ -63,6 +57,14 @@ const Page = () => {
   const [assessmentId, setAssessmentId] = useState(null);
   // New state for assignment type
   const [assignmentType, setAssignmentType] = useState(null); // 'user' or 'cadre'
+
+  const { data: assessmentData } = useFetchAssessments(
+    currentPage,
+    reportsPerPage,
+    assessmentTitle
+  );
+  const { data: usersData } = useFetchAppUsers(1, reportsUserPerPage);
+  const { data: quizData } = useFetchQuizzes();
 
   const quizOptions = React.useMemo(() => {
     if (!quizData?.data) return [];

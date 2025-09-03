@@ -31,15 +31,25 @@ type AssessmentResp = {
 
 export const FetchAssessments = async (
   page: number = 1,
-  perPage: number = 10
+  perPage: number = 10,
+  search: string = ""
 ): Promise<AssessmentResp> => {
-  return request("GET", `/quizzes/assessments?page=${page}&limit=${perPage}`);
+  return request(
+    "GET",
+    `/quizzes/assessments?page=${page}&limit=${perPage}${
+      search.length > 3 ? `&search=${search}` : ""
+    }`
+  );
 };
 
-export const useFetchAssessments = (page: number = 1, perPage: number = 10) => {
-  const queryKey = [QUERYKEYS.FETCHASSESSMENTS, page, perPage];
-  return useQuery(queryKey, () => FetchAssessments(page, perPage), {
+export const useFetchAssessments = (
+  page: number = 1,
+  perPage: number = 10,
+  search: string = ""
+) => {
+  const queryKey = [QUERYKEYS.FETCHASSESSMENTS, page, perPage, search];
+  return useQuery(queryKey, () => FetchAssessments(page, perPage, search), {
     retry: 1,
-    keepPreviousData: true
+    keepPreviousData: true,
   });
 };
