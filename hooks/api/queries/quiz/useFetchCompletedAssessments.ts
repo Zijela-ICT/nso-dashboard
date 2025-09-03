@@ -44,8 +44,17 @@ export interface Submission {
   startDate: string;
   submissionDate: string;
   totalScore: number | null;
+  quizScore: string;
   isCompleted: boolean;
   user: SubmissionUser;
+  submission: {
+    id: 49;
+    startDate: "2025-09-03T08:27:26.221Z";
+    submissionDate: "2025-09-03T08:27:57.091Z";
+    isLateSubmission: false;
+    totalScore: "60.00";
+    isCompleted: true;
+  };
 }
 
 export interface AssessmentDetails {

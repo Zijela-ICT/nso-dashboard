@@ -53,7 +53,7 @@ export const formatToLocalTime = (
 
     return new Intl.DateTimeFormat("en-US", {
       ...options,
-      timeZone: timezone
+      timeZone: timezone,
     }).format(dateObj);
   } catch (error) {
     console.error("Error formatting date:", error);
@@ -77,7 +77,11 @@ export const formatAdvanced = (
   const localTimezone = timezone || getLocalTimeZone();
 
   const result: Record<string, string> = {
-    formatted: formatInTimeZone(dateObj, localTimezone, config.format || "PPpp")
+    formatted: formatInTimeZone(
+      dateObj,
+      localTimezone,
+      config.format || "PPpp"
+    ),
   };
 
   if (config.includeRelative) {
@@ -101,7 +105,7 @@ export const defaultOptions = {
     minute: "2-digit",
     second: "2-digit",
     timeZoneName: "long",
-    hour12: true
+    hour12: true,
   },
   shortDateTime: {
     year: "numeric",
@@ -110,20 +114,20 @@ export const defaultOptions = {
     hour: "numeric",
     minute: "numeric",
     timeZoneName: "short",
-    hour12: true
+    hour12: true,
   },
   dateOnly: {
     year: "numeric",
     month: "long",
-    day: "numeric"
+    day: "numeric",
   },
   timeOnly: {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     timeZoneName: "short",
-    hour12: false
-  }
+    hour12: false,
+  },
 } as const;
 
 export type DateFormatPreset = keyof typeof defaultOptions;

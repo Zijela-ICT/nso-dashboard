@@ -11,12 +11,12 @@ import {
   Pagination,
 } from "@/components/ui";
 import { useFetchAssessmentsID } from "@/hooks/api/queries/quiz";
-import { formatToLocalTime } from "@/utils/date-formatter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { QuestionModal } from "./question-modal";
+import { formatDate } from "date-fns";
 
 const ResultsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -160,42 +160,65 @@ const ResultsPage = () => {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={getScoreColor(String(result.totalScore))}
+                          variant={getScoreColor(
+                            String(result?.submission?.totalScore)
+                          )}
                         >
-                          {result.totalScore ? `${result.totalScore}%` : "N/A"}
+                          {result?.submission?.totalScore
+                            ? `${result?.submission?.totalScore}%`
+                            : "N/A"}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={result.isCompleted ? "success" : "pending"}
+                          variant={
+                            result?.submission?.isCompleted
+                              ? "success"
+                              : "pending"
+                          }
                         >
-                          {result.isCompleted ? "Completed" : "In Progress"}
+                          {result?.submission?.isCompleted
+                            ? "Completed"
+                            : "In Progress"}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {formatToLocalTime(result.submissionDate)}
+                        {formatDate(result?.submission?.submissionDate, "PPpp")}
                       </TableCell>
                       <TableCell>
                         {(() => {
-                          const start = new Date(result.startDate);
-                          const submission = new Date(result.submissionDate);
+                          const start = new Date(result?.submission?.startDate);
+                          const submission = new Date(
+                            result?.submission?.submissionDate
+                          );
                           const durationMs =
                             submission.getTime() - start.getTime();
-                          const minutes = Math.floor(durationMs / (1000 * 60));
+
+                          const totalSeconds = Math.floor(durationMs / 1000);
+                          const minutes = Math.floor(totalSeconds / 60);
+                          const seconds = totalSeconds % 60;
                           const hours = Math.floor(minutes / 60);
                           const remainingMinutes = minutes % 60;
 
                           if (hours > 0) {
-                            return `${hours}h ${remainingMinutes}m`;
+                            return `${hours}h ${remainingMinutes}m ${seconds}s`;
                           }
-                          return `${remainingMinutes}m`;
+                          if (minutes > 0) {
+                            return `${minutes}m ${seconds}s`;
+                          }
+                          return `${seconds}s`;
                         })()}
                       </TableCell>
+
                       <TableCell>
                         <Badge
-                          variant={result.isCompleted ? "failed" : "success"}
+                          variant={
+                            result?.submission?.isCompleted
+                              ? "failed"
+                              : "success"
+                          }
                         >
-                          {result.isCompleted ? "Late" : "On Time"}
+                          {result?.submission?.isCompleted ? "Late" : "On Time"}
                         </Badge>
                       </TableCell>
                     </TableRow>
