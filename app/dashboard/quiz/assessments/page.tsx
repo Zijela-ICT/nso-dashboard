@@ -60,8 +60,8 @@ const Page = () => {
 
   const { data: assessmentData } = useFetchAssessments(
     currentPage,
-    reportsPerPage,
-    assessmentTitle
+    reportsPerPage
+    // assessmentTitle
   );
   const { data: usersData } = useFetchAppUsers(1, reportsUserPerPage);
   const { data: quizData } = useFetchQuizzes();
