@@ -65,6 +65,14 @@ function PageItems({
   const [edittingDecisionTree, setEdittingDecisionTree] = useState(false);
   const myRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
+  const [hash, setHash] = useState("");
+
+  useEffect(() => {
+    const handleHashChange = () => setHash(window.location.hash.slice(1));
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   const handleInputChange = (
     event: React.FormEvent<HTMLDivElement>,
@@ -108,15 +116,17 @@ function PageItems({
 
   useEffect(() => {
     if (
+      hash === itemData.id ||
       hashId === itemData.id ||
       innerRef?.current?.innerText.includes(content)
     ) {
-      const element = document.getElementById(hashId) || innerRef?.current;
+      const element =
+        document.getElementById(hash || hashId) || innerRef?.current;
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, [hashId, itemData, content]);
+  }, [hash, itemData, content, hashId]);
 
   if (!items[0] || !itemData) return <></>;
 
@@ -442,10 +452,10 @@ function PageItems({
           ref={innerRef}
           className={clsx("group relative flex p-1.5 rounded-md", {
             "animate-pulse":
+              hash === itemData.id ||
               hashId === itemData.id ||
-              content === itemData.id ||
               (innerRef?.current?.innerText.includes(content) && content),
-            "bg-[#afe9c5] p-4": hashId === itemData.id,
+            "bg-[#afe9c5] p-4": hash === itemData.id || hashId === itemData.id,
             "bg-[#e5e9af] p-4 font-semibold":
               innerRef?.current?.innerText.includes(content) && content,
             "bg-red-200": items[0].variant === "deletion",
