@@ -147,10 +147,8 @@ function ApprovalPage() {
 
   // Function to access id from lhs when it's an Item
   function getItemId(difference: DiffObject): string | null {
+    if (difference.kind === "E") return null;
     let ID = null;
-    if (difference?.kind === "E") {
-      ID = difference.lhs as string;
-    }
     if (
       difference &&
       difference.item &&
@@ -159,6 +157,20 @@ function ApprovalPage() {
       ID = difference?.item?.lhs?.id || difference?.item?.rhs?.id;
     }
     return ID;
+  }
+
+  function getItemIdFromPath(data: Data, path: (string | number)[]): string | null {
+    if (path.length < 2 || path[path.length - 1] !== "content") return null;
+    const itemPath = path.slice(0, -1);
+    let current: unknown = data;
+    for (const key of itemPath) {
+      if (current && typeof current === 'object' && current !== null) {
+        current = (current as Record<string | number, unknown>)[key];
+      } else {
+        return null;
+      }
+    }
+    return typeof current === 'object' && current !== null && 'id' in current && typeof current.id === 'string' ? current.id : null;
   }
 
   const downloadBook = async (url) => {
@@ -451,24 +463,8 @@ function ApprovalPage() {
                   <Accordion type="single" collapsible className="w-full">
                     {bookDifferences?.map((diff, i) => {
                       const diffText = getChangeDescription(diff);
-                      let href = "";
-                      if (diff.kind === "E") {
-                        typeof diff?.lhs === "string"
-                          ? `?content=${diff?.lhs?.replace(/\n/g, " ")}`
-                          : "";
-                      } else {
-                        `?hashId=${getItemId(diff)}`;
-                      }
-
-                      // let href = "";
-                      // if (diff.kind === "E") {
-                      //   href =
-                      //     diff.lhs && typeof diff.lhs === "string"
-                      //       ? `#content-${i}`
-                      //       : `#item-${getItemId(diff)}`;
-                      // } else {
-                      //   href = `#item-${getItemId(diff)}`;
-                      // }
+                      const id = diff.kind === "E" ? getItemIdFromPath(data, diff.path) : getItemId(diff);
+                      const href = id ? `#${id}` : "";
                       return (
                         <AccordionItem key={i} value={`item-${i}`}>
                           <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
