@@ -23,10 +23,12 @@ export function QuestionModal({ assessment, open, setOpen }) {
               Taken by {assessment.user.firstName} {assessment.user.lastName} (
               {assessment.user.email})
             </p>
-            {/* <p className="text-gray-500 text-sm">
-              Score: {assessment.totalScore} •{" "}
-              {assessment.isCompleted ? "Completed" : "Not Completed"}
-            </p> */}
+            <p className="text-gray-500 text-sm">
+              Score: {assessment.submission.totalScore} •{" "}
+              {assessment.submission.isCompleted
+                ? "Completed"
+                : "Not Completed"}
+            </p>
           </div>
         </DialogTitle>
 

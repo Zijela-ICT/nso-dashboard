@@ -3,3 +3,4 @@ export * from "./useFetchQuizzes";
 export * from "./useFetchAssessments";
 export * from "./useFetchSingleAssessment";
 export * from "./useFetchCompletedAssessments";
+export * from "./useFetchSubmissionDetails";

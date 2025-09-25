@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -10,7 +10,10 @@ import {
   TableRow,
   Pagination,
 } from "@/components/ui";
-import { useFetchAssessmentsID } from "@/hooks/api/queries/quiz";
+import {
+  useFetchAssessmentsID,
+  useFetchSubmissionDetails,
+} from "@/hooks/api/queries/quiz";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -22,6 +25,9 @@ const ResultsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [questions, setQuestions] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<
+    number | null
+  >(null);
   const { id } = useParams();
   const router = useRouter();
   const reportsPerPage = 10;
@@ -31,6 +37,16 @@ const ResultsPage = () => {
     reportsPerPage,
     Number(id)
   );
+
+  const { data: submissionDetails, isLoading: detailsLoading } =
+    useFetchSubmissionDetails(selectedSubmissionId || 0);
+
+  useEffect(() => {
+    if (submissionDetails && !detailsLoading) {
+      setQuestions(submissionDetails.data);
+      setModalOpen(true);
+    }
+  }, [submissionDetails, detailsLoading]);
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -144,81 +160,50 @@ const ResultsPage = () => {
                 </TableHeader>
                 <TableBody>
                   {results.map((result) => (
-                    <TableRow key={result.id}>
+                    <TableRow key={result.submissionId}>
                       <TableCell
                         className="font-medium hover:text-blue-500"
                         onClick={() => {
-                          setModalOpen(true);
-                          setQuestions(result);
+                          setSelectedSubmissionId(result.submissionId);
                         }}
                       >
-                        {result.user.firstName || ""}{" "}
-                        {result.user.lastName || ""}
+                        {result?.userName || ""}{" "}
                       </TableCell>
                       <TableCell className="font-medium">
-                        {result.user.cadre || ""}
+                        {result?.userCadre || ""}
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={getScoreColor(
-                            String(result?.submission?.totalScore)
-                          )}
+                          variant={getScoreColor(String(result?.totalScore))}
                         >
-                          {result?.submission?.totalScore
-                            ? `${result?.submission?.totalScore}%`
+                          {result?.totalScore
+                            ? `${result?.totalScore}%`
                             : "N/A"}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={
-                            result?.submission?.isCompleted
-                              ? "success"
-                              : "pending"
-                          }
-                        >
-                          {result?.submission?.isCompleted
-                            ? "Completed"
-                            : "In Progress"}
+                        <Badge variant={result?.status ? "success" : "pending"}>
+                          {result?.status ? "Completed" : "In Progress"}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {formatDate(result?.submission?.submissionDate, "PPpp")}
+                        {result?.submissionDate
+                          ? formatDate(result?.submissionDate, "PPpp")
+                          : "N/A"}
                       </TableCell>
-                      <TableCell>
-                        {(() => {
-                          const start = new Date(result?.submission?.startDate);
-                          const submission = new Date(
-                            result?.submission?.submissionDate
-                          );
-                          const durationMs =
-                            submission.getTime() - start.getTime();
-
-                          const totalSeconds = Math.floor(durationMs / 1000);
-                          const minutes = Math.floor(totalSeconds / 60);
-                          const seconds = totalSeconds % 60;
-                          const hours = Math.floor(minutes / 60);
-                          const remainingMinutes = minutes % 60;
-
-                          if (hours > 0) {
-                            return `${hours}h ${remainingMinutes}m ${seconds}s`;
-                          }
-                          if (minutes > 0) {
-                            return `${minutes}m ${seconds}s`;
-                          }
-                          return `${seconds}s`;
-                        })()}
-                      </TableCell>
+                      <TableCell>{result?.duration}</TableCell>
 
                       <TableCell>
                         <Badge
                           variant={
-                            result?.submission?.isCompleted
+                            result?.lateSubmission !== "On Time"
                               ? "failed"
                               : "success"
                           }
                         >
-                          {result?.submission?.isCompleted ? "Late" : "On Time"}
+                          {result?.lateSubmission !== "On Time"
+                            ? "Late"
+                            : "On Time"}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -240,7 +225,13 @@ const ResultsPage = () => {
       <QuestionModal
         assessment={questions}
         open={modalOpen}
-        setOpen={setModalOpen}
+        setOpen={(open: boolean) => {
+          setModalOpen(open);
+          if (!open) {
+            setSelectedSubmissionId(null);
+            setQuestions(null);
+          }
+        }}
       />
     </div>
   );
