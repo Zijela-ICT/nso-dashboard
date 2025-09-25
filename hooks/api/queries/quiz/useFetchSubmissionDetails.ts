@@ -32,7 +32,7 @@ export interface SubmissionDetailsResponse {
       quizId: number;
       quizName: string;
       quizScore: number;
-      questions: {
+      questions: Array<{
         questionId: number;
         question: string;
         options: {
@@ -44,7 +44,7 @@ export interface SubmissionDetailsResponse {
         selectedOption: string;
         correctOption: string;
         isCorrect: boolean;
-      }[];
+      }>;
     }[];
   };
 }
