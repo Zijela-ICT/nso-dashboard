@@ -35,7 +35,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Link from "next/link";
 
 export interface VersionData {
   id: number;
@@ -59,8 +58,8 @@ export interface VersionData {
 }
 
 type Difference = {
-  lhs?: any;
-  rhs?: any;
+  lhs?: unknown;
+  rhs?: unknown;
   kind: string;
   path: (string | number)[];
   index?: number;
@@ -74,12 +73,9 @@ type DiffItem = {
   rhs?: Item;
 };
 
-type DiffObject = {
-  kind: DiffKind;
-  path: PathArray;
-  index: number;
-  item: DiffItem;
-  lhs: string | DiffItem;
+type EnhancedFlattenedObj = FlattenedObj & {
+  variant?: "same" | "addition" | "deletion" | "editted";
+  oldValue?: FlattenedObj;
 };
 
 function ApprovalPage() {
@@ -98,7 +94,8 @@ function ApprovalPage() {
 
   const currentBook: IChprbnBook | undefined = useMemo(() => {
     return ebooks?.find((b) => b.id.toString() === currentBookID) || undefined;
-  }, [currentBookID]);
+  }, [currentBookID, ebooks]);
+
   const hasApprovalAccess = useMemo(() => {
     return !!currentBook?.approvers.find((u) => u.id === user?.data?.id);
   }, [currentBook, user]);
@@ -139,38 +136,40 @@ function ApprovalPage() {
     }
   };
 
-  function isItem(
-    obj: Item | iContent | Linkable | IDecisionTree | string[] | string
-  ): obj is Item {
-    return obj && typeof obj === "object" && "id" in obj;
-  }
+  function getItemIdFromPath(
+    data: Data,
+    path: (string | number)[]
+  ): string | null {
+    if (!data || !path.length) return null;
 
-  // Function to access id from lhs when it's an Item
-  function getItemId(difference: DiffObject): string | null {
-    if (difference.kind === "E") return null;
-    let ID = null;
-    if (
-      difference &&
-      difference.item &&
-      (isItem(difference?.item?.lhs) || isItem(difference?.item?.rhs))
-    ) {
-      ID = difference?.item?.lhs?.id || difference?.item?.rhs?.id;
-    }
-    return ID;
-  }
-
-  function getItemIdFromPath(data: Data, path: (string | number)[]): string | null {
-    if (path.length < 2 || path[path.length - 1] !== "content") return null;
-    const itemPath = path.slice(0, -1);
     let current: unknown = data;
-    for (const key of itemPath) {
-      if (current && typeof current === 'object' && current !== null) {
+    let lastObjectWithId: { id: string } | null = null;
+
+    // Traverse the path to find the deepest object with an ID
+    for (let i = 0; i < path.length; i++) {
+      const key = path[i];
+      if (current && typeof current === "object" && current !== null) {
         current = (current as Record<string | number, unknown>)[key];
+
+        // Keep track of objects that have an ID
+        if (
+          current &&
+          typeof current === "object" &&
+          current !== null &&
+          "id" in current &&
+          typeof current.id === "string"
+        ) {
+          lastObjectWithId = current as { id: string };
+        }
       } else {
-        return null;
+        break;
       }
     }
-    return typeof current === 'object' && current !== null && 'id' in current && typeof current.id === 'string' ? current.id : null;
+
+    // Return the ID of the last object that had one
+    return lastObjectWithId && typeof lastObjectWithId.id === "string"
+      ? lastObjectWithId.id
+      : null;
   }
 
   const downloadBook = async (url) => {
@@ -191,6 +190,52 @@ function ApprovalPage() {
   const flattenBookData: FlattenedObj[] = useMemo(() => {
     return flattenArrayOfObjects(data ? data?.book?.content : []);
   }, [data]);
+
+  const { repackedItems: compareBooks } = useMemo(() => {
+    const currentObj = flattenBookData;
+    const oldObj = oldBookData;
+    const currentIDs = new Set(currentObj.map((item) => item.id));
+    let repackedItems: EnhancedFlattenedObj[] = [];
+
+    // Add all current items with variants
+    for (const currentItem of currentObj) {
+      const oldItem = oldObj.find((item) => item.id === currentItem.id);
+      if (!oldItem) {
+        // New item
+        repackedItems.push({
+          ...currentItem,
+          variant: "addition",
+        } as EnhancedFlattenedObj);
+      } else {
+        // Existing item, check if changed
+        const hasChanged =
+          JSON.stringify(currentItem) !== JSON.stringify(oldItem);
+        repackedItems.push({
+          ...currentItem,
+          variant: hasChanged ? "editted" : "same",
+          oldValue: hasChanged ? oldItem : undefined,
+        } as EnhancedFlattenedObj);
+      }
+    }
+
+    // Add deleted items
+    for (const oldItem of oldObj) {
+      if (!currentIDs.has(oldItem.id)) {
+        repackedItems.push({
+          ...oldItem,
+          variant: "deletion",
+        } as EnhancedFlattenedObj);
+      }
+    }
+
+    // Sort by some order? For now, keep the order from current, then add deletions at end
+    // But perhaps sort by id or position
+    // For simplicity, keep as is
+
+    return {
+      repackedItems,
+    };
+  }, [flattenBookData, oldBookData]);
 
   const currentVersionID: number | null = useMemo(() => {
     const whichBook = ebooks?.find((b) => b.id === Number(currentBookID));
@@ -227,41 +272,356 @@ function ApprovalPage() {
     }
   };
 
-  function generatePathString(pathArray) {
-    const pathMap = {
-      book: "Chapter",
+  const handleVisit = (id: string, changeText?: string, diff?: Difference) => {
+    const element = document.getElementById(id);
+    if (element) {
+      // Add scroll margin to account for fixed elements
+      element.style.scrollMarginTop = "120px";
+      element.style.scrollMarginBottom = "20px";
+
+      let targetElement = element;
+      let foundSpecificText = false;
+      let highlightedTextNode: Text | null = null;
+
+      // If we have specific change text, try to find and highlight the exact text
+      if (changeText && typeof changeText === "string" && changeText.trim()) {
+        const searchText = changeText.trim();
+
+        // Helper function to highlight text in a text node
+        const highlightTextInNode = (
+          textNode: Text,
+          searchText: string
+        ): boolean => {
+          const textContent = textNode.textContent || "";
+          const index = textContent
+            .toLowerCase()
+            .indexOf(searchText.toLowerCase());
+
+          if (index !== -1) {
+            // Create a span to wrap the highlighted text
+            const span = document.createElement("span");
+            span.className =
+              "bg-red-200 animate-pulse ring-2 ring-red-400 rounded px-1";
+            span.style.transition = "all 0.3s ease";
+
+            // Split the text and wrap the matching part
+            const beforeText = textContent.substring(0, index);
+            const matchText = textContent.substring(
+              index,
+              index + searchText.length
+            );
+            const afterText = textContent.substring(index + searchText.length);
+
+            // Create text nodes
+            const beforeNode = document.createTextNode(beforeText);
+            const afterNode = document.createTextNode(afterText);
+            span.textContent = matchText;
+
+            // Replace the original text node
+            const parentNode = textNode.parentNode;
+            if (parentNode) {
+              parentNode.insertBefore(beforeNode, textNode);
+              parentNode.insertBefore(span, textNode);
+              parentNode.insertBefore(afterNode, textNode);
+              parentNode.removeChild(textNode);
+
+              // Store reference for cleanup
+              highlightedTextNode = span as unknown as Text;
+              targetElement = span;
+              return true;
+            }
+          }
+          return false;
+        };
+
+        // Walk through all text nodes to find the exact text match
+        const walker = document.createTreeWalker(
+          element,
+          NodeFilter.SHOW_TEXT,
+          null
+        );
+
+        let node;
+        while ((node = walker.nextNode()) && !foundSpecificText) {
+          const textNode = node as Text;
+          if (textNode.textContent && textNode.textContent.trim()) {
+            if (highlightTextInNode(textNode, searchText)) {
+              foundSpecificText = true;
+              break;
+            }
+          }
+        }
+
+        // Fallback: If no exact text match, try to find the most specific element containing the text
+        if (!foundSpecificText) {
+          const allElements = element.querySelectorAll("*");
+          const elementsWithText = Array.from(allElements).filter((el) => {
+            const textContent = el.textContent?.trim();
+            return (
+              textContent &&
+              textContent.toLowerCase().includes(searchText.toLowerCase())
+            );
+          });
+
+          // Find the most specific element (smallest one containing the text)
+          let bestMatch = null;
+          let shortestLength = Infinity;
+
+          elementsWithText.forEach((el) => {
+            const textContent = el.textContent?.trim() || "";
+            if (
+              textContent.length < shortestLength &&
+              textContent.toLowerCase().includes(searchText.toLowerCase())
+            ) {
+              bestMatch = el;
+              shortestLength = textContent.length;
+            }
+          });
+
+          if (bestMatch) {
+            targetElement = bestMatch as HTMLElement;
+            foundSpecificText = true;
+          }
+        }
+
+        // Method 3: If still no specific match, try to find elements by attribute matching
+        if (!foundSpecificText && diff) {
+          const pathParts = diff.path;
+          const lastPathPart = pathParts[pathParts.length - 1];
+
+          // Build selector safely - avoid using numbers as class names
+          const selectors = [
+            `[data-field="${lastPathPart}"]`,
+            `[data-key="${lastPathPart}"]`,
+          ];
+
+          // Only add class selector if lastPathPart is a valid CSS identifier (not starting with number)
+          if (typeof lastPathPart === "string" && !/^\d/.test(lastPathPart)) {
+            selectors.push(`.${lastPathPart}`);
+          }
+
+          const candidates = element.querySelectorAll(selectors.join(", "));
+          if (candidates.length > 0) {
+            targetElement = candidates[0] as HTMLElement;
+            foundSpecificText = true;
+          }
+        }
+      }
+
+      // Scroll to the target element
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+
+      // Only add highlighting if we didn't already highlight specific text
+      if (!highlightedTextNode && !foundSpecificText) {
+        const highlightClasses = [
+          "bg-yellow-200",
+          "animate-pulse",
+          "ring-2",
+          "ring-yellow-400",
+        ];
+        targetElement.classList.add(...highlightClasses);
+
+        // Remove highlight after animation
+        setTimeout(() => {
+          targetElement.classList.remove(...highlightClasses);
+          element.style.scrollMarginTop = "";
+          element.style.scrollMarginBottom = "";
+        }, 3000);
+      } else if (highlightedTextNode) {
+        // Remove text highlight after animation
+        setTimeout(() => {
+          if (highlightedTextNode && highlightedTextNode.parentNode) {
+            const parent = highlightedTextNode.parentNode;
+            const textContent = highlightedTextNode.textContent || "";
+            const textNode = document.createTextNode(textContent);
+            parent.replaceChild(textNode, highlightedTextNode);
+            parent.normalize(); // Merge adjacent text nodes
+          }
+          element.style.scrollMarginTop = "";
+          element.style.scrollMarginBottom = "";
+        }, 3000);
+      }
+
+      // Log for debugging
+      console.log("Visited element:", {
+        id,
+        changeText,
+        foundSpecificText,
+        highlightedText: !!highlightedTextNode,
+        targetElement: targetElement.tagName,
+        targetContent: targetElement.textContent?.substring(0, 100),
+      });
+    } else {
+      console.warn(`Element with id ${id} not found`);
+    }
+  };
+
+  function generatePathString(
+    pathArray: (string | number)[],
+    primaryData?: Data | null,
+    fallbackData?: Data | null
+  ) {
+    const labelMap: Record<string, string> = {
+      // common keys
+      book: "Section",
+      section: "Section",
+      sections: "Section",
+      chapter: "Chapter",
+      chapters: "Chapter",
+      content: "Section",
+      references: "References",
+      appendices: "Appendices",
       subChapters: "Sub Chapter",
+      subChapter: "Sub Chapter",
+      subSections: "Sub Section",
+      subsections: "Sub Section",
       subSubChapters: "Sub Sub Chapter",
       pages: "Page",
+      page: "Page",
       items: "Item",
+      item: "Item",
+      title: "Title",
+      heading: "Heading",
     };
 
-    let pathString = "";
+    const titleKeys = [
+      "title",
+      "name",
+      "sectionTitle",
+      "heading",
+      "label",
+      // From booktypes
+      "chapter",
+      "subChapterTitle",
+      "subSubChapterTitle",
+      "pageTitle",
+      "bookTitle",
+    ] as const;
+    const titleKeySet = new Set<string>(titleKeys as unknown as string[]);
 
-    for (let i = 0; i < pathArray.length; i++) {
-      const current = pathArray[i];
-      const next = pathArray[i + 1]; // Peek at the next value
+    // Debug logging to understand the paths
+    console.log("Path array:", pathArray);
 
-      if (typeof current === "string" && pathMap[current]) {
-        pathString += `${pathMap[current]} `;
+    // Helper to safely get nested value by key on unknown object
+    const getKey = (obj: unknown, key: string | number): unknown => {
+      if (obj && typeof obj === "object" && obj !== null) {
+        return (obj as Record<string | number, unknown>)[key];
       }
+      return undefined;
+    };
 
-      if (typeof current === "string" && typeof next === "number") {
-        pathString += `${next + 1}, `;
+    // Try to find a human label (title/name/...) for the current location from one or two data sources
+    const findTitleForIndex = (
+      container: unknown,
+      index: number
+    ): string | null => {
+      const candidate: unknown = Array.isArray(container)
+        ? container[index]
+        : undefined;
+      for (const dataSource of [candidate]) {
+        if (dataSource && typeof dataSource === "object") {
+          for (const k of titleKeys) {
+            const v = (dataSource as Record<string, unknown>)[k];
+            if (typeof v === "string" && v.trim()) return v.trim();
+          }
+        }
       }
+      return null;
+    };
+
+    const tryGetFromData = (dataObj: Data | null | undefined): string[] => {
+      const parts: string[] = [];
+      let cursor: unknown = dataObj as unknown;
+      for (let i = 0; i < pathArray.length; i++) {
+        const seg = pathArray[i];
+        const next = pathArray[i + 1];
+
+        if (typeof seg === "string") {
+          // advance cursor
+          const label =
+            labelMap[seg] || seg.charAt(0).toUpperCase() + seg.slice(1);
+          const container = getKey(cursor, seg);
+
+          if (typeof next === "number") {
+            // try to read the item at index and use its title if available
+            const title = findTitleForIndex(container, next);
+            if (title) {
+              parts.push(title);
+            } else {
+              parts.push(`${label} ${next + 1}`);
+            }
+            // move cursor to that indexed child and skip the index in the loop
+            cursor = Array.isArray(container) ? container[next] : undefined;
+            i++;
+          } else {
+            // If seg itself is a title-bearing key, prefer its string value
+            if (titleKeySet.has(seg) && typeof container === "string") {
+              const str = (container as string).trim();
+              if (str) parts.push(str);
+              else parts.push(label);
+            } else {
+              // no index follows, just add the label
+              parts.push(label);
+            }
+            // move into that child/container when it is object-like; otherwise keep cursor
+            cursor = container;
+          }
+        } else if (typeof seg === "number") {
+          // standalone number without preceding key
+          const title = findTitleForIndex(cursor, seg);
+          parts.push(title || `#${seg + 1}`);
+          cursor = Array.isArray(cursor) ? cursor[seg] : undefined;
+        }
+      }
+      return parts;
+    };
+
+    // Build from primary data first
+    let parts = tryGetFromData(primaryData);
+    // If result is too generic (only labels, no titles), try fallback data
+    const hasSpecificTitles = parts.some(
+      (p) =>
+        !/^(Section|Chapter|Sub Chapter|Sub Section|Sub Sub Chapter|Content|Page|Item|Heading|Title)(\s+\d+)?$/.test(
+          p
+        )
+    );
+    if (!hasSpecificTitles && fallbackData) {
+      const fallbackParts = tryGetFromData(fallbackData);
+      const fallbackHasTitles = fallbackParts.some(
+        (p) =>
+          !/^(Section|Chapter|Sub Chapter|Sub Section|Sub Sub Chapter|Content|Page|Item|Heading|Title)(\s+\d+)?$/.test(
+            p
+          )
+      );
+      if (fallbackHasTitles) parts = fallbackParts;
     }
-    // Remove trailing comma and space
-    return pathString.trim().replace(/,$/, "");
+
+    const result = (parts.length ? parts : ["Unknown Section"]).join(" > ");
+    console.log("Generated path:", result);
+    return result;
   }
 
   const bookDifferences = useMemo(() => {
-    return (
+    console.log("All cummulative differences:", cummulativeDiff);
+
+    const filtered =
       cummulativeDiff?.filter((n) => {
         const path = n.path;
-        return path[path.length - 1] !== "id";
-        // typeof n.lhs !== "string"
-      }) || []
-    );
+        const shouldInclude = path[path.length - 1] !== "id";
+
+        if (!shouldInclude) {
+          console.log("Filtering out ID change:", n);
+        }
+
+        return shouldInclude;
+      }) || [];
+
+    console.log("Filtered differences:", filtered);
+    return filtered;
   }, [cummulativeDiff]);
 
   const currentVersions = useMemo(() => {
@@ -272,78 +632,18 @@ function ApprovalPage() {
     );
   }, [currentBook]);
 
-  const { repackedItems: compareBooks } = useMemo(() => {
-    const currentObj = flattenBookData;
-    const oldObj = oldBookData;
-    const oldIDs = oldObj.map((item) => item.id);
-    const currentIDs = currentObj.map((item) => item.id);
-    let repackedItems = [];
-    const inferedDifference_: FlattenedObj[] = [];
-    const nonEdits: FlattenedObj[] = [];
-
-    for (let i = 0; i < Math.max(currentObj.length, oldObj.length); i++) {
-      if (
-        i < currentObj.length &&
-        i < oldObj.length &&
-        currentObj[i].id === oldObj[i].id
-      ) {
-        repackedItems.push({
-          ...currentObj[i],
-          variant: "same",
-        });
-      } else if (i < currentObj.length && !oldIDs.includes(currentObj[i].id)) {
-        repackedItems.push({
-          ...currentObj[i],
-          variant: "addition",
-        });
-        inferedDifference_.push({
-          ...currentObj[i],
-          variant: "addition",
-        });
-        nonEdits.push({
-          ...currentObj[i],
-          variant: "addition",
-        });
-      } else if (i < oldObj.length && !currentIDs.includes(oldObj[i].id)) {
-        repackedItems.push({
-          ...oldObj[i],
-          variant: "deletion",
-        });
-        inferedDifference_.push({
-          ...oldObj[i],
-          variant: "deletion",
-        });
-        nonEdits.push({
-          ...currentObj[i],
-          variant: "deletion",
-        });
-      } else {
-        repackedItems.push({
-          ...currentObj[i],
-          variant: "editted",
-        });
-        inferedDifference_.push({
-          ...currentObj[i],
-          variant: "editted",
-        });
-      }
-    }
-
-    return {
-      repackedItems,
-      inferedDifference_,
-      nonEdits,
-    };
-  }, [flattenBookData, oldBookData]);
+  // Note: To match the exact display of ebook/[id], we render the plain
+  // flattenBookData (without diff variants). Keeping the diff data only for
+  // the sidebar list.
 
   function getChangeDescription(diff: Difference): string {
     switch (diff.kind) {
       case "E":
         return "edit";
       case "D":
-        return "addition";
-      case "N":
         return "deletion";
+      case "N":
+        return "addition";
       case "A":
         if (diff.item) {
           return getChangeDescription(diff.item);
@@ -353,6 +653,92 @@ function ApprovalPage() {
         return "unknown";
     }
   }
+
+  // Pretty-print a value for diff display
+  const formatValue = (val: unknown): string => {
+    try {
+      if (val === null || val === undefined) return String(val);
+      if (typeof val === "string") return val;
+      return JSON.stringify(val, null, 2);
+    } catch {
+      return String(val);
+    }
+  };
+
+  // Helper function to extract meaningful text from any value
+  const extractTextFromValue = (value: unknown): string => {
+    if (typeof value === "string") {
+      return value;
+    }
+    if (value && typeof value === "object" && value !== null) {
+      const obj = value as Record<string, unknown>;
+      // Try common text properties
+      for (const key of [
+        "text",
+        "content",
+        "title",
+        "value",
+        "name",
+        "label",
+      ]) {
+        if (key in obj && typeof obj[key] === "string") {
+          return obj[key] as string;
+        }
+      }
+    }
+    return String(value);
+  };
+
+  const renderChangeDetails = (diff: Difference) => {
+    switch (diff.kind) {
+      case "E":
+        return (
+          <>
+            <p className="p-2 mb-0">
+              Old:{" "}
+              <span className="font-semibold">{formatValue(diff.rhs)}</span>
+            </p>
+            <p className="p-2">
+              New:{" "}
+              <span className="font-semibold">{formatValue(diff.lhs)}</span>
+            </p>
+          </>
+        );
+      case "N":
+        return (
+          <>
+            <p className="p-2 mb-0">
+              New Value:{" "}
+              <span className="font-semibold">{formatValue(diff.rhs)}</span>
+            </p>
+          </>
+        );
+      case "D":
+        return (
+          <>
+            <p className="p-2 mb-0">
+              Deleted Value:{" "}
+              <span className="font-semibold">{formatValue(diff.lhs)}</span>
+            </p>
+          </>
+        );
+      case "A":
+        // Array change: show nested item info if available
+        return (
+          <>
+            <p className="p-2 mb-0">Array modification</p>
+            {diff.item && (
+              <div className="p-2">
+                <p className="mb-1 text-xs text-gray-500">Nested change:</p>
+                {renderChangeDetails(diff.item)}
+              </div>
+            )}
+          </>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="py-6">
@@ -385,7 +771,7 @@ function ApprovalPage() {
             disabled={!currentBookID}
           >
             <SelectTrigger value={null} className="w-[180px]">
-              <SelectValue placeholder="Select book" />
+              <SelectValue placeholder="Select version" />
             </SelectTrigger>
             <SelectContent>
               {currentVersions.map((version, i) => (
@@ -397,8 +783,9 @@ function ApprovalPage() {
           </Select>
         </div>
       </div>
+
       {!currentBookID || !currentVersion ? (
-        <div className="mt-[50px] p-6 text-center">
+        <div className="mt-[50px] p-6 text-center bg-white rounded-lg">
           <p>Select a book and version</p>
         </div>
       ) : loadingBook ? (
@@ -409,16 +796,17 @@ function ApprovalPage() {
         <div className="flex relative">
           <div className="mr-[20px]">
             <RenderBook
-              flattenBookData={compareBooks}
+              flattenBookData={compareBooks as FlattenedObj[]}
               data={data}
               currentBook={data?.book}
               canEdit={false}
+              bookInfo={currentBook}
               foldBook={false}
             />
           </div>
           <div className="w-[280px] mt-[40px] fixed right-4 top-8 overflow-hidden h-[80vh]">
             {currentBookID && (
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 mb-4">
                 {currentVersionDetails?.status === "PUBLISHED" ? (
                   <Button
                     className="w-fit h-[40px]"
@@ -451,7 +839,7 @@ function ApprovalPage() {
             )}
 
             {!bookDifferences?.length ? (
-              <div className="bg-white p-4 shadow-md rounded-sm">
+              <div className="bg-white p-4 shadow-md rounded-sm w-full">
                 <p>No difference to show</p>
               </div>
             ) : (
@@ -463,17 +851,37 @@ function ApprovalPage() {
                   <Accordion type="single" collapsible className="w-full">
                     {bookDifferences?.map((diff, i) => {
                       const diffText = getChangeDescription(diff);
-                      const id = diff.kind === "E" ? getItemIdFromPath(data, diff.path) : getItemId(diff);
+                      const id = getItemIdFromPath(data, diff.path);
                       const href = id ? `#${id}` : "";
                       return (
-                        <AccordionItem key={i} value={`item-${i}`}>
-                          <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px]">
-                            <div className="flex justify-between w-full">
-                              <div key={i} className="text-left">
-                                {generatePathString(diff.path)}
+                        <AccordionItem
+                          key={i}
+                          value={`item-${i}`}
+                          className="w-full"
+                        >
+                          <AccordionTrigger className="border border-[#fafafa] bg-white p-3 text-[14px] w-full hover:no-underline">
+                            <div className="flex justify-between w-full items-start">
+                              <div className="text-left flex-1 min-w-0 pr-2">
+                                <div className="truncate">
+                                  {generatePathString(
+                                    diff.path,
+                                    data,
+                                    oldContent
+                                  )}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1 truncate">
+                                  {diff.kind === "E"
+                                    ? `Changed to "${formatValue(diff.lhs)}"`
+                                    : diff.kind === "N"
+                                    ? `Added "${formatValue(diff.rhs)}"`
+                                    : diff.kind === "D"
+                                    ? `Removed "${formatValue(diff.lhs)}"`
+                                    : diff.kind === "A"
+                                    ? "Array modified"
+                                    : "Modified"}
+                                </div>
                               </div>
-
-                              <div>
+                              <div className="flex-shrink-0">
                                 <Badge
                                   variant={
                                     diffText === "addition"
@@ -482,34 +890,64 @@ function ApprovalPage() {
                                       ? "pending"
                                       : "failed"
                                   }
-                                  className="uppercase"
+                                  className="uppercase text-xs"
                                 >
                                   {diffText}
                                 </Badge>
                               </div>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="p-2 bg-[#ffffff]">
-                            <div>
-                              {diff.kind === "E" && (
-                                <>
-                                  <p className="p-2 mb-0">
-                                    Old:{" "}
-                                    <span className="font-semibold">
-                                      {diff.rhs}
-                                    </span>{" "}
-                                  </p>
-                                  <p className="p-2">
-                                    New:{" "}
-                                    <span className="font-semibold">
-                                      {diff.lhs}
-                                    </span>{" "}
-                                  </p>
-                                </>
+                          <AccordionContent className="p-2 bg-[#ffffff] w-full">
+                            <div className="w-full">
+                              {renderChangeDetails(diff)}
+                              {href && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    // Get the text content based on the type of change
+                                    let changeText = "";
+                                    if (diff.kind === "E") {
+                                      // For edits, use the new value (lhs)
+                                      changeText = extractTextFromValue(
+                                        diff.lhs
+                                      );
+                                    } else if (diff.kind === "N") {
+                                      // For additions, use the new value (rhs)
+                                      changeText = extractTextFromValue(
+                                        diff.rhs
+                                      );
+                                    } else if (diff.kind === "D") {
+                                      // For deletions, try to use the old value to find the area
+                                      changeText = extractTextFromValue(
+                                        diff.lhs
+                                      );
+                                    } else if (diff.kind === "A" && diff.item) {
+                                      // For array changes, try to use the nested item
+                                      const itemValue =
+                                        diff.item.rhs || diff.item.lhs;
+                                      changeText =
+                                        extractTextFromValue(itemValue);
+                                    }
+
+                                    // Clean up the change text
+                                    changeText = changeText
+                                      .replace(/^["']|["']$/g, "")
+                                      .trim();
+
+                                    console.log("Navigating to change:", {
+                                      kind: diff.kind,
+                                      path: diff.path,
+                                      changeText,
+                                      id,
+                                    });
+
+                                    handleVisit(id, changeText, diff);
+                                  }}
+                                  className="mt-2"
+                                >
+                                  Visit element
+                                </Button>
                               )}
-                              <Link href={href}>
-                                <Button size="sm">Visit element</Button>
-                              </Link>
                             </div>
                           </AccordionContent>
                         </AccordionItem>
