@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useMemo, useState } from "react";
 import useEBooks, { IChprbnBook } from "../hooks/useEBooks";
 import {
@@ -65,13 +66,6 @@ type Difference = {
   index?: number;
   item?: Difference;
 };
-type PathArray = (string | number)[];
-type DiffKind = "D" | "N" | "E" | "A";
-type DiffItem = {
-  kind: DiffKind;
-  lhs?: Item;
-  rhs?: Item;
-};
 
 type EnhancedFlattenedObj = FlattenedObj & {
   variant?: "same" | "addition" | "deletion" | "editted";
@@ -108,7 +102,7 @@ function ApprovalPage() {
         setCurrentVersionDetails(res.data);
         downloadBook(res.data.fileUrl);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         setLoadingBook(false);
       }
     }
@@ -131,7 +125,7 @@ function ApprovalPage() {
         setCummulativeDiff(res.data.difference);
         setOldContent(res.data.oldContent);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     }
   };
@@ -177,7 +171,7 @@ function ApprovalPage() {
       const bookData = (await getFile(url)) as Data;
       setData(bookData);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     } finally {
       setLoadingBook(false);
     }
@@ -195,7 +189,7 @@ function ApprovalPage() {
     const currentObj = flattenBookData;
     const oldObj = oldBookData;
     const currentIDs = new Set(currentObj.map((item) => item.id));
-    let repackedItems: EnhancedFlattenedObj[] = [];
+    const repackedItems: EnhancedFlattenedObj[] = [];
 
     // Add all current items with variants
     for (const currentItem of currentObj) {
@@ -253,7 +247,7 @@ function ApprovalPage() {
       showToast("Approval successful");
       getCurrentBookVersion(currentBookID, null);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     } finally {
       setApproving(false);
     }
@@ -266,7 +260,7 @@ function ApprovalPage() {
       showToast("Un approval successful");
       getCurrentBookVersion(currentBookID, null);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     } finally {
       setUnApproving(false);
     }
@@ -447,14 +441,14 @@ function ApprovalPage() {
       }
 
       // Log for debugging
-      console.log("Visited element:", {
-        id,
-        changeText,
-        foundSpecificText,
-        highlightedText: !!highlightedTextNode,
-        targetElement: targetElement.tagName,
-        targetContent: targetElement.textContent?.substring(0, 100),
-      });
+      // console.log("Visited element:", {
+      //   id,
+      //   changeText,
+      //   foundSpecificText,
+      //   highlightedText: !!highlightedTextNode,
+      //   targetElement: targetElement.tagName,
+      //   targetContent: targetElement.textContent?.substring(0, 100),
+      // });
     } else {
       console.warn(`Element with id ${id} not found`);
     }
@@ -504,7 +498,6 @@ function ApprovalPage() {
     const titleKeySet = new Set<string>(titleKeys as unknown as string[]);
 
     // Debug logging to understand the paths
-    console.log("Path array:", pathArray);
 
     // Helper to safely get nested value by key on unknown object
     const getKey = (obj: unknown, key: string | number): unknown => {
@@ -601,26 +594,21 @@ function ApprovalPage() {
     }
 
     const result = (parts.length ? parts : ["Unknown Section"]).join(" > ");
-    console.log("Generated path:", result);
     return result;
   }
 
   const bookDifferences = useMemo(() => {
-    console.log("All cummulative differences:", cummulativeDiff);
-
     const filtered =
       cummulativeDiff?.filter((n) => {
         const path = n.path;
         const shouldInclude = path[path.length - 1] !== "id";
 
         if (!shouldInclude) {
-          console.log("Filtering out ID change:", n);
         }
 
         return shouldInclude;
       }) || [];
 
-    console.log("Filtered differences:", filtered);
     return filtered;
   }, [cummulativeDiff]);
 
@@ -637,16 +625,27 @@ function ApprovalPage() {
   // the sidebar list.
 
   function getChangeDescription(diff: Difference): string {
+    // The diff library compares old vs new, so:
+    // lhs = new value, rhs = old value
+    // "D" means deleted (exists in old, not in new)
+    // "N" means new (exists in new, not in old)
+    // For array changes, the logic is inverted:
+    // item.kind "D" means added to array, "N" means removed from array
+
     switch (diff.kind) {
       case "E":
         return "edit";
       case "D":
-        return "deletion";
+        return "deletion"; // D means deleted from old version
       case "N":
-        return "addition";
+        return "addition"; // N means added to new version
       case "A":
         if (diff.item) {
-          return getChangeDescription(diff.item);
+          // For array changes, logic is inverted
+          const itemKind = diff.item.kind;
+          if (itemKind === "D") return "addition"; // D in array means added
+          if (itemKind === "N") return "deletion"; // N in array means removed
+          if (itemKind === "E") return "edit";
         }
         return "modification";
       default:
@@ -672,8 +671,10 @@ function ApprovalPage() {
     }
     if (value && typeof value === "object" && value !== null) {
       const obj = value as Record<string, unknown>;
-      // Try common text properties
+
+      // Try common text properties first
       for (const key of [
+        "chapter", // Add chapter first for chapter objects
         "text",
         "content",
         "title",
@@ -683,6 +684,29 @@ function ApprovalPage() {
       ]) {
         if (key in obj && typeof obj[key] === "string") {
           return obj[key] as string;
+        }
+      }
+
+      // For chapter objects, try to get text from pages
+      if ("pages" in obj && Array.isArray(obj.pages)) {
+        for (const page of obj.pages) {
+          if (
+            page &&
+            typeof page === "object" &&
+            "items" in page &&
+            Array.isArray(page.items)
+          ) {
+            for (const item of page.items) {
+              if (item && typeof item === "object") {
+                // Try to get text from page items
+                for (const textKey of ["content", "text", "value"]) {
+                  if (textKey in item && typeof item[textKey] === "string") {
+                    return item[textKey] as string;
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -705,23 +729,47 @@ function ApprovalPage() {
           </>
         );
       case "N":
-        return (
-          <>
-            <p className="p-2 mb-0">
-              New Value:{" "}
-              <span className="font-semibold">{formatValue(diff.rhs)}</span>
-            </p>
-          </>
-        );
+        // Check if this is an array removal (has rhs but no lhs) or regular addition (has lhs)
+        if (diff.rhs !== undefined && diff.lhs === undefined) {
+          return (
+            <>
+              <p className="p-2 mb-0">
+                Removed from array:{" "}
+                <span className="font-semibold">{formatValue(diff.rhs)}</span>
+              </p>
+            </>
+          );
+        } else {
+          return (
+            <>
+              <p className="p-2 mb-0">
+                Added Value:{" "}
+                <span className="font-semibold">{formatValue(diff.lhs)}</span>
+              </p>
+            </>
+          );
+        }
       case "D":
-        return (
-          <>
-            <p className="p-2 mb-0">
-              Deleted Value:{" "}
-              <span className="font-semibold">{formatValue(diff.lhs)}</span>
-            </p>
-          </>
-        );
+        // Check if this is an array addition (has lhs but no rhs) or regular deletion (has rhs)
+        if (diff.lhs !== undefined && diff.rhs === undefined) {
+          return (
+            <>
+              <p className="p-2 mb-0">
+                Added to array:{" "}
+                <span className="font-semibold">{formatValue(diff.lhs)}</span>
+              </p>
+            </>
+          );
+        } else {
+          return (
+            <>
+              <p className="p-2 mb-0">
+                Removed Value:{" "}
+                <span className="font-semibold">{formatValue(diff.rhs)}</span>
+              </p>
+            </>
+          );
+        }
       case "A":
         // Array change: show nested item info if available
         return (
@@ -796,7 +844,7 @@ function ApprovalPage() {
         <div className="flex relative">
           <div className="mr-[20px]">
             <RenderBook
-              flattenBookData={compareBooks as FlattenedObj[]}
+              flattenBookData={flattenBookData}
               data={data}
               currentBook={data?.book}
               canEdit={false}
@@ -851,7 +899,45 @@ function ApprovalPage() {
                   <Accordion type="single" collapsible className="w-full">
                     {bookDifferences?.map((diff, i) => {
                       const diffText = getChangeDescription(diff);
-                      const id = getItemIdFromPath(data, diff.path);
+
+                      // For array changes, get the ID from the nested item
+                      let id = null;
+                      if (diff.kind === "A" && diff.item) {
+                        // Array addition/deletion - get ID from the item itself
+                        const item = diff.item.lhs || diff.item.rhs;
+                        if (item && typeof item === "object" && "id" in item) {
+                          // For chapters, try to get the first content item ID instead of chapter ID
+                          if ("pages" in item && Array.isArray(item.pages)) {
+                            const firstPage = item.pages[0];
+                            if (
+                              firstPage &&
+                              "items" in firstPage &&
+                              Array.isArray(firstPage.items)
+                            ) {
+                              const firstItem = firstPage.items[0];
+                              if (
+                                firstItem &&
+                                typeof firstItem === "object" &&
+                                "id" in firstItem
+                              ) {
+                                // Use the content item ID for better navigation
+                                id = firstItem.id;
+                              } else {
+                                // Fallback to chapter ID
+                                id = item.id;
+                              }
+                            } else {
+                              id = item.id;
+                            }
+                          } else {
+                            id = item.id;
+                          }
+                        }
+                      } else {
+                        // Regular changes - get ID from path
+                        id = getItemIdFromPath(data, diff.path);
+                      }
+
                       const href = id ? `#${id}` : "";
                       return (
                         <AccordionItem
@@ -863,21 +949,93 @@ function ApprovalPage() {
                             <div className="flex justify-between w-full items-start">
                               <div className="text-left flex-1 min-w-0 pr-2">
                                 <div className="truncate">
-                                  {generatePathString(
-                                    diff.path,
-                                    data,
-                                    oldContent
-                                  )}
+                                  {(() => {
+                                    // For array changes, show the actual item title instead of generic path
+                                    if (diff.kind === "A" && diff.item) {
+                                      const item =
+                                        diff.item.lhs || diff.item.rhs;
+                                      if (item && typeof item === "object") {
+                                        // Try to get a meaningful title from the item
+                                        const titleKeys = [
+                                          "chapter",
+                                          "title",
+                                          "name",
+                                          "sectionTitle",
+                                          "heading",
+                                          "label",
+                                        ];
+                                        for (const key of titleKeys) {
+                                          if (
+                                            key in item &&
+                                            typeof item[key] === "string" &&
+                                            item[key].trim()
+                                          ) {
+                                            return item[key];
+                                          }
+                                        }
+                                      }
+                                    }
+                                    // Fallback to path string
+                                    return generatePathString(
+                                      diff.path,
+                                      data,
+                                      oldContent
+                                    );
+                                  })()}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-1 truncate">
                                   {diff.kind === "E"
                                     ? `Changed to "${formatValue(diff.lhs)}"`
                                     : diff.kind === "N"
-                                    ? `Added "${formatValue(diff.rhs)}"`
+                                    ? diff.rhs !== undefined &&
+                                      diff.lhs === undefined
+                                      ? `Removed from array "${formatValue(
+                                          diff.rhs
+                                        )}"`
+                                      : `Added "${formatValue(diff.lhs)}"`
                                     : diff.kind === "D"
-                                    ? `Removed "${formatValue(diff.lhs)}"`
-                                    : diff.kind === "A"
-                                    ? "Array modified"
+                                    ? diff.lhs !== undefined &&
+                                      diff.rhs === undefined
+                                      ? `Added to array "${formatValue(
+                                          diff.lhs
+                                        )}"`
+                                      : `Removed "${formatValue(diff.rhs)}"`
+                                    : diff.kind === "A" && diff.item
+                                    ? (() => {
+                                        const changeType =
+                                          getChangeDescription(diff);
+                                        const item =
+                                          diff.item.lhs || diff.item.rhs;
+                                        if (item && typeof item === "object") {
+                                          const titleKeys = [
+                                            "chapter",
+                                            "title",
+                                            "name",
+                                            "content",
+                                            "text",
+                                          ];
+                                          for (const key of titleKeys) {
+                                            if (
+                                              key in item &&
+                                              typeof item[key] === "string" &&
+                                              item[key].trim()
+                                            ) {
+                                              return `${
+                                                changeType === "addition"
+                                                  ? "Added"
+                                                  : changeType === "deletion"
+                                                  ? "Removed"
+                                                  : "Modified"
+                                              } "${item[key].substring(0, 50)}${
+                                                item[key].length > 50
+                                                  ? "..."
+                                                  : ""
+                                              }"`;
+                                            }
+                                          }
+                                        }
+                                        return `Array ${changeType}`;
+                                      })()
                                     : "Modified"}
                                 </div>
                               </div>
@@ -906,27 +1064,47 @@ function ApprovalPage() {
                                   onClick={() => {
                                     // Get the text content based on the type of change
                                     let changeText = "";
+                                    let searchInCurrentBook = true;
+
                                     if (diff.kind === "E") {
-                                      // For edits, use the new value (lhs)
+                                      // For edits, use the new value (lhs) - this is what was changed TO
                                       changeText = extractTextFromValue(
                                         diff.lhs
                                       );
+                                      searchInCurrentBook = true; // Search in current book
                                     } else if (diff.kind === "N") {
-                                      // For additions, use the new value (rhs)
+                                      // For additions, use the new value (lhs) - this is what was added
+                                      changeText = extractTextFromValue(
+                                        diff.lhs
+                                      );
+                                      searchInCurrentBook = true; // Search in current book
+                                    } else if (diff.kind === "D") {
+                                      // For deletions, use the old value (rhs) - this is what was removed
                                       changeText = extractTextFromValue(
                                         diff.rhs
                                       );
-                                    } else if (diff.kind === "D") {
-                                      // For deletions, try to use the old value to find the area
-                                      changeText = extractTextFromValue(
-                                        diff.lhs
-                                      );
+                                      searchInCurrentBook = false; // Search in old book (but since it's deleted, we'll search current)
                                     } else if (diff.kind === "A" && diff.item) {
-                                      // For array changes, try to use the nested item
-                                      const itemValue =
-                                        diff.item.rhs || diff.item.lhs;
-                                      changeText =
-                                        extractTextFromValue(itemValue);
+                                      // For array changes, determine based on nested item
+                                      if (diff.item.kind === "N") {
+                                        // Array removal: use the removed value (rhs)
+                                        changeText = extractTextFromValue(
+                                          diff.item.rhs
+                                        );
+                                        searchInCurrentBook = false;
+                                      } else if (diff.item.kind === "D") {
+                                        // Array addition: use the added value (lhs)
+                                        changeText = extractTextFromValue(
+                                          diff.item.lhs
+                                        );
+                                        searchInCurrentBook = true;
+                                      } else if (diff.item.kind === "E") {
+                                        // Array edit: use the new value (lhs)
+                                        changeText = extractTextFromValue(
+                                          diff.item.lhs
+                                        );
+                                        searchInCurrentBook = true;
+                                      }
                                     }
 
                                     // Clean up the change text
@@ -934,12 +1112,13 @@ function ApprovalPage() {
                                       .replace(/^["']|["']$/g, "")
                                       .trim();
 
-                                    console.log("Navigating to change:", {
-                                      kind: diff.kind,
-                                      path: diff.path,
-                                      changeText,
-                                      id,
-                                    });
+                                    // console.log("Navigating to change:", {
+                                    //   kind: diff.kind,
+                                    //   path: diff.path,
+                                    //   changeText,
+                                    //   searchInCurrentBook,
+                                    //   id,
+                                    // });
 
                                     handleVisit(id, changeText, diff);
                                   }}
