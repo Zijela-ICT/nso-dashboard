@@ -20,6 +20,20 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { QuestionModal } from "./question-modal";
 import { formatDate } from "date-fns";
+import { DeleteModal } from "@/components/modals/users";
+import { useCloseSubmission } from "@/hooks/api/mutations/quiz";
+
+interface SubmissionResult {
+  submissionId: number;
+  userName: string;
+  userCadre: string;
+  totalScore: string;
+  status: string;
+  submissionDate: string;
+  duration: string;
+  lateSubmission: string;
+  userId: number;
+}
 
 const ResultsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +45,10 @@ const ResultsPage = () => {
   const { id } = useParams();
   const router = useRouter();
   const reportsPerPage = 10;
+
+  const closeMutation = useCloseSubmission();
+  const [closeModal, setCloseModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<SubmissionResult | null>(null);
 
   const { data, isLoading, error } = useFetchAssessmentsID(
     currentPage,
@@ -156,6 +174,7 @@ const ResultsPage = () => {
                     <TableHead>Submission Date</TableHead>
                     <TableHead>Duration</TableHead>
                     <TableHead>Late Submission</TableHead>
+                    <TableHead>Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -206,6 +225,18 @@ const ResultsPage = () => {
                             : "On Time"}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUser(result);
+                            setCloseModal(true);
+                          }}
+                        >
+                          End Quiz
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -231,6 +262,27 @@ const ResultsPage = () => {
             setSelectedSubmissionId(null);
             setQuestions(null);
           }
+        }}
+      />
+      <DeleteModal
+        openModal={closeModal}
+        setOpenModal={setCloseModal}
+        header="End Quiz"
+        subText={`Are you sure you want to end the quiz for ${selectedUser?.userName}?`}
+        loading={closeMutation.isLoading}
+        handleConfirm={() => {
+          closeMutation.mutate(
+            {
+              userId: selectedUser?.userId,
+              assessmentId: Number(id),
+            },
+            {
+              onSuccess: () => {
+                setCloseModal(false);
+                setSelectedUser(null);
+              },
+            }
+          );
         }}
       />
     </div>
