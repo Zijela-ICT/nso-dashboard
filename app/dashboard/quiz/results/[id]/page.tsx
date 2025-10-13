@@ -205,7 +205,7 @@ const ResultsPage = () => {
                       <TableCell>
                         <Badge
                           variant={
-                            result?.status === "completed"
+                            result?.status === "Completed"
                               ? "success"
                               : "pending"
                           }
