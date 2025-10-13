@@ -48,7 +48,9 @@ const ResultsPage = () => {
 
   const closeMutation = useCloseSubmission();
   const [closeModal, setCloseModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<SubmissionResult | null>(null);
+  const [selectedUser, setSelectedUser] = useState<SubmissionResult | null>(
+    null
+  );
 
   const { data, isLoading, error } = useFetchAssessmentsID(
     currentPage,
@@ -201,8 +203,14 @@ const ResultsPage = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={result?.status ? "success" : "pending"}>
-                          {result?.status ? "Completed" : "In Progress"}
+                        <Badge
+                          variant={
+                            result?.status === "completed"
+                              ? "success"
+                              : "pending"
+                          }
+                        >
+                          {result?.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
