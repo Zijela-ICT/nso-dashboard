@@ -241,6 +241,7 @@ const ResultsPage = () => {
                             setSelectedUser(result);
                             setCloseModal(true);
                           }}
+                          disabled={result?.status === "Completed"}
                         >
                           End Quiz
                         </Button>

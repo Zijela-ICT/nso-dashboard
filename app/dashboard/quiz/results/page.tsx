@@ -96,8 +96,6 @@ const ResultsPage = () => {
     //     ? ((passedCount / results.length) * 100).toFixed(1)
     //     : "0";
 
-    console.log(results);
-
     return (
         <div className="w-full space-y-6">
             {/* Summary Cards */}
