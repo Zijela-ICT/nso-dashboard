@@ -11,8 +11,6 @@ const Page = () => {
   const { data: metrics, isLoading } = useDashboardMetrics();
   // const { data: users } = useFetchAppUsers();
 
-    console.log('metrics', metrics)
-
   const headings = [
     {
       title: "Total Users.",
