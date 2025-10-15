@@ -58,6 +58,10 @@ export const lockBook = (id: string) => {
   return request("POST", `/admin/ebooks/${id}/lock`);
 };
 
+export const unLockBook = (id: string) => {
+  return request("DELETE", `/admin/ebooks/${id}/lock`);
+};
+
 export const adminUnlockBook = (id: string) => {
   return request("DELETE", `/admin/ebooks/${id}/lock`);
 };
@@ -97,6 +101,6 @@ export const getDifferenceFromLastApproved = (
   return request("GET", `/admin/ebooks/${ebookId}/compare_version/${version}`);
 };
 
-export const streamEbook = (ebookId: string, data: any) => {
+export const streamEbook = (ebookId: string, data:unknown) => {
   return request("PATCH", `/admin/ebooks/${ebookId}/stream`, data);
 };

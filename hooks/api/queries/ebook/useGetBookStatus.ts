@@ -4,9 +4,10 @@ import { useQuery } from "react-query";
 
 export const useGetBookStatus = (id: string) => {
   const queryKey = [QUERYKEYS.BOOKSTATUS, id];
-  return useQuery(queryKey, () => getStatus(id), {
-    retry: 1,
+    const isValidId =id !== 'undefined' &&  id !== undefined && id !== null && id.trim() !== '';
+    console.log('id', id)
+    return useQuery(queryKey, () => getStatus(id), {
     keepPreviousData: true,
-    enabled: !!id,
+    enabled: isValidId,
   });
 };

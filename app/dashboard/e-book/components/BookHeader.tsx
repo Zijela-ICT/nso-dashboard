@@ -15,6 +15,7 @@ import { IChprbnBook } from "../hooks/useEBooks";
 import { useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { useLockBook } from "@/hooks/api/mutations/ebook/useBookLocked";
+import {useUnLockBook} from "@/hooks/api/mutations/ebook/useBookUnLocked";
 
 function BookHeader({
   setBookTitle,
@@ -34,6 +35,7 @@ function BookHeader({
   const { data: user } = useFetchProfile();
   const { isEditting, setIsEditting, savingBook } = useBookContext();
   const { mutate: lockBook } = useLockBook();
+  const { mutate: unlockBook } = useUnLockBook();
   const headerRef = React.useRef<HTMLHeadingElement>(null);
   const searchParams = useSearchParams();
   const content = searchParams.get("content")?.replace(/\n/g, " ") || "";
@@ -49,7 +51,7 @@ function BookHeader({
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, [content]);
+  }, [content])
 
   const handleEdit = () => {
     setIsEditting(!isEditting);
@@ -91,6 +93,7 @@ function BookHeader({
               <Button
                 onClick={() => {
                   saveBookUpdates();
+                    unlockBook({ id: String(bookInfo?.id) })
                   // setIsEditting(false);
                 }}
                 className="h-8 text-[14px]"
