@@ -5,17 +5,24 @@ import BarChartComponent from "./components/Bar";
 import LoginActivity from "./components/LoginActivity";
 import { Card } from "@/components/ui/card";
 import { useDashboardMetrics } from "@/hooks/api/queries/users/useDashboardMetrics";
-import { useFetchAppUsers } from "@/hooks/api/queries/users";
 import { Spinner } from "@/components/ui";
 
 const Page = () => {
   const { data: metrics, isLoading } = useDashboardMetrics();
-  const { data: users } = useFetchAppUsers(1, 100);
+  // const { data: users } = useFetchAppUsers();
+
+    console.log('metrics', metrics)
 
   const headings = [
     {
+      title: "Total Users.",
+      count: metrics?.users?.totalUsers ?? 0,
+    }, {
       title: "App Users.",
-      count: users?.data?.totalCount ?? 0,
+      count: metrics?.users?.appUsers ?? 0,
+    }, {
+      title: "System Users.",
+      count: metrics?.users?.systemUsers ?? 0,
     },
     // {
     //   title: "Total Facilities",
