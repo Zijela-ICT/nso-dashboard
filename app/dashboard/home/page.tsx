@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui";
 
 const Page = () => {
   const { data: metrics, isLoading } = useDashboardMetrics();
-  const { data: users } = useFetchAppUsers(1, 10000000);
+  const { data: users } = useFetchAppUsers(1, 100);
 
   const headings = [
     {

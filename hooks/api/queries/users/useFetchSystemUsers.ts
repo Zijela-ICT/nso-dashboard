@@ -1,66 +1,70 @@
 import request from "@/utils/api";
-import { QUERYKEYS } from "@/utils/query-keys";
-import { useQuery } from "react-query";
+import {QUERYKEYS} from "@/utils/query-keys";
+import {useQuery} from "react-query";
+
 
 type RoleResp = {
-  id: number;
-  name: string;
-  users: number;
+    id: number;
+    name: string;
+    users: number;
 };
 
 export type SystemUsersDataResponse = {
-  id: number;
-  regNumber: number;
-  username: string | null;
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  mobile: string;
-  cadre: string;
-  regExpiration: string | null;
-  isChprbnBlocked: boolean;
-  isDeactivated: boolean;
-  avatar: string | null;
-  isEmailConfirmed: boolean;
-  userType: string | null;
-  twoFASecret: string | null;
-  isFirstLogin: boolean;
-  twoFaMethod: string | null;
-  isTwoFAEnabled: boolean;
-  createdAt: string | null;
-  updatedAt: string | null;
-  roles: RoleResp[] | any;
+    id: number;
+    regNumber: number;
+    username: string | null;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    mobile: string;
+    cadre: string;
+    regExpiration: string | null;
+    isChprbnBlocked: boolean;
+    isDeactivated: boolean;
+    avatar: string | null;
+    isEmailConfirmed: boolean;
+    userType: string | null;
+    twoFASecret: string | null;
+    isFirstLogin: boolean;
+    twoFaMethod: string | null;
+    isTwoFAEnabled: boolean;
+    createdAt: string | null;
+    updatedAt: string | null;
+    roles: RoleResp[] | unknown;
 };
 
 type SystemUserResp = {
-  success: boolean;
-  message: string;
-  data: {
-    data: SystemUsersDataResponse[];
-    totalCount: number;
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
+    success: boolean;
+    message: string;
+    data: {
+        data: SystemUsersDataResponse[];
+        totalCount: number;
+        currentPage: number;
+        totalPages: number;
+        pageSize: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    };
 };
 
 export const FetchSystemUsers = async (
-  page: number = 1,
-  perPage: number = 10
+    page: number = 1,
+    perPage: number = 10,
+    search: string = ''
 ): Promise<SystemUserResp> => {
-  return request("GET", `/admin/users/system?page=${page}&limit=${perPage}`);
+    return request("GET", `/admin/users/system?page=${page}&limit=${perPage}${search && search.length > 3 ? `&search=${search}` : ''}`);
 };
 
 export const useFetchSystemUsers = (
-  page: number = 1,
-  perPage: number = 100
-) => {
-  const queryKey = [QUERYKEYS.FETCHSYSTEMUSERS, page, perPage];
-  return useQuery(queryKey, () => FetchSystemUsers(page, perPage), {
-    retry: 1,
-    keepPreviousData: true,
-  });
-};
+        page: number = 1,
+        perPage: number = 100,
+        search: string = ""
+    ) => {
+        const queryKey = [QUERYKEYS.FETCHSYSTEMUSERS, page, perPage, search];
+        return useQuery(queryKey, () => FetchSystemUsers(page, perPage, search), {
+            retry: 1,
+            keepPreviousData: true,
+        });
+    }
+;

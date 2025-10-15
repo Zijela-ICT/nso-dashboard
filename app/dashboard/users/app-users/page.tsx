@@ -28,6 +28,7 @@ import React, { useState } from "react";
 
 const Page = () => {
   const { hasPermission } = usePermissions();
+  const [search, setSearch] = useState("");
   const { mutate, isLoading: isLoadingCreateRole } = useResetPassword();
   const { mutate: mutateDeactivate, isLoading: isLoadingDeactivating } =
     useDeactivate();
@@ -40,7 +41,7 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
 
-  const { data, refetch } = useFetchAppUsers(currentPage, reportsPerPage);
+  const { data, refetch } = useFetchAppUsers(currentPage, reportsPerPage, search);
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -53,6 +54,8 @@ const Page = () => {
           <input
             className="border border-[#919EAB33] px-12 py-4 rounded-lg w-full text-[#637381] placeholder:text-[#637381] text-sm"
             placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <Icon name="search" className="absolute top-4 left-4 " fill="none" />
         </div>
