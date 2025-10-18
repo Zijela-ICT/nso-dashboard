@@ -48,3 +48,5 @@ next-env.d.ts
 .codegpt
 >>>>>>> 7b1c7bee4fa24cec02f124d2d8b0fbe3d53132be
 >>>>>>> 89c1c7d4004e67be5f3d6c905fca89f913ea24f9
+
+.idea/

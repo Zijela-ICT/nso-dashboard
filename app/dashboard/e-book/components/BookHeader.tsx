@@ -15,7 +15,9 @@ import { IChprbnBook } from "../hooks/useEBooks";
 import { useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { useLockBook } from "@/hooks/api/mutations/ebook/useBookLocked";
-import {useUnLockBook} from "@/hooks/api/mutations/ebook/useBookUnLocked";
+import { useUnLockBook } from "@/hooks/api/mutations/ebook/useBookUnLocked";
+import { useGetBookStatus } from "@/hooks/api/queries/ebook/useGetBookLocked";
+import { toast } from "sonner";
 
 function BookHeader({
   setBookTitle,
@@ -38,7 +40,33 @@ function BookHeader({
   const { mutate: unlockBook } = useUnLockBook();
   const headerRef = React.useRef<HTMLHeadingElement>(null);
   const searchParams = useSearchParams();
+  const { data: bookStatus, refetch } = useGetBookStatus(String(bookInfo?.id));
   const content = searchParams.get("content")?.replace(/\n/g, " ") || "";
+
+  // true when the book is locked by someone else
+  const isLockedByAnother = useMemo(() => {
+    if (!bookStatus?.data) return false;
+    return (
+      bookStatus.data.isLocked &&
+      bookStatus.data.lockedByUserId !== user?.data?.id
+    );
+  }, [bookStatus, user]);
+
+  // true when the book is locked by the current user
+  const isLockedByMe = useMemo(() => {
+    if (!bookStatus?.data) return false;
+    return (
+      bookStatus.data.isLocked &&
+      bookStatus.data.lockedByUserId === user?.data?.id
+    );
+  }, [bookStatus, user]);
+
+  // If the current user already holds the lock, resume editing automatically
+  useEffect(() => {
+    if (isLockedByMe) {
+      setIsEditting(true);
+    }
+  }, [isLockedByMe, setIsEditting]);
 
   const hasEditAccess = useMemo(() => {
     return !!bookInfo?.editors.find((u) => u.id === user?.data?.id);
@@ -51,11 +79,28 @@ function BookHeader({
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, [content])
+  }, [content]);
 
   const handleEdit = () => {
-    setIsEditting(!isEditting);
-    lockBook({ id: String(bookInfo?.id) });
+    // Block if another user holds the lock
+    if (isLockedByAnother) {
+      toast.error(
+        `This book is currently being edited by ${
+          bookStatus?.data?.lockedByName || "another user"
+        }.`
+      );
+      refetch();
+      return;
+    }
+
+    // If we're starting to edit, acquire the lock. If we're toggling off,
+    // just update local state (unlocking is handled elsewhere, e.g. on save).
+    if (!isEditting) {
+      lockBook({ id: String(bookInfo?.id) });
+      setIsEditting(true);
+    } else {
+      setIsEditting(false);
+    }
   };
 
   return (
@@ -93,7 +138,7 @@ function BookHeader({
               <Button
                 onClick={() => {
                   saveBookUpdates();
-                    unlockBook({ id: String(bookInfo?.id) })
+                  unlockBook({ id: String(bookInfo?.id) });
                   // setIsEditting(false);
                 }}
                 className="h-8 text-[14px]"

@@ -42,14 +42,15 @@ export const CreateFacilitySchema = Yup.object().shape({
     .min(2, "Location must be at least 2 characters")
     .required("Location is required"),
   contact: Yup.string()
-    .required("Contact number is required")
-    .matches(
-      /^(\+?234|0)[789][01]\d{8}$/,
-      "Please enter a valid Nigerian phone number"
+    .notRequired()
+    .test(
+      "is-nigerian-phone",
+      "Please enter a valid Nigerian phone number",
+      (value) => !value || /^(\+?234|0)[789][01]\d{8}$/.test(value)
     )
     .test(
       "is-valid-length",
       "Phone number must be between 11 and 14 characters",
       (value) => !value || (value.length >= 11 && value.length <= 14)
-    )
+    ),
 });
