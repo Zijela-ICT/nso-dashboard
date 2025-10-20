@@ -9,10 +9,10 @@ const pdfs = [
 ];
 
 const videos = [
-  // {
-  //   title: "Getting Started",
-  //   url: "https://www.youtube.com/embed/example1",
-  // },
+  {
+    title: "Training Video",
+    url: "https://youtu.be/5_JzFiZvct4?si=oO3gx4MgRZOpn4xl",
+  },
 ];
 
 const tabs = ["PDF", "Videos"];
@@ -77,14 +77,15 @@ export default function HelpScreen() {
                   key={video.title}
                   className="bg-white rounded-2xl shadow p-4 flex flex-col"
                 >
-                  <h3 className="font-semibold mb-2">{video.title}</h3>
-                  <div className="relative w-full pt-[56.25%]">
-                    <iframe
-                      src={video.url}
-                      className="absolute top-0 left-0 w-full h-full rounded-lg border"
-                      allowFullScreen
-                    ></iframe>
-                  </div>
+                  <h3 className="font-semibold mb-4">{video.title}</h3>
+                  <a
+                    href={video.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white bg-[#0CA554] px-4 py-2 rounded-lg text-center hover:bg-[#098d48]"
+                  >
+                    View
+                  </a>
                 </div>
               ))}
             </div>
