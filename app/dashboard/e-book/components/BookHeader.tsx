@@ -64,9 +64,11 @@ function BookHeader({
   // If the current user already holds the lock, resume editing automatically
   useEffect(() => {
     if (isLockedByMe) {
-      setIsEditting(true);
+      // setIsEditting(true);
+      unlockBook({ id: String(bookInfo?.id) });
     }
-  }, [isLockedByMe, setIsEditting]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLockedByMe]);
 
   const hasEditAccess = useMemo(() => {
     return !!bookInfo?.editors.find((u) => u.id === user?.data?.id);
