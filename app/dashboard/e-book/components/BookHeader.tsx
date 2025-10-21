@@ -15,9 +15,13 @@ import { IChprbnBook } from "../hooks/useEBooks";
 import { useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { useLockBook } from "@/hooks/api/mutations/ebook/useBookLocked";
-import { useUnLockBook } from "@/hooks/api/mutations/ebook/useBookUnLocked";
+import {
+  useUnLockBook,
+  useUnLockBookByAdmin,
+} from "@/hooks/api/mutations/ebook/useBookUnLocked";
 import { useGetBookStatus } from "@/hooks/api/queries/ebook/useGetBookLocked";
 import { toast } from "sonner";
+import { usePermissions } from "@/hooks/custom/usePermissions";
 
 function BookHeader({
   setBookTitle,
@@ -38,10 +42,12 @@ function BookHeader({
   const { isEditting, setIsEditting, savingBook } = useBookContext();
   const { mutate: lockBook } = useLockBook();
   const { mutate: unlockBook } = useUnLockBook();
+  const { mutate: unlockBookByAdmin } = useUnLockBookByAdmin();
   const headerRef = React.useRef<HTMLHeadingElement>(null);
   const searchParams = useSearchParams();
   const { data: bookStatus, refetch } = useGetBookStatus(String(bookInfo?.id));
   const content = searchParams.get("content")?.replace(/\n/g, " ") || "";
+  const { hasPermission } = usePermissions();
 
   // true when the book is locked by someone else
   const isLockedByAnother = useMemo(() => {
@@ -63,7 +69,7 @@ function BookHeader({
 
   // If the current user already holds the lock, resume editing automatically
   useEffect(() => {
-    if (isLockedByMe) {
+    if (isLockedByMe && !isEditting) {
       // setIsEditting(true);
       unlockBook({ id: String(bookInfo?.id) });
     }
@@ -125,6 +131,19 @@ function BookHeader({
         </h1>
         {canEdit && (
           <div className="flex gap-2">
+            {bookStatus?.data?.isLocked &&
+              hasPermission("delete_admin/ebooks:ebookId/admin-unlock") && (
+                <Button
+                  variant={isEditting ? "outline" : "default"}
+                  onClick={() => {
+                    unlockBookByAdmin({ id: String(bookInfo?.id) });
+                    refetch();
+                  }}
+                  className="h-8 text-[14px]"
+                >
+                  Remove Lock
+                </Button>
+              )}
             {hasEditAccess && !isEditting && (
               <Button
                 variant={isEditting ? "outline" : "default"}

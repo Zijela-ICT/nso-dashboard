@@ -1,7 +1,8 @@
 import { AxiosError, AxiosResponse } from "axios";
 import { useMutation, useQueryClient } from "react-query";
 import { QUERYKEYS } from "@/utils/query-keys";
-import { unLockBook} from "@/utils/book.services";
+import { adminUnlockBook, unLockBook } from "@/utils/book.services";
+import { toast } from "sonner";
 
 type ResponseType = {
   success: boolean;
@@ -29,4 +30,20 @@ const useUnLockBook = () => {
   });
 };
 
-export { useUnLockBook };
+const useUnLockBookByAdmin = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AxiosResponse<ResponseType>,
+    AxiosError<ErrorType>,
+    InputType
+  >((input: InputType) => adminUnlockBook(input.id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERYKEYS.BOOKSTATUS],
+      });
+      toast.success("Book unlocked successfully by admin");
+    },
+  });
+};
+
+export { useUnLockBook, useUnLockBookByAdmin };

@@ -63,7 +63,7 @@ export const unLockBook = (id: string) => {
 };
 
 export const adminUnlockBook = (id: string) => {
-  return request("DELETE", `/admin/ebooks/${id}/lock`);
+  return request("DELETE", `/admin/ebooks/${id}/admin-unlock`);
 };
 
 export const streamFile = (url: string) => {
@@ -101,6 +101,6 @@ export const getDifferenceFromLastApproved = (
   return request("GET", `/admin/ebooks/${ebookId}/compare_version/${version}`);
 };
 
-export const streamEbook = (ebookId: string, data:unknown) => {
+export const streamEbook = (ebookId: string, data: unknown) => {
   return request("PATCH", `/admin/ebooks/${ebookId}/stream`, data);
 };
