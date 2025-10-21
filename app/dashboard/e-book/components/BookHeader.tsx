@@ -147,7 +147,10 @@ function BookHeader({
             {hasEditAccess && !isEditting && (
               <Button
                 variant={isEditting ? "outline" : "default"}
-                onClick={handleEdit}
+                onClick={async () => {
+                  await refetch();
+                  handleEdit();
+                }}
                 // onClick={() =>  setIsEditting(!isEditting)}
                 className="h-8 text-[14px]"
               >
