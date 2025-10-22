@@ -1,5 +1,5 @@
 import { Book, PageItemType } from "../booktypes";
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { Button } from "../../../../components/ui/button";
 import { useBookContext } from "../context/bookContext";
 import {
@@ -49,15 +49,6 @@ function BookHeader({
   const content = searchParams.get("content")?.replace(/\n/g, " ") || "";
   const { hasPermission } = usePermissions();
 
-  // true when the book is locked by someone else
-  const isLockedByAnother = useMemo(() => {
-    if (!bookStatus?.data) return false;
-    return (
-      bookStatus.data.isLocked &&
-      bookStatus.data.lockedByUserId !== user?.data?.id
-    );
-  }, [bookStatus, user]);
-
   // true when the book is locked by the current user
   const isLockedByMe = useMemo(() => {
     if (!bookStatus?.data) return false;
@@ -89,27 +80,35 @@ function BookHeader({
     }
   }, [content]);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(async () => {
+    // Refetch to get the current state before proceeding
+    const result = await refetch();
+    const currentBookStatus = result.data;
+
+    // Compute isLockedByAnother with fresh data
+    const isLockedByAnotherNow = currentBookStatus?.data
+      ? currentBookStatus.data.isLocked &&
+        currentBookStatus.data.lockedByUserId !== user?.data?.id
+      : false;
+
     // Block if another user holds the lock
-    if (isLockedByAnother) {
+    if (isLockedByAnotherNow) {
       toast.error(
         `This book is currently being edited by ${
-          bookStatus?.data?.lockedByName || "another user"
+          currentBookStatus?.data?.lockedByName || "another user"
         }.`
       );
-      refetch();
       return;
     }
 
-    // If we're starting to edit, acquire the lock. If we're toggling off,
-    // just update local state (unlocking is handled elsewhere, e.g. on save).
     if (!isEditting) {
       lockBook({ id: String(bookInfo?.id) });
       setIsEditting(true);
     } else {
       setIsEditting(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditting, bookInfo, user, lockBook, setIsEditting, refetch]);
 
   return (
     <div className="container mx-auto mt-[20px] w-full md:w-[900px]">
