@@ -150,13 +150,12 @@ const routes: RouteItem[] = [
       },
     ],
   },
-  // {
-  //   id: 8,
-  //   icon: "setting",
-  //   label: "Settings",
-  //   href: "/settings",
-  //   permission: SystemPermissions.READ_APP_SETTINGS,
-  // },
+  {
+    id: 8,
+    icon: "setting",
+    label: "Practitioner Info",
+    href: "/practitioner-info",
+  },
   {
     id: 9,
     icon: "audit",

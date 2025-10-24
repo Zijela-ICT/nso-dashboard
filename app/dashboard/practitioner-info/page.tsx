@@ -22,6 +22,23 @@ export default function PractitionerCheckPage() {
   const [practitioner, setPractitioner] = useState<Practitioner | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // construct avatar src from possible values:
+  // - full data URI already provided
+  // - plain base64 (common: starts with "/9j/" for JPEG)
+  // - remote URL
+  const constructAvatarSrc = (avatar?: string | null): string | null => {
+    if (!avatar) return null;
+    if (avatar.startsWith("data:")) return avatar;
+    const cleaned = avatar.replace(/\s+/g, "");
+    const base64Like =
+      cleaned.length > 100 && /^[A-Za-z0-9+/]+=*$/.test(cleaned);
+    if (base64Like || avatar.startsWith("/9j")) {
+      // assume JPEG when the blob starts with JPEG base64 signature
+      return `data:image/jpeg;base64,${cleaned}`;
+    }
+    return avatar;
+  };
+
   const fetchPractitioner = async () => {
     const trimmed = regNo.trim();
     if (!trimmed) {
@@ -36,7 +53,7 @@ export default function PractitionerCheckPage() {
       // request uses CONFIG.API_BASE_URL as base; endpoint expected: /practitioner/:regNo
       const res = await request(
         "get",
-        `/practitioner/${encodeURIComponent(trimmed)}`,
+        `/auth/practitioner/${encodeURIComponent(trimmed)}`,
         null,
         false,
         true
@@ -82,9 +99,9 @@ export default function PractitionerCheckPage() {
       {practitioner ? (
         <section className="bg-white shadow rounded p-4">
           <div className="flex items-center gap-4">
-            {practitioner.avatar ? (
+            {constructAvatarSrc(practitioner.avatar) ? (
               <img
-                src={practitioner.avatar}
+                src={constructAvatarSrc(practitioner.avatar) as string}
                 alt={`${practitioner.firstName} ${practitioner.lastName}`}
                 className="w-20 h-20 rounded-full object-cover"
               />
