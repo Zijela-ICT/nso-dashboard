@@ -153,8 +153,8 @@ const routes: RouteItem[] = [
   {
     id: 8,
     icon: "setting",
-    label: "Practitioner Info",
-    href: "/practitioner-info",
+    label: "Practitioner Lookup",
+    href: "/practitioner-lookup",
   },
   {
     id: 9,
